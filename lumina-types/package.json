@@ -1,0 +1,24 @@
+{
+  "name": "lumina",
+  "access": "public",
+  "version": "0.0.14",
+  "description": "TypeScript type definitions for Lumina",
+  "private": false,
+  "types": "dist/types/src/store/plugin/index.d.ts",
+  "files": [
+    "dist/types"
+  ],
+  "scripts": {
+    "build": "cd .. && bun run build:lumina:types"
+  },
+  "keywords": [
+    "typescript",
+    "types",
+    "lumina"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lumina-space/lumina.git"
+  },
+  "license": "MIT"
+} 

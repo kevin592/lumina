@@ -1,0 +1,490 @@
+/**
+ * Apple Design System for Lumina
+ *
+ * Core Design Principles:
+ * 1. Minimalism - Remove unnecessary elements
+ * 2. Generous Whitespace - Let content breathe
+ * 3. Typography-driven - Clear hierarchy with SF-style fonts
+ * 4. Subtle Depth - Refined shadows and translucent materials
+ * 5. Fluid Motion - Natural spring animations
+ */
+
+@theme {
+  /* ========================================
+     APPLE-INSPIRED COLOR PALETTE
+     ======================================== */
+
+  /* Neutral Grays - SF Colors style */
+  --color-gray-50: #FAFAFA;
+  --color-gray-100: #F5F5F7;
+  --color-gray-200: #E8E8ED;
+  --color-gray-300: #D2D2D7;
+  --color-gray-400: #AEAEB2;
+  --color-gray-500: #8E8E93;
+  --color-gray-600: #636366;
+  --color-gray-700: #48484A;
+  --color-gray-800: #3A3A3C;
+  --color-gray-900: #1C1C1E;
+
+  /* Semantic Colors */
+  --color-accent-blue: #007AFF;
+  --color-accent-green: #34C759;
+  --color-accent-orange: #FF9500;
+  --color-accent-red: #FF3B30;
+  --color-accent-purple: #AF52DE;
+
+  /* Background Colors - System Gray style */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F5F5F7;
+  --bg-tertiary: #FAFAFA;
+  --bg-elevated: #FFFFFF;
+
+  /* Text Colors */
+  --text-primary: #1C1C1E;
+  --text-secondary: #636366;
+  --text-tertiary: #AEAEB2;
+  --text-quaternary: rgba(60, 60, 67, 0.18);
+
+  /* Separator & Border Colors */
+  --separator-opaque: #C6C6C8;
+  --separator-non-opaque: rgba(60, 60, 67, 0.12);
+
+  /* ========================================
+     SPACING SYSTEM (8px base unit)
+     ======================================== */
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* Component-specific spacing */
+  --sidebar-width: 260px;
+  --sidebar-width-collapsed: 72px;
+  --header-height: 52px;
+  --mobile-nav-height: 84px; /* Including safe area */
+
+  /* ========================================
+     BORDER RADIUS
+     Apple's consistent radius system
+     ======================================== */
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-2xl: 22px;
+  --radius-full: 9999px;
+
+  /* Component-specific radius */
+  --radius-button: 8px;
+  --radius-card: 12px;
+  --radius-sheet: 14px;
+  --radius-input: 10px;
+
+  /* ========================================
+     TYPOGRAPHY
+     SF Pro-inspired scale
+     ======================================== */
+
+  /* Font Families */
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+  --font-mono: 'SF Mono', SFMono-Regular, ui-monospace, Menlo, Monaco, 'Cascadia Code', monospace;
+
+  /* Font Sizes - Large Title to Caption2 */
+  --text-large-title: 34px;
+  --text-title-1: 28px;
+  --text-title-2: 22px;
+  --text-title-3: 20px;
+  --text-headline: 17px;
+  --text-body: 17px;
+  --text-callout: 16px;
+  --text-subhead: 15px;
+  --text-footnote: 13px;
+  --text-caption-1: 12px;
+  --text-caption-2: 11px;
+
+  /* Font Weights */
+  --font-regular: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  /* Line Heights */
+  --leading-tight: 1.2;
+  --leading-normal: 1.4;
+  --leading-relaxed: 1.6;
+
+  /* Letter Spacing */
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.01em;
+
+  /* ========================================
+     ELEVATION & SHADOWS
+     Subtle, refined shadows like iOS/macOS
+     ======================================== */
+
+  /* iOS-style ambient shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.10);
+  --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.12);
+
+  /* Elevation-based shadows for depth */
+  --elevation-1: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --elevation-2: 0 4px 6px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.03);
+  --elevation-3: 0 10px 15px rgba(0, 0, 0, 0.08), 0 4px 6px rgba(0, 0, 0, 0.04);
+  --elevation-4: 0 20px 25px rgba(0, 0, 0, 0.10), 0 10px 10px rgba(0, 0, 0, 0.05);
+
+  /* ========================================
+     MATERIALS & TRANSPARENCY
+     Apple's translucency system
+     ======================================== */
+
+  /* Frosted glass / Material backgrounds */
+  --material-primary: rgba(255, 255, 255, 0.72);
+  --material-secondary: rgba(255, 255, 255, 0.60);
+  --material-tertiary: rgba(255, 255, 255, 0.40);
+  --material-still: rgba(249, 249, 249, 0.80);
+
+  /* Blur amounts */
+  --blur-material: 20px;
+  --blur-thin: 10px;
+  --blur-thick: 40px;
+
+  /* ========================================
+     ANIMATIONS & TRANSITIONS
+     Natural, fluid motion like iOS
+     ======================================== */
+
+  /* Spring animations (cubic-bezier approximations) */
+  --ease-out-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-spring: cubic-bezier(0.6, 0, 0.4, 1);
+
+  /* Standard easing */
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Duration */
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 350ms;
+  --duration-slower: 500ms;
+
+  /* ========================================
+     Z-INDEX SCALE
+     Organized elevation hierarchy
+     ======================================== */
+
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 300;
+  --z-modal-backdrop: 400;
+  --z-modal: 500;
+  --z-popover: 600;
+  --z-tooltip: 700;
+}
+
+/* ========================================
+   UTILITY CLASSES
+   Tailwind-friendly classes
+   ======================================== */
+
+/* Apple-style container */
+.apple-container {
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  background-color: var(--bg-secondary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography utilities */
+.text-large-title {
+  font-size: var(--text-large-title);
+  font-weight: var(--font-bold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+}
+
+.text-title-1 {
+  font-size: var(--text-title-1);
+  font-weight: var(--font-bold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+}
+
+.text-title-2 {
+  font-size: var(--text-title-2);
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+}
+
+.text-title-3 {
+  font-size: var(--text-title-3);
+  font-weight: var(--font-semibold);
+  line-height: var(--leading-tight);
+}
+
+.text-headline {
+  font-size: var(--text-headline);
+  font-weight: var(--font-semibold);
+  line-height: var(--leading-normal);
+}
+
+.text-body {
+  font-size: var(--text-body);
+  font-weight: var(--font-regular);
+  line-height: var(--leading-relaxed);
+}
+
+.text-callout {
+  font-size: var(--text-callout);
+  font-weight: var(--font-regular);
+  line-height: var(--leading-normal);
+}
+
+.text-footnote {
+  font-size: var(--text-footnote);
+  font-weight: var(--font-regular);
+  line-height: var(--leading-normal);
+}
+
+.text-caption {
+  font-size: var(--text-caption-1);
+  font-weight: var(--font-regular);
+  line-height: var(--leading-normal);
+}
+
+/* Material / Glass effect */
+.apple-material {
+  background: var(--material-primary);
+  backdrop-filter: blur(var(--blur-material)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--blur-material)) saturate(180%);
+}
+
+.apple-material-thin {
+  background: var(--material-secondary);
+  backdrop-filter: blur(var(--blur-thin)) saturate(180%);
+  -webkit-backdrop-filter: blur(var(--blur-thin)) saturate(180%);
+}
+
+/* Card styles */
+.apple-card {
+  background: var(--bg-elevated);
+  border-radius: var(--radius-card);
+  box-shadow: var(--elevation-1);
+  transition: box-shadow var(--duration-base) var(--ease-out);
+}
+
+.apple-card:hover {
+  box-shadow: var(--elevation-2);
+}
+
+.apple-card-interactive {
+  background: var(--bg-elevated);
+  border-radius: var(--radius-card);
+  box-shadow: var(--elevation-1);
+  cursor: pointer;
+  transition: all var(--duration-base) var(--ease-out);
+}
+
+.apple-card-interactive:hover {
+  box-shadow: var(--elevation-2);
+  transform: scale(1.01);
+}
+
+.apple-card-interactive:active {
+  transform: scale(0.99);
+  box-shadow: var(--elevation-1);
+}
+
+/* Button styles (Apple SF Symbols style) */
+.apple-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--text-callout);
+  font-weight: var(--font-medium);
+  border-radius: var(--radius-button);
+  border: none;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.apple-button-primary {
+  background: var(--color-accent-blue);
+  color: white;
+}
+
+.apple-button-primary:hover {
+  background: #0051D5;
+}
+
+.apple-button-secondary {
+  background: var(--material-secondary);
+  color: var(--text-primary);
+}
+
+.apple-button-secondary:hover {
+  background: var(--material-tertiary);
+}
+
+/* Input field (iOS style) */
+.apple-input {
+  width: 100%;
+  padding: var(--space-4);
+  font-size: var(--text-body);
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--separator-non-opaque);
+  border-radius: var(--radius-input);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.apple-input:focus {
+  outline: none;
+  border-color: var(--color-accent-blue);
+  background: var(--bg-elevated);
+}
+
+.apple-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Separator (iOS style divider) */
+.apple-divider {
+  height: 1px;
+  background: var(--separator-non-opaque);
+  border: none;
+}
+
+/* Smooth scroll behavior */
+.apple-smooth-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Selection style */
+::selection {
+  background: rgba(0, 122, 255, 0.2);
+  color: var(--text-primary);
+}
+
+/* ========================================
+   ANIMATION UTILITIES
+   iOS-style spring animations
+   ======================================== */
+
+.apple-spring-enter {
+  animation: appleSpringIn var(--duration-slow) var(--ease-out-spring) forwards;
+}
+
+.apple-spring-exit {
+  animation: appleSpringOut var(--duration-base) var(--ease-in-spring) forwards;
+}
+
+@keyframes appleSpringIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes appleSpringOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+/* Subtle fade animation */
+.apple-fade-in {
+  animation: appleFadeIn var(--duration-slow) var(--ease-out) forwards;
+}
+
+@keyframes appleFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Staggered children animation */
+.apple-stagger-children > * {
+  opacity: 0;
+  animation: appleSpringIn var(--duration-slow) var(--ease-out-spring) forwards;
+}
+
+.apple-stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.apple-stagger-children > *:nth-child(2) { animation-delay: 50ms; }
+.apple-stagger-children > *:nth-child(3) { animation-delay: 100ms; }
+.apple-stagger-children > *:nth-child(4) { animation-delay: 150ms; }
+.apple-stagger-children > *:nth-child(5) { animation-delay: 200ms; }
+.apple-stagger-children > *:nth-child(6) { animation-delay: 250ms; }
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  @theme {
+    /* Dark mode color overrides */
+    --bg-primary: #000000;
+    --bg-secondary: #1C1C1E;
+    --bg-tertiary: #2C2C2E;
+    --bg-elevated: #1C1C1E;
+
+    --text-primary: #FFFFFF;
+    --text-secondary: #EBEBF5;
+    --text-tertiary: #8E8E93;
+
+    --material-primary: rgba(30, 30, 30, 0.72);
+    --material-secondary: rgba(44, 44, 46, 0.60);
+    --material-tertiary: rgba(28, 28, 30, 0.40);
+
+    --separator-non-opaque: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Force dark mode class */
+.dark {
+  --bg-primary: #000000;
+  --bg-secondary: #1C1C1E;
+  --bg-tertiary: #2C2C2E;
+  --bg-elevated: #1C1C1E;
+
+  --text-primary: #FFFFFF;
+  --text-secondary: #EBEBF5;
+  --text-tertiary: #8E8E93;
+
+  --material-primary: rgba(30, 30, 30, 0.72);
+  --material-secondary: rgba(44, 44, 46, 0.60);
+  --material-tertiary: rgba(28, 28, 30, 0.40);
+
+  --separator-non-opaque: rgba(255, 255, 255, 0.1);
+}
