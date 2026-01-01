@@ -22,10 +22,8 @@ import { useQuickaiHotkey } from '@/hooks/useQuickaiHotkey';
 import { useInitialHotkeySetup } from '@/hooks/useInitialHotkeySetup';
 import { isInTauri, isDesktop } from "@/lib/tauriHelper";
 import { listen } from "@tauri-apps/api/event";
-import QuickNotePage from "./pages/quicknote";
 import QuickAIPage from "./pages/quickai";
 import QuickToolPage from "./pages/quicktool";
-import { useQuicknoteHotkey } from "./hooks/useQuicknoteHotkey";
 import ColorPreviewPage from "./pages/color-preview";
 
 const HomePage = lazy(() => import('./pages/index'));
@@ -34,7 +32,6 @@ const SignUpPage = lazy(() => import('./pages/signup'));
 const HubPage = lazy(() => import('./pages/hub'));
 const AIPage = lazy(() => import('./pages/ai'));
 const ResourcesPage = lazy(() => import('./pages/resources'));
-const ReviewPage = lazy(() => import('./pages/review'));
 const SettingsPage = lazy(() => import('./pages/settings'));
 
 const AnalyticsPage = lazy(() => import('./pages/analytics'));
@@ -44,8 +41,6 @@ const DetailPage = lazy(() => import('./pages/detail'));
 const ShareIndexPage = lazy(() => import('./pages/share'));
 const ShareDetailPage = lazy(() => import('./pages/share/[id]'));
 const AiSharePage = lazy(() => import('./pages/ai-share'));
-const TodoPage = lazy(() => import('./pages/todo'));
-const NotesPage = lazy(() => import('./pages/notes'));
 
 const HomeRedirect = () => {
   const navigate = useNavigate();
@@ -124,7 +119,6 @@ const getWindowType = () => {
   // Check URL path to determine window type
   const path = window.location.pathname;
   if (path.startsWith('/quicktool')) return 'quicktool';
-  if (path.startsWith('/quicknote')) return 'quicknote';
   if (path.startsWith('/quickai')) return 'quickai';
   return 'main';
 };
@@ -136,7 +130,6 @@ function AppRoutes() {
   // Initialize Quick AI hotkey handler inside Router context (only for main window on desktop)
   if (windowType === 'main' && isDesktop()) {
     useQuickaiHotkey();
-    useQuicknoteHotkey(true);
   }
 
   // Listen for navigation commands from Tauri (only for current window type)
@@ -208,16 +201,6 @@ function AppRoutes() {
         </Suspense>
       );
 
-    case 'quicknote':
-      return (
-        <Suspense fallback={<LoadingPage />}>
-          <Routes>
-            <Route path="/quicknote" element={<QuickNotePage />} />
-            <Route path="*" element={<Navigate to="/quicknote" replace />} />
-          </Routes>
-        </Suspense>
-      );
-
     case 'quickai':
       return (
         <Suspense fallback={<LoadingPage />}>
@@ -239,21 +222,18 @@ function AppRoutes() {
             <Route path="/hub" element={<ProtectedRoute><HubPage /></ProtectedRoute>} />
             <Route path="/ai" element={<ProtectedRoute><AIPage /></ProtectedRoute>} />
             <Route path="/resources" element={<ProtectedRoute><ResourcesPage /></ProtectedRoute>} />
-            <Route path="/review" element={<ProtectedRoute><ReviewPage /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
 
             <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
             <Route path="/all" element={<ProtectedRoute><AllPage /></ProtectedRoute>} />
-            <Route path="/todo" element={<ProtectedRoute><TodoPage /></ProtectedRoute>} />
-            <Route path="/notes" element={<ProtectedRoute><NotesPage /></ProtectedRoute>} />
             <Route path="/oauth-callback" element={<OAuthCallbackPage />} />
             <Route path="/detail/*" element={<ProtectedRoute><DetailPage /></ProtectedRoute>} />
             <Route path="/share" element={<ShareIndexPage />} />
             <Route path="/share/:id" element={<ShareDetailPage />} />
             <Route path="/ai-share/:id" element={<AiSharePage />} />
-            <Route path="/quicknote" element={<QuickNotePage />} />
             <Route path="/quickai" element={<QuickAIPage />} />
             <Route path="/quicktool" element={<QuickToolPage />} />
+            <Route path="/quicknote" element={<Navigate to="/" replace />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
