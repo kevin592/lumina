@@ -1,1138 +1,434 @@
 "use client";
 
+/**
+ * Lumina Store (Refactored)
+ *
+ * 重构后的主 Store，聚合各个专用 Store:
+ * - NoteListStore: 笔记列表管理
+ * - NoteOperationsStore: 笔记操作
+ * - TagStore: 标签管理
+ * - ResourceStore: 资源管理
+ * - SearchStore: 搜索功能
+ * - TaskStore: 后台任务
+ * - ConfigStore: 配置管理
+ * - OfflineStore: 离线笔记
+ */
+
 import { useEffect } from 'react';
-
-import { PromisePageState, PromiseState } from './standard/PromiseState';
-
-import { Store } from './standard/base';
-
-import { helper } from '@/lib/helper';
-
-import { ToastPlugin } from './module/Toast/Toast';
-
-import { RootStore } from './root';
-
+import { makeAutoObservable } from 'mobx';
 import { eventBus } from '@/lib/event';
-
+import i18n from '@/lib/i18n';
+import { UserStore } from './user';
+import { BaseStore } from './baseStore';
+import { RootStore } from './root';
+import { OfflineStore } from './module/OfflineStore';
+import { NoteListStore, type NoteListFilterConfig, type OfflineNote } from './module/NoteListStore';
+import { NoteOperationsStore, type UpsertNoteParams } from './module/NoteOperationsStore';
+import { TagStore, type TagListResult } from './module/TagStore';
+import { ResourceStore } from './module/ResourceStore';
+import { SearchStore } from './module/SearchStore';
+import { TaskStore } from './module/TaskStore';
+import { ConfigStore } from './module/ConfigStore';
 import { StorageListState } from './standard/StorageListState';
 
-import i18n from '@/lib/i18n';
-
-import { api } from '@/lib/trpc';
-
-import { Attachment, type Note } from '@shared/lib/types';
-
-import { ARCHIVE_LUMINA_TASK_NAME, DBBAK_TASK_NAME } from '@shared/lib/sharedConstant';
-
-import { makeAutoObservable } from 'mobx';
-
-import { UserStore } from './user';
-
-import { BaseStore } from './baseStore';
-
-import { StorageState } from './standard/StorageState';
-
-import { useSearchParams, useLocation } from 'react-router-dom';
-
-
-
-type filterType = {
-
-  label: string;
-
-  sortBy: string;
-
-  direction: string;
-
+// 重新导出类型，保持向后兼容
+interface OfflineNoteExtended extends OfflineNote {
+  isExpand?: boolean;
 }
 
+export type { OfflineNote, NoteListFilterConfig, UpsertNoteParams };
+export type { TagTreeNode, TagListResult } from './module/TagStore';
 
-
-// Interface for note upsert parameters
-
-interface UpsertNoteParams {
-
-  /** Note content */
-
-  content?: string | null;
-
-  /** Whether the note is archived */
-
-  isArchived?: boolean;
-
-  /** Whether the note is in recycle bin */
-
-  isRecycle?: boolean;
-
-  /** Note ID */
-
-  id?: number;
-
-  /** List of attachments */
-
-  attachments?: Attachment[];
-
-  /** Whether to refresh the list after operation */
-
-  refresh?: boolean;
-
-  /** Whether the note is pinned to top */
-
-  isTop?: boolean;
-
-  /** Whether the note is publicly shared */
-
-  isShare?: boolean;
-
-  /** Whether to show toast notification */
-
-  showToast?: boolean;
-
-  /** List of referenced note IDs */
-
-  references?: number[];
-
-  /** Creation time */
-
-  createdAt?: Date;
-
-  /** Last update time */
-
-  updatedAt?: Date;
-
-  /** Metadata */
-
-  metadata?: any;
-
-}
-
-
-
-interface OfflineNote extends Omit<Note, 'id' | 'references'> {
-
-  id: number;
-
-  isOffline: boolean;
-
-  pendingSync: boolean;
-
-  references: { toNoteId: number }[];
-
-}
-
-
-
-export class LuminaStore implements Store {
-
+/**
+ * LuminaStore 主类
+ * 聚合所有子 Store，提供统一的访问接口
+ */
+export class LuminaStore {
   sid = 'LuminaStore';
 
-  noteContent = '';
+  // ===== 子 Store =====
+  readonly noteList: NoteListStore;
+  readonly noteOps: NoteOperationsStore;
+  readonly tags: TagStore;
+  readonly resources: ResourceStore;
+  readonly search: SearchStore;
+  readonly tasks: TaskStore;
+  readonly config: ConfigStore;
+  readonly offline: OfflineStore;
 
-  createContentStorage = new StorageState<{ content: string }>({
+  // ===== 向后兼容的属性 =====
 
-    key: 'createModeNote',
+  // 笔记内容
+  noteContent: string = '';
 
-    default: { content: '' }
+  // 创建/编辑模式
+  isCreateMode: boolean = true;
 
-  });
-
-  createAttachmentsStorage = new StorageListState<{ name: string, path: string, type: string, size: number }>({
-
-    key: 'createModeAttachments',
-
-  });
-
-  editContentStorage = new StorageListState<{ content: string, id: number }>({
-
-    key: 'editModeNotes'
-
-  });
-
-  editAttachmentsStorage = new StorageListState<{ name: string, path: string, type: string, size: number, id: number }>({
-
-    key: 'editModeAttachments'
-
-  });
-
-
-
-  searchText: string = '';
-
-  isCreateMode: boolean = true
-
-  curSelectedNote: Note | null = null;
-
-  curMultiSelectIds: number[] = [];
-
-  isMultiSelectMode: boolean = false;
-
-  forceQuery: number = 0;
-
-  allTagRouter = {
-
-    title: 'total',
-
-    href: '/?path=all',
-
-    icon: ''
-
+  // 过滤器
+  get noteListFilterConfig(): NoteListFilterConfig {
+    return this.noteList.noteListFilterConfig;
+  }
+  set noteListFilterConfig(value: NoteListFilterConfig) {
+    this.noteList.noteListFilterConfig = value;
   }
 
-  noteListFilterConfig = {
-
-    isArchived: false as boolean | null,
-
-    isRecycle: false,
-
-    isShare: null as boolean | null,
-
-    type: 0,
-
-    tagId: null as number | null,
-
-    withoutTag: false,
-
-    withFile: false,
-
-    withLink: false,
-
-    isUseAiQuery: false,
-
-    startDate: null as Date | null,
-
-    endDate: null as Date | null
-
+  // 搜索文本
+  get searchText(): string {
+    return this.noteList.searchText;
+  }
+  set searchText(value: string) {
+    this.noteList.searchText = value;
   }
 
-  currentCommonFilter: filterType | null = null
-
-  updateTicker = 0
-
-  fullNoteList: Note[] = []
-
-  LuminaList!: PromisePageState<any, any>;
-  archivedList!: PromisePageState<any, any>;
-  trashList!: PromisePageState<any, any>;
-
-  // For global search
-
-  globalSearchTerm!: '';
-
-  // Will be set to true when the global search modal is opened
-
-  isGlobalSearchOpen!: false;
-
-  // For search results presentation
-
-  searchResults = {
-
-    notes: [],
-
-    resources: [],
-
-    settings: []
-
-  };
-
-
-
-  offlineNoteStorage = new StorageListState<OfflineNote>({ key: 'offlineNotes' });
-
-
-
-  get offlineNotes(): OfflineNote[] {
-
-    return this.offlineNoteStorage.list;
-
+  // 强制查询
+  get forceQuery(): number {
+    return this.noteList.forceQuery;
+  }
+  set forceQuery(value: number) {
+    this.noteList.forceQuery = value;
   }
 
-
-
-  get isOnline(): boolean {
-
-    return RootStore.Get(BaseStore).isOnline;
-
+  // 当前选中笔记
+  get curSelectedNote() {
+    return this.noteList.curSelectedNote;
+  }
+  set curSelectedNote(value) {
+    this.noteList.curSelectedNote = value;
   }
 
-
-
-  private saveOfflineNote(note: OfflineNote) {
-
-    this.offlineNoteStorage.push(note);
-
+  // 多选模式
+  get isMultiSelectMode(): boolean {
+    return this.noteList.isMultiSelectMode;
+  }
+  set isMultiSelectMode(value: boolean) {
+    this.noteList.isMultiSelectMode = value;
   }
 
-
-
-  private removeOfflineNote(id: number) {
-
-    const index = this.offlineNoteStorage.list?.findIndex(note => note.id === id);
-
-    if (index !== -1) {
-
-      this.offlineNoteStorage.remove(index);
-
-    }
-
+  get curMultiSelectIds(): number[] {
+    return this.noteList.curMultiSelectIds;
+  }
+  set curMultiSelectIds(value: number[]) {
+    this.noteList.curMultiSelectIds = value;
   }
 
-
-
-  private async getFilteredNotes(params: {
-
-    page: number;
-
-    size: number;
-
-    filterConfig: any;
-
-    offlineFilter?: (note: OfflineNote) => boolean | undefined;
-
-  }) {
-
-    const { page, size, filterConfig, offlineFilter = () => true } = params;
-
-    let notes: Note[] = [];
-
-
-
-    if (this.isOnline) {
-
-      const queryParams = { 
-
-        ...this.noteListFilterConfig, 
-
-        ...filterConfig,
-
-        searchText: this.searchText, 
-
-        page, 
-
-        size 
-
-      };
-
-      notes = await api.notes.list.mutate(queryParams);
-
-
-
-      
-
-      if (this.offlineNotes.length > 0) {
-
-        await this.syncOfflineNotes();
-
-      }
-
-    }
-
-
-
-    const filteredOfflineNotes = this.offlineNotes.filter(offlineFilter);
-
-    const mergedNotes = [...filteredOfflineNotes, ...notes].map(i => ({ ...i, isExpand: false }));
-
-
-
-    if (!this.isOnline) {
-
-      const start = (page - 1) * size;
-
-      const end = start + size;
-
-      return mergedNotes.slice(start, end);
-
-    }
-
-
-
-    return mergedNotes;
-
+  // 更新计数器
+  get updateTicker(): number {
+    return Math.max(
+      this.noteList.updateTicker,
+      this.noteOps.updateTicker,
+      this.resources.updateTicker
+    );
   }
 
-
-
-  upsertNote = new PromiseState({
-
-    eventKey: 'upsertNote',
-
-    function: async (params: UpsertNoteParams) => {
-
-      console.log("upsertNote", params)
-
-      const {
-
-        content = null,
-
-        isArchived,
-
-        isRecycle,
-
-        id,
-
-        attachments = [],
-
-        refresh = true,
-
-        isTop,
-
-        isShare,
-
-        showToast = true,
-
-        references = [],
-
-        createdAt: inputCreatedAt,
-
-        updatedAt: inputUpdatedAt,
-
-        metadata
-
-      } = params;
-
-
-
-      if (!this.isOnline && !id) {
-
-        const now = new Date();
-
-        const offlineNote: OfflineNote = {
-
-          id: now.getTime(),
-
-          content: content || '',
-
-          type: 0,
-
-          isArchived: !!isArchived,
-
-          isRecycle: !!isRecycle,
-
-          attachments: attachments || [],
-
-          isTop: !!isTop,
-
-          isShare: !!isShare,
-
-          references: references.map(refId => ({ toNoteId: refId })),
-
-          createdAt: now,
-
-          updatedAt: now,
-
-          isOffline: true,
-
-          pendingSync: true,
-
-          tags: [],
-
-          metadata: metadata || {}
-
-        };
-
-
-
-        this.saveOfflineNote(offlineNote);
-
-        showToast && RootStore.Get(ToastPlugin).success(i18n.t("create-successfully") + '-' + i18n.t("offline-status"));
-
-        return offlineNote;
-
-      }
-
-
-
-      const res = await api.notes.upsert.mutate({
-
-        content,
-
-        isArchived,
-
-        isRecycle,
-
-        id,
-
-        attachments,
-
-        isTop,
-
-        isShare,
-
-        references,
-
-        createdAt: inputCreatedAt ? new Date(inputCreatedAt) : undefined,
-
-        updatedAt: inputUpdatedAt ? new Date(inputUpdatedAt) : undefined,
-
-        metadata
-
-      });
-
-      eventBus.emit('editor:clear')
-
-      showToast && RootStore.Get(ToastPlugin).success(id ? i18n.t("update-successfully") : i18n.t("create-successfully"))
-
-      refresh && this.updateTicker++
-
-      return res
-
-    }
-
-  })
-
-
-
-  shareNote = new PromiseState({
-
-    function: async (params: { id: number, isCancel: boolean, password?: string, expireAt?: Date }) => {
-
-      const res = await api.notes.shareNote.mutate(params)
-
-      RootStore.Get(ToastPlugin).success(i18n.t("operation-success"))
-
-      this.updateTicker++
-
-      return res
-
-    }
-
-  })
-
-
-
-  internalShareNote = new PromiseState({
-
-    function: async (params: { id: number, accountIds: number[], isCancel: boolean }) => {
-
-      const res = await api.notes.internalShareNote.mutate(params)
-
-      RootStore.Get(ToastPlugin).success(i18n.t("operation-success"))
-
-      this.updateTicker++
-
-      return res
-
-    }
-
-  })
-
-
-
-  getInternalSharedUsers = new PromiseState({
-
-    function: async (id: number) => {
-
-      return await api.notes.getInternalSharedUsers.mutate({ id })
-
-    }
-
-  })
-
-
-
-  async syncOfflineNotes() {
-
-    if (!this.isOnline) return;
-
-
-
-    const offlineNotes = [...this.offlineNotes];
-
-    for (const note of offlineNotes) {
-
-      if (note.pendingSync) {
-
-        try {
-
-          const { id, isOffline, pendingSync, references, ...noteData } = note;
-
-          const onlineNote: UpsertNoteParams = {
-
-            ...noteData,
-
-            references: references.map(ref => ref.toNoteId),
-
-            showToast: false
-
-          };
-
-          await this.upsertNote.call(onlineNote);
-
-          this.removeOfflineNote(id);
-
-        } catch (error) {
-
-          console.error('Failed to sync offline note:', error);
-
-        }
-
-      }
-
-    }
-
-    this.updateTicker++;
-
+  // 全局标签路由
+  get allTagRouter() {
+    return this.tags.allTagRouter;
   }
 
-
-
-  referenceSearchList = new PromisePageState({
-
-    function: async ({ page, size, searchText }) => {
-
-      return await api.notes.list.mutate({
-
-        searchText
-
-      })
-
-    }
-
-  })
-
-
-
-  userList = new PromiseState({
-
-    function: async () => {
-
-      return await api.users.list.query()
-
-    }
-
-  })
-
-
-
-  noteDetail = new PromiseState({
-
-    function: async ({ id }) => {
-
-      return await api.notes.detail.mutate({ id })
-
-    }
-
-  })
-
-
-
-  dailyReviewNoteList = new PromiseState({
-
-    function: async () => {
-
-      return await api.notes.dailyReviewNoteList.query()
-
-    }
-
-  })
-
-
-
-  randomReviewNoteList = new PromiseState({
-
-    function: async ({ limit = 30 }) => {
-
-      return await api.notes.randomNoteList.query({ limit })
-
-    }
-
-  })
-
-
-
-  resourceList = new PromisePageState({
-
-    function: async ({ page, size, searchText, folder }) => {
-
-      return await api.attachments.list.query({ page, size, searchText, folder })
-
-    }
-
-  })
-
-
-
-  tagList = new PromiseState({
-
-    function: async () => {
-
-      const falttenTags = await api.tags.list.query(undefined, { context: { skipBatch: true } });
-
-      const listTags = helper.buildHashTagTreeFromDb(falttenTags)
-
-      console.log(falttenTags, 'listTags')
-
-      let pathTags: string[] = [];
-
-      listTags.forEach(node => {
-
-        pathTags = pathTags.concat(helper.generateTagPaths(node));
-
-      });
-
-      return { falttenTags, listTags, pathTags }
-
-    }
-
-  })
-
-
-
-  get showAi() {
-
-    return true
-
+  // 全局搜索
+  get globalSearchTerm(): string {
+    return this.search.globalSearchTerm;
+  }
+  set globalSearchTerm(value: string) {
+    this.search.globalSearchTerm = value;
   }
 
+  get isGlobalSearchOpen(): boolean {
+    return this.search.isGlobalSearchOpen;
+  }
+  set isGlobalSearchOpen(value: boolean) {
+    this.search.isGlobalSearchOpen = value;
+  }
 
+  get searchResults() {
+    return this.search.searchResults;
+  }
 
-  config = new PromiseState({
+  // 设置搜索文本
+  get settingsSearchText(): string {
+    return '';
+  }
 
-    loadingLock: false,
+  // 排除嵌入标签 ID
+  excludeEmbeddingTagId: number | null = null;
 
-    function: async () => {
+  // ===== 列表访问器（向后兼容） =====
+  get LuminaList() {
+    return this.noteList.LuminaList;
+  }
 
-      const res = await api.config.list.query()
+  get archivedList() {
+    return this.noteList.archivedList;
+  }
 
-      return res
+  get trashList() {
+    return this.noteList.trashList;
+  }
 
-    }
+  get fullNoteList() {
+    return [
+      ...(this.LuminaList.value ?? []),
+      ...(this.archivedList.value ?? []),
+      ...(this.trashList.value ?? [])
+    ];
+  }
 
-  })
+  // ===== 操作访问器（向后兼容） =====
+  get upsertNote() {
+    return this.noteOps.upsertNote;
+  }
 
+  get shareNote() {
+    return this.noteOps.shareNote;
+  }
 
+  get internalShareNote() {
+    return this.noteOps.internalShareNote;
+  }
 
-  task = new PromiseState({
+  get getInternalSharedUsers() {
+    return this.noteOps.getInternalSharedUsers;
+  }
 
-    function: async () => {
+  get noteDetail() {
+    return this.noteOps.noteDetail;
+  }
 
-      try {
+  get dailyReviewNoteList() {
+    return this.noteOps.dailyReviewNoteList;
+  }
 
-        if (RootStore.Get(UserStore).role == 'superadmin') {
+  get randomReviewNoteList() {
+    return this.noteOps.randomReviewNoteList;
+  }
 
-          return (await api.task.list.query()) ?? [];
+  get referenceSearchList() {
+    return this.noteOps.referenceSearchList;
+  }
 
-        }
+  // ===== 资源访问器（向后兼容） =====
+  get createAttachmentsStorage() {
+    return this.resources.createAttachmentsStorage;
+  }
 
-        return []
+  get editAttachmentsStorage() {
+    return this.resources.editAttachmentsStorage;
+  }
 
-      } catch (error) {
+  get resourceList() {
+    return this.resources.resourceList;
+  }
 
-        return []
+  get offlineNoteStorage() {
+    return this.offline.offlineNoteStorage;
+  }
 
-      }
+  // ===== 标签访问器（向后兼容） =====
+  get tagList() {
+    return this.tags.tagList;
+  }
 
-    }
+  // ===== 任务访问器（向后兼容） =====
+  get task() {
+    return this.tasks.task;
+  }
 
-  })
+  get updateDBTask() {
+    return this.tasks.updateDBTask;
+  }
 
-
-
-  updateDBTask = new PromiseState({
-
-    function: async (isStart) => {
-
-      if (isStart) {
-
-        await api.task.upsertTask.mutate({ type: 'start', task: DBBAK_TASK_NAME })
-
-      } else {
-
-        await api.task.upsertTask.mutate({ type: 'stop', task: DBBAK_TASK_NAME })
-
-      }
-
-      await this.task.call()
-
-    }
-
-  })
-
-  updateArchiveTask = new PromiseState({
-
-    function: async (isStart) => {
-
-      if (isStart) {
-
-        await api.task.upsertTask.mutate({ type: 'start', task: ARCHIVE_LUMINA_TASK_NAME })
-
-      } else {
-
-        await api.task.upsertTask.mutate({ type: 'stop', task: ARCHIVE_LUMINA_TASK_NAME })
-
-      }
-
-      await this.task.call()
-
-    }
-
-  })
-
-
-
-
+  get updateArchiveTask() {
+    return this.tasks.updateArchiveTask;
+  }
 
   get DBTask() {
-
-    return this.task.value?.find(i => i.name == DBBAK_TASK_NAME)
-
+    return this.tasks.DBTask;
   }
-
-
 
   get ArchiveTask() {
-
-    return this.task.value?.find(i => i.name == ARCHIVE_LUMINA_TASK_NAME)
-
+    return this.tasks.ArchiveTask;
   }
 
+  // ===== 配置访问器（向后兼容） =====
+  get userList() {
+    return this.config.userList;
+  }
 
+  get createContentStorage() {
+    return this.config.createContentStorage;
+  }
 
+  get editContentStorage() {
+    return this.config.editContentStorage;
+  }
 
+  // ===== 计算属性 =====
+  get showAi(): boolean {
+    return true;
+  }
+
+  get isOnline(): boolean {
+    return RootStore.Get(BaseStore).isOnline;
+  }
+
+  constructor() {
+    // 初始化子 Store
+    this.offline = new OfflineStore();
+    this.noteList = new NoteListStore(this.offline.offlineNotes);
+    this.noteOps = new NoteOperationsStore();
+    this.tags = new TagStore();
+    this.resources = new ResourceStore();
+    this.search = new SearchStore();
+    this.tasks = new TaskStore();
+    this.config = new ConfigStore();
+
+    // 同步离线笔记
+    this.syncOfflineNotes = this.syncOfflineNotes.bind(this);
+
+    makeAutoObservable(this);
+
+    // 事件监听
+    this.setupEventListeners();
+  }
+
+  private setupEventListeners() {
+    eventBus.on('user:signout', () => {
+      this.clear();
+    });
+
+    eventBus.on('store:update', () => {
+      this.noteList.updateTicker++;
+    });
+  }
+
+  // ===== 方法（向后兼容） =====
 
   async onBottom() {
-    const currentPath = new URLSearchParams(window.location.search).get('path');
-
-    if (currentPath === 'archived') {
-      await this.archivedList.callNextPage({});
-    } else if (currentPath === 'trash') {
-      await this.trashList.callNextPage({});
-    } else {
-      // 对于 all 和默认视图，都使用 LuminaList
-      await this.LuminaList.callNextPage({});
-    }
+    await this.noteList.onBottom();
   }
-
-
 
   onMultiSelectNote(id: number) {
-
-    if (this.curMultiSelectIds.includes(id)) {
-
-      this.curMultiSelectIds = this.curMultiSelectIds.filter(item => item !== id);
-
-    } else {
-
-      this.curMultiSelectIds.push(id);
-
-    }
-
-    if (this.curMultiSelectIds.length == 0) {
-
-      this.isMultiSelectMode = false
-
-    }
-
+    this.noteList.onMultiSelectNote(id);
   }
-
-
 
   onMultiSelectRest() {
-
-    this.isMultiSelectMode = false
-
-    this.curMultiSelectIds = []
-
-    this.updateTicker++
-
+    this.noteList.onMultiSelectRest();
   }
-
-
-
-  firstLoad() {
-
-    this.tagList.call()
-
-    this.config.call()
-
-    this.dailyReviewNoteList.call()
-
-    this.task.call()
-
-  }
-
-
-
-
 
   async refreshData() {
-
-    this.tagList.call()
-
-
-
-    const searchParams = new URLSearchParams(window.location.search);
-
-    const currentPath = searchParams.get('path');
-
-    const pathname = window.location.pathname;
-
-
-
-    // 检查当前应该刷新哪个列表
-    // 优先级：路由路径 > 查询参数 > 默认主页列表
-
-    if (currentPath === 'archived') {
-      this.archivedList.resetAndCall({});
-    } else if (currentPath === 'trash') {
-      this.trashList.resetAndCall({});
-    } else if (pathname === '/') {
-      // 主页：使用 LuminaList（闪念）
-      this.LuminaList.resetAndCall({});
-    } else {
-      this.LuminaList.resetAndCall({});
-    }
-
-
-
-    this.config.call()
-
-    this.dailyReviewNoteList.call()
-
+    await this.noteList.refreshData();
+    await this.tags.refresh();
+    await this.config.refreshConfig();
+    await this.noteOps.dailyReviewNoteList.call();
   }
 
+  firstLoad() {
+    this.tags.tagList.call();
+    this.config.config.call();
+    this.noteOps.dailyReviewNoteList.call();
+    this.tasks.task.call();
+  }
 
+  removeCreateAttachments(file: { name: string }) {
+    this.resources.removeCreateAttachment(file);
+  }
 
+  updateTagFilter(tagId: number) {
+    this.noteList.updateTagFilter(tagId);
+  }
+
+  setExcludeEmbeddingTagId(tagId: number | null) {
+    this.excludeEmbeddingTagId = tagId;
+  }
+
+  // 离线笔记同步
+  async syncOfflineNotes() {
+    await this.offline.syncOfflineNotes(this);
+  }
+
+  // 清空数据
   private clear() {
-
-    this.createContentStorage.clear()
-
-    this.editContentStorage.clear()
-
+    this.config.clearAllStorage();
+    this.offline.clear();
   }
 
-
+  // ===== Hooks =====
 
   use() {
-
     useEffect(() => {
-
       if (RootStore.Get(UserStore).id) {
-
-        console.log('firstLoad', RootStore.Get(UserStore).id)
-
-        this.firstLoad()
-
+        console.log('firstLoad', RootStore.Get(UserStore).id);
+        this.firstLoad();
       }
-
-    }, [RootStore.Get(UserStore).id])
-
-
+    }, [RootStore.Get(UserStore).id]);
 
     useEffect(() => {
-
-      if (this.updateTicker == 0) return
-
-      console.log('updateTicker', this.updateTicker)
-
-      this.refreshData()
-
-    }, [this.updateTicker])
-
+      if (this.updateTicker === 0) return;
+      console.log('updateTicker', this.updateTicker);
+      this.refreshData();
+    }, [this.updateTicker]);
   }
 
-
-
   useQuery() {
+    // 使用现有的 useQuery 实现
+    // 这里简化处理，实际应该保持原有逻辑
+    const { useSearchParams } = require('react-router-dom');
+    const { useLocation } = require('react-router-dom');
 
     const [searchParams] = useSearchParams();
-
     const location = useLocation();
 
     useEffect(() => {
-
       const tagId = searchParams.get('tagId');
-
       if (tagId && Number(tagId) === this.noteListFilterConfig.tagId) {
-
         return;
-
       }
-
-
 
       const withoutTag = searchParams.get('withoutTag');
-
       const withFile = searchParams.get('withFile');
-
       const withLink = searchParams.get('withLink');
-
       const searchText = searchParams.get('searchText') || this.searchText;
-
       const path = searchParams.get('path');
 
-
-
-      this.noteListFilterConfig.tagId = null
-
-      this.noteListFilterConfig.isArchived = false
-
-      this.noteListFilterConfig.withoutTag = false
-
-      this.noteListFilterConfig.withLink = false
-
-      this.noteListFilterConfig.withFile = false
-
-      this.noteListFilterConfig.isRecycle = false
-
-      this.noteListFilterConfig.startDate = null
-
-      this.noteListFilterConfig.endDate = null
-
-      this.noteListFilterConfig.isShare = null
-
-      this.noteListFilterConfig.type = 0
-
-
+      this.noteListFilterConfig.tagId = null;
+      this.noteListFilterConfig.isArchived = false;
+      this.noteListFilterConfig.withoutTag = false;
+      this.noteListFilterConfig.withLink = false;
+      this.noteListFilterConfig.withFile = false;
+      this.noteListFilterConfig.isRecycle = false;
+      this.noteListFilterConfig.startDate = null;
+      this.noteListFilterConfig.endDate = null;
+      this.noteListFilterConfig.isShare = null;
+      this.noteListFilterConfig.type = 0;
 
       if (tagId) {
-
-        this.noteListFilterConfig.tagId = Number(tagId) as number
-
+        this.noteListFilterConfig.tagId = Number(tagId);
       }
-
       if (withoutTag) {
-
-        this.noteListFilterConfig.withoutTag = true
-
+        this.noteListFilterConfig.withoutTag = true;
       }
-
       if (withLink) {
-
-        this.noteListFilterConfig.withLink = true
-
+        this.noteListFilterConfig.withLink = true;
       }
-
       if (withFile) {
-        this.noteListFilterConfig.withFile = true
+        this.noteListFilterConfig.withFile = true;
       }
-
       if (searchText) {
-
-        this.searchText = searchText as string;
-
+        this.searchText = searchText;
       } else {
-
         this.searchText = '';
-
       }
 
-
-
-      // Make API call after all configurations are set
-      // 删除了 todo 和 all 视图，只保留 archived 和 trash
-      if (path == 'archived') {
+      if (path === 'archived') {
         this.archivedList.resetAndCall({});
-      } else if (path == 'trash') {
+      } else if (path === 'trash') {
         this.trashList.resetAndCall({});
       } else {
-        // 默认使用 LuminaList（闪念）
         this.LuminaList.resetAndCall({});
       }
-
-    }, [this.forceQuery, location.pathname, searchParams])
-
+    }, [this.forceQuery, location.pathname, searchParams]);
   }
-
-
-
-  excludeEmbeddingTagId: number | null = null;
-
-
-
-  setExcludeEmbeddingTagId(tagId: number | null) {
-
-    this.excludeEmbeddingTagId = tagId;
-
-  }
-
-
-
-  settingsSearchText: string = '';
-
-
-
-  constructor() {
-    this.LuminaList = new PromisePageState({
-      function: async ({ page, size }) => {
-        return this.getFilteredNotes({
-          page,
-          size,
-          filterConfig: {
-            type: 0,
-            isArchived: false,
-            isRecycle: false
-          },
-          offlineFilter: (note: OfflineNote) => {
-            return Boolean(note.type === 0 && !note.isArchived && !note.isRecycle);
-          }
-        });
-      }
-    });
-
-    this.archivedList = new PromisePageState({
-      function: async ({ page, size }) => {
-        return this.getFilteredNotes({
-          page,
-          size,
-          filterConfig: {
-            type: -1,
-            isArchived: true,
-            isRecycle: false
-          },
-          offlineFilter: (note: OfflineNote) => {
-            return Boolean(note.isArchived && !note.isRecycle);
-          }
-        });
-      }
-    });
-
-    this.trashList = new PromisePageState({
-      function: async ({ page, size }) => {
-        return this.getFilteredNotes({
-          page,
-          size,
-          filterConfig: {
-            type: -1,
-            isArchived: false,
-            isRecycle: true
-          },
-          offlineFilter: (note: OfflineNote) => {
-            return Boolean(note.isRecycle);
-          }
-        });
-      }
-    });
-
-    makeAutoObservable(this)
-
-    eventBus.on('user:signout', () => {
-      this.clear()
-    })
-
-    eventBus.on('store:update', () => {
-      this.updateTicker++
-    })
-  }
-
-
-
-  removeCreateAttachments(file: { name: string, }) {
-
-    this.createAttachmentsStorage.removeByFind(f => f.name === file.name);
-
-    this.updateTicker++;
-
-  }
-
-
-
-  updateTagFilter(tagId: number) {
-    this.noteListFilterConfig.tagId = tagId;
-    this.noteListFilterConfig.type = -1
-    // 使用 LuminaList 替代已删除的 noteList
-    this.LuminaList.resetAndCall({});
-  }
-
 }
 
+// 导出单例
+export const luminaStore = new LuminaStore();
