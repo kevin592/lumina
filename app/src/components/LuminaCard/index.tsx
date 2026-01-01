@@ -132,7 +132,8 @@ export const LuminaCard = observer(({ LuminaItem, account, isShareMode = false, 
     }
   }, [defaultExpanded]);
 
-  // Design v2.0 - 降低折叠阈值，让更多卡片默认收?  const foldThreshold = Lumina.config.value?.textFoldLength ?? 300;
+  // Design v2.0 - 降低折叠阈值，让更多卡片默认收起
+  const foldThreshold = Lumina.config.value?.textFoldLength ?? 300;
   const hasImage = LuminaItem.attachments && LuminaItem.attachments.length > 0 &&
     LuminaItem.attachments.some(f => f.type?.startsWith('image/'));
 
@@ -164,7 +165,8 @@ export const LuminaCard = observer(({ LuminaItem, account, isShareMode = false, 
     }
   };
 
-  // 获取多选状?  const isMultiSelected = Lumina.curMultiSelectIds?.includes(LuminaItem.id!) ?? false;
+  // 获取多选状态
+  const isMultiSelected = Lumina.curMultiSelectIds?.includes(LuminaItem.id!) ?? false;
   LuminaItem.isMultiSelected = isMultiSelected;
 
   const handleContextMenu = () => {
