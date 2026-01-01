@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification 通知 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .api-table th, .api-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .api-table th {
+            background: #F7F8FA;
+            color: #1C1C1E;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .api-table td {
+            color: #4E5969;
+            font-size: 13px;
+        }
+        .api-table code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #165DFF;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            line-height: 1;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6750A4 0%, #4F7AFF 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(103, 80, 164, 0.3);
+        }
+
+        /* Notification Styles */
+        .notification-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-width: 400px;
+        }
+        .notification {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            animation: notificationSlideIn 0.3s ease-out;
+            border-left: 4px solid;
+        }
+        @keyframes notificationSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        @keyframes notificationSlideOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+        .notification.hiding {
+            animation: notificationSlideOut 0.3s ease-out forwards;
+        }
+        .notification-success {
+            border-left-color: #00A48A;
+        }
+        .notification-info {
+            border-left-color: #165DFF;
+        }
+        .notification-warning {
+            border-left-color: #FF7D00;
+        }
+        .notification-error {
+            border-left-color: #FF3B30;
+        }
+        .notification-header {
+            padding: 16px 20px 12px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .notification-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .notification-success .notification-icon {
+            color: #00A48A;
+        }
+        .notification-info .notification-icon {
+            color: #165DFF;
+        }
+        .notification-warning .notification-icon {
+            color: #FF7D00;
+        }
+        .notification-error .notification-icon {
+            color: #FF3B30;
+        }
+        .notification-content {
+            flex: 1;
+        }
+        .notification-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 6px;
+        }
+        .notification-description {
+            font-size: 14px;
+            color: #4E5969;
+            line-height: 1.5;
+        }
+        .notification-close {
+            color: #86909C;
+            cursor: pointer;
+            font-size: 16px;
+            transition: color 0.2s;
+            flex-shrink: 0;
+        }
+        .notification-close:hover {
+            color: #1C1C1E;
+        }
+        .notification-footer {
+            padding: 8px 20px 16px;
+            margin-left: 32px;
+        }
+        .notification-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .notification-btn {
+            padding: 6px 14px;
+            font-size: 13px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .notification-btn-primary {
+            background: linear-gradient(135deg, #6750A4 0%, #4F7AFF 100%);
+            color: white;
+        }
+        .notification-btn-primary:hover {
+            box-shadow: 0 2px 8px rgba(103, 80, 164, 0.3);
+        }
+        .notification-btn-secondary {
+            background: #F7F8FA;
+            color: #4E5969;
+        }
+        .notification-btn-secondary:hover {
+            background: #E5E6EB;
+        }
+        .notification-meta {
+            padding: 8px 20px;
+            background: #F7F8FA;
+            font-size: 12px;
+            color: #86909C;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Notification 通知</h1>
+    <p class="component-subtitle">在系统右上角浮显示全局通知提醒信息</p>
+
+    <!-- 通知容器 -->
+    <div class="notification-container" id="notification-container"></div>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">四种基本类型</div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="showNotification('success')">
+                    <i class="fa-solid fa-circle-check"></i>
+                    成功
+                </button>
+                <button class="btn btn-primary" onclick="showNotification('info')">
+                    <i class="fa-solid fa-circle-info"></i>
+                    信息
+                </button>
+                <button class="btn btn-primary" onclick="showNotification('warning')">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    警告
+                </button>
+                <button class="btn btn-primary" onclick="showNotification('error')">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                    错误
+                </button>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>Notification.success({
+    title: '操作成功',
+    description: '您的数据已保存'
+});
+
+Notification.info({
+    title: '系统通知',
+    description: '您有新的消息'
+});
+
+Notification.warning({
+    title: '警告',
+    description: '请注意此操作'
+});
+
+Notification.error({
+    title: '错误',
+    description: '操作失败,请重试'
+});</pre>
+        </div>
+    </div>
+
+    <!-- 带操作按钮 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">带操作按钮</h2>
+        <div class="demo-box">
+            <div class="demo-title">在通知中添加操作按钮</div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="showNotificationWithActions()">带按钮通知</button>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>Notification.info({
+    title: '系统更新',
+    description: '有新版本可用,是否立即更新?',
+    actions: [
+        { text: '稍后', primary: false },
+        { text: '立即更新', primary: true }
+    ]
+});</pre>
+        </div>
+    </div>
+
+    <!-- 自定义持续时间 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">自定义持续时间</h2>
+        <div class="demo-box">
+            <div class="demo-title">设置通知显示时长</div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="showNotification('info', 5000)">5秒</button>
+                <button class="btn btn-primary" onclick="showNotification('info', 10000)">10秒</button>
+                <button class="btn btn-primary" onclick="showNotification('info', 0)">不自动关闭</button>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>Notification.info({
+    title: '系统通知',
+    description: '10秒后关闭',
+    duration: 10000
+});
+
+// 不自动关闭
+Notification.info({
+    title: '重要通知',
+    description: '需要手动关闭',
+    duration: 0
+});</pre>
+        </div>
+    </div>
+
+    <!-- 带元信息 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">带元信息</h2>
+        <div class="demo-box">
+            <div class="demo-title">显示额外的时间信息</div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="showNotificationWithMeta()">带元信息</button>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>Notification.success({
+    title: '文件上传成功',
+    description: '文件 report.pdf 已上传完成',
+    meta: '2024-01-15 14:30'
+});</pre>
+        </div>
+    </div>
+
+    <!-- 可关闭 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">可关闭</h2>
+        <div class="demo-box">
+            <div class="demo-title">默认可关闭</div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="showNotification('info')">可关闭通知</button>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>Notification.info({
+    title: '系统通知',
+    description: '这是一条可关闭的通知',
+    closable: true
+});</pre>
+        </div>
+    </div>
+
+    <!-- 通知堆叠 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">通知堆叠</h2>
+        <div class="demo-box">
+            <div class="demo-title">同时显示多条通知</div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="showMultipleNotifications()">显示多条通知</button>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>// 多条通知会自动堆叠显示
+Notification.success({ title: '通知1', description: '第一条通知' });
+Notification.info({ title: '通知2', description: '第二条通知' });
+Notification.warning({ title: '通知3', description: '第三条通知' });</pre>
+        </div>
+    </div>
+
+    <!-- API 文档 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Notification 方法</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>方法名</th>
+                    <th>说明</th>
+                    <th>参数</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>Notification.success</code></td>
+                    <td>成功通知</td>
+                    <td>config: NotificationConfig</td>
+                </tr>
+                <tr>
+                    <td><code>Notification.info</code></td>
+                    <td>信息通知</td>
+                    <td>config: NotificationConfig</td>
+                </tr>
+                <tr>
+                    <td><code>Notification.warning</code></td>
+                    <td>警告通知</td>
+                    <td>config: NotificationConfig</td>
+                </tr>
+                <tr>
+                    <td><code>Notification.error</code></td>
+                    <td>错误通知</td>
+                    <td>config: NotificationConfig</td>
+                </tr>
+                <tr>
+                    <td><code>Notification.config</code></td>
+                    <td>全局配置</td>
+                    <td>options: NotificationGlobalConfig</td>
+                </tr>
+                <tr>
+                    <td><code>Notification.destroy</code></td>
+                    <td>销毁所有通知</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">NotificationConfig 参数</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>title</code></td>
+                    <td>通知标题</td>
+                    <td>string</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>description</code></td>
+                    <td>通知内容</td>
+                    <td>string</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>duration</code></td>
+                    <td>持续时间(毫秒)</td>
+                    <td>number</td>
+                    <td>4500</td>
+                </tr>
+                <tr>
+                    <td><code>closable</code></td>
+                    <td>是否可关闭</td>
+                    <td>boolean</td>
+                    <td>true</td>
+                </tr>
+                <tr>
+                    <td><code>actions</code></td>
+                    <td>操作按钮</td>
+                    <td>Action[]</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>meta</code></td>
+                    <td>元信息</td>
+                    <td>string</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>onClose</code></td>
+                    <td>关闭时的回调</td>
+                    <td>() => void</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">CSS 类名</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>类名</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>notification-container</code></td>
+                    <td>通知容器</td>
+                </tr>
+                <tr>
+                    <td><code>notification</code></td>
+                    <td>通知基础样式</td>
+                </tr>
+                <tr>
+                    <td><code>notification-success</code></td>
+                    <td>成功类型</td>
+                </tr>
+                <tr>
+                    <td><code>notification-info</code></td>
+                    <td>信息类型</td>
+                </tr>
+                <tr>
+                    <td><code>notification-warning</code></td>
+                    <td>警告类型</td>
+                </tr>
+                <tr>
+                    <td><code>notification-error</code></td>
+                    <td>错误类型</td>
+                </tr>
+                <tr>
+                    <td><code>notification-header</code></td>
+                    <td>通知头部</td>
+                </tr>
+                <tr>
+                    <td><code>notification-icon</code></td>
+                    <td>图标样式</td>
+                </tr>
+                <tr>
+                    <td><code>notification-content</code></td>
+                    <td>内容区域</td>
+                </tr>
+                <tr>
+                    <td><code>notification-title</code></td>
+                    <td>标题样式</td>
+                </tr>
+                <tr>
+                    <td><code>notification-description</code></td>
+                    <td>描述样式</td>
+                </tr>
+                <tr>
+                    <td><code>notification-close</code></td>
+                    <td>关闭按钮</td>
+                </tr>
+                <tr>
+                    <td><code>notification-footer</code></td>
+                    <td>底部操作区</td>
+                </tr>
+                <tr>
+                    <td><code>notification-actions</code></td>
+                    <td>操作按钮组</td>
+                </tr>
+                <tr>
+                    <td><code>notification-meta</code></td>
+                    <td>元信息样式</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        let notificationId = 0;
+
+        function showNotification(type, duration = 4500) {
+            const container = document.getElementById('notification-container');
+            const id = ++notificationId;
+
+            const icons = {
+                success: 'fa-circle-check',
+                info: 'fa-circle-info',
+                warning: 'fa-triangle-exclamation',
+                error: 'fa-circle-xmark'
+            };
+
+            const titles = {
+                success: '操作成功',
+                info: '系统通知',
+                warning: '警告提示',
+                error: '操作失败'
+            };
+
+            const descriptions = {
+                success: '您的操作已成功完成',
+                info: '这是一条普通的信息通知',
+                warning: '请注意查看相关内容',
+                error: '操作失败,请稍后重试'
+            };
+
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.id = `notification-${id}`;
+            notification.innerHTML = `
+                <div class="notification-header">
+                    <i class="fa-solid ${icons[type]} notification-icon"></i>
+                    <div class="notification-content">
+                        <div class="notification-title">${titles[type]}</div>
+                        <div class="notification-description">${descriptions[type]}</div>
+                    </div>
+                    <i class="fa-solid fa-xmark notification-close" onclick="closeNotification(this.closest('.notification'))"></i>
+                </div>
+            `;
+
+            container.appendChild(notification);
+
+            if (duration > 0) {
+                setTimeout(() => {
+                    closeNotification(notification);
+                }, duration);
+            }
+        }
+
+        function showNotificationWithActions() {
+            const container = document.getElementById('notification-container');
+            const notification = document.createElement('div');
+            notification.className = 'notification notification-info';
+            notification.innerHTML = `
+                <div class="notification-header">
+                    <i class="fa-solid fa-circle-info notification-icon"></i>
+                    <div class="notification-content">
+                        <div class="notification-title">系统更新</div>
+                        <div class="notification-description">有新版本可用,是否立即更新?</div>
+                    </div>
+                    <i class="fa-solid fa-xmark notification-close" onclick="closeNotification(this.closest('.notification'))"></i>
+                </div>
+                <div class="notification-footer">
+                    <div class="notification-actions">
+                        <button class="notification-btn notification-btn-secondary" onclick="closeNotification(this.closest('.notification'))">稍后</button>
+                        <button class="notification-btn notification-btn-primary" onclick="alert('开始更新!'); closeNotification(this.closest('.notification'))">立即更新</button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(notification);
+        }
+
+        function showNotificationWithMeta() {
+            const container = document.getElementById('notification-container');
+            const notification = document.createElement('div');
+            notification.className = 'notification notification-success';
+            const now = new Date();
+            const time = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            notification.innerHTML = `
+                <div class="notification-header">
+                    <i class="fa-solid fa-circle-check notification-icon"></i>
+                    <div class="notification-content">
+                        <div class="notification-title">文件上传成功</div>
+                        <div class="notification-description">文件 report.pdf 已上传完成</div>
+                    </div>
+                    <i class="fa-solid fa-xmark notification-close" onclick="closeNotification(this.closest('.notification'))"></i>
+                </div>
+                <div class="notification-meta">${time}</div>
+            `;
+            container.appendChild(notification);
+        }
+
+        function showMultipleNotifications() {
+            showNotification('success');
+            setTimeout(() => showNotification('info'), 200);
+            setTimeout(() => showNotification('warning'), 400);
+        }
+
+        function closeNotification(notification) {
+            if (!notification) return;
+            notification.classList.add('hiding');
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.parentElement.removeChild(notification);
+                }
+            }, 300);
+        }
+
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

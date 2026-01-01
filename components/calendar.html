@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar 日历 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Calendar Styles */
+        .calendar {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #E5E6EB;
+            overflow: hidden;
+            width: 320px;
+        }
+        .calendar-header {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .calendar-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1C1C1E;
+        }
+        .calendar-nav {
+            display: flex;
+            gap: 4px;
+        }
+        .calendar-nav-btn {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #4E5969;
+            transition: all 0.2s;
+        }
+        .calendar-nav-btn:hover {
+            background: #F7F8FA;
+            color: #6750A4;
+        }
+        .calendar-body {
+            padding: 12px;
+        }
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        .calendar-weekday {
+            font-size: 12px;
+            color: #86909C;
+            padding: 8px 0;
+        }
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            color: #4E5969;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .calendar-day:hover {
+            background: #F7F8FA;
+        }
+        .calendar-day.other-month {
+            color: #C9CDD4;
+        }
+        .calendar-day.today {
+            background: #EADDFF;
+            color: #21005D;
+            font-weight: 600;
+        }
+        .calendar-day.selected {
+            background: linear-gradient(135deg, #6750A4 0%, #4F7AFF 100%);
+            color: white;
+            font-weight: 600;
+        }
+        .calendar-day.in-range {
+            background: #F2F3F5;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Calendar 日历</h1>
+    <p class="component-subtitle">按照日历形式展示数据的容器</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">基础日历</div>
+            <div class="calendar">
+                <div class="calendar-header">
+                    <div class="calendar-title">2024年 1月</div>
+                    <div class="calendar-nav">
+                        <button class="calendar-nav-btn"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button class="calendar-nav-btn"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+                <div class="calendar-body">
+                    <div class="calendar-weekdays">
+                        <div class="calendar-weekday">日</div>
+                        <div class="calendar-weekday">一</div>
+                        <div class="calendar-weekday">二</div>
+                        <div class="calendar-weekday">三</div>
+                        <div class="calendar-weekday">四</div>
+                        <div class="calendar-weekday">五</div>
+                        <div class="calendar-weekday">六</div>
+                    </div>
+                    <div class="calendar-days">
+                        <div class="calendar-day other-month">31</div>
+                        <div class="calendar-day">1</div>
+                        <div class="calendar-day">2</div>
+                        <div class="calendar-day">3</div>
+                        <div class="calendar-day">4</div>
+                        <div class="calendar-day">5</div>
+                        <div class="calendar-day">6</div>
+                        <div class="calendar-day">7</div>
+                        <div class="calendar-day">8</div>
+                        <div class="calendar-day">9</div>
+                        <div class="calendar-day">10</div>
+                        <div class="calendar-day">11</div>
+                        <div class="calendar-day">12</div>
+                        <div class="calendar-day">13</div>
+                        <div class="calendar-day">14</div>
+                        <div class="calendar-day today">15</div>
+                        <div class="calendar-day">16</div>
+                        <div class="calendar-day">17</div>
+                        <div class="calendar-day">18</div>
+                        <div class="calendar-day">19</div>
+                        <div class="calendar-day">20</div>
+                        <div class="calendar-day">21</div>
+                        <div class="calendar-day">22</div>
+                        <div class="calendar-day">23</div>
+                        <div class="calendar-day">24</div>
+                        <div class="calendar-day">25</div>
+                        <div class="calendar-day">26</div>
+                        <div class="calendar-day">27</div>
+                        <div class="calendar-day">28</div>
+                        <div class="calendar-day">29</div>
+                        <div class="calendar-day">30</div>
+                        <div class="calendar-day">31</div>
+                        <div class="calendar-day other-month">1</div>
+                        <div class="calendar-day other-month">2</div>
+                        <div class="calendar-day other-month">3</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="calendar"&gt;
+    &lt;div class="calendar-header"&gt;
+        &lt;div class="calendar-title"&gt;2024年 1月&lt;/div&gt;
+        &lt;div class="calendar-nav"&gt;
+            &lt;button class="calendar-nav-btn"&gt;
+                &lt;i class="fa-solid fa-chevron-left"&gt;&lt;/i&gt;
+            &lt;/button&gt;
+            &lt;button class="calendar-nav-btn"&gt;
+                &lt;i class="fa-solid fa-chevron-right"&gt;&lt;/i&gt;
+            &lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;!-- 日历内容 --&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 选中状态 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">选中状态</h2>
+        <div class="demo-box">
+            <div class="demo-title">日期范围选择</div>
+            <div class="calendar">
+                <div class="calendar-header">
+                    <div class="calendar-title">2024年 1月</div>
+                    <div class="calendar-nav">
+                        <button class="calendar-nav-btn"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button class="calendar-nav-btn"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+                <div class="calendar-body">
+                    <div class="calendar-weekdays">
+                        <div class="calendar-weekday">日</div>
+                        <div class="calendar-weekday">一</div>
+                        <div class="calendar-weekday">二</div>
+                        <div class="calendar-weekday">三</div>
+                        <div class="calendar-weekday">四</div>
+                        <div class="calendar-weekday">五</div>
+                        <div class="calendar-weekday">六</div>
+                    </div>
+                    <div class="calendar-days">
+                        <div class="calendar-day other-month">31</div>
+                        <div class="calendar-day">1</div>
+                        <div class="calendar-day">2</div>
+                        <div class="calendar-day">3</div>
+                        <div class="calendar-day">4</div>
+                        <div class="calendar-day selected">5</div>
+                        <div class="calendar-day in-range">6</div>
+                        <div class="calendar-day in-range">7</div>
+                        <div class="calendar-day in-range">8</div>
+                        <div class="calendar-day in-range">9</div>
+                        <div class="calendar-day in-range">10</div>
+                        <div class="calendar-day in-range">11</div>
+                        <div class="calendar-day selected">12</div>
+                        <div class="calendar-day">13</div>
+                        <div class="calendar-day">14</div>
+                        <div class="calendar-day today">15</div>
+                        <div class="calendar-day">16</div>
+                        <div class="calendar-day">17</div>
+                        <div class="calendar-day">18</div>
+                        <div class="calendar-day">19</div>
+                        <div class="calendar-day">20</div>
+                        <div class="calendar-day">21</div>
+                        <div class="calendar-day">22</div>
+                        <div class="calendar-day">23</div>
+                        <div class="calendar-day">24</div>
+                        <div class="calendar-day">25</div>
+                        <div class="calendar-day">26</div>
+                        <div class="calendar-day">27</div>
+                        <div class="calendar-day">28</div>
+                        <div class="calendar-day">29</div>
+                        <div class="calendar-day">30</div>
+                        <div class="calendar-day">31</div>
+                        <div class="calendar-day other-month">1</div>
+                        <div class="calendar-day other-month">2</div>
+                        <div class="calendar-day other-month">3</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

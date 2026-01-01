@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PageHeader 页头 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .api-table th, .api-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .api-table th {
+            background: #F7F8FA;
+            color: #1C1C1E;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .api-table td {
+            color: #4E5969;
+            font-size: 13px;
+        }
+        .api-table code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #165DFF;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            line-height: 1;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6750A4 0%, #4F7AFF 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(103, 80, 164, 0.3);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #6750A4;
+            color: #6750A4;
+        }
+        .btn-outline:hover {
+            background: #EADDFF;
+        }
+        .btn-ghost {
+            background: transparent;
+            color: #6750A4;
+            padding: 8px 16px;
+        }
+        .btn-ghost:hover {
+            background: #F7F8FA;
+        }
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 13px;
+        }
+
+        /* PageHeader Styles */
+        .page-header {
+            background: white;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 20px 24px;
+            margin-bottom: 16px;
+        }
+        .page-header-back {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #4E5969;
+            font-size: 14px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: color 0.2s;
+            text-decoration: none;
+        }
+        .page-header-back:hover {
+            color: #6750A4;
+        }
+        .page-header-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        .page-header-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin: 0;
+        }
+        .page-header-subtitle {
+            font-size: 14px;
+            color: #86909C;
+            margin-top: 4px;
+        }
+        .page-header-content {
+            margin-top: 12px;
+            color: #4E5969;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .page-header-extra {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .page-header-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        .page-header-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            background: #F2F3F5;
+            color: #4E5969;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+        .page-header-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6750A4 0%, #4F7AFF 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        .page-header-with-breadcrumb {
+            padding-top: 16px;
+        }
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            color: #4E5969;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .breadcrumb-item:hover {
+            color: #6750A4;
+        }
+        .breadcrumb-item.active {
+            color: #1C1C1E;
+            font-weight: 500;
+        }
+        .breadcrumb-separator {
+            color: #C9CDD4;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">PageHeader 页头</h1>
+    <p class="component-subtitle">页头位于页容器的顶部，让用户快速理解当前页面的信息</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">标准页头</div>
+            <div class="page-header">
+                <div class="page-header-title-row">
+                    <div>
+                        <h1 class="page-header-title">页面标题</h1>
+                        <div class="page-header-subtitle">这是页面的副标题描述</div>
+                    </div>
+                    <div class="page-header-extra">
+                        <button class="btn btn-primary">主要操作</button>
+                        <button class="btn btn-outline">次要操作</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="page-header"&gt;
+    &lt;div class="page-header-title-row"&gt;
+        &lt;div&gt;
+            &lt;h1 class="page-header-title"&gt;页面标题&lt;/h1&gt;
+            &lt;div class="page-header-subtitle"&gt;这是页面的副标题描述&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="page-header-extra"&gt;
+            &lt;button class="btn btn-primary"&gt;主要操作&lt;/button&gt;
+            &lt;button class="btn btn-outline"&gt;次要操作&lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 带返回按钮 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">带返回按钮</h2>
+        <div class="demo-box">
+            <div class="demo-title">添加返回链接</div>
+            <div class="page-header">
+                <a href="#" class="page-header-back">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    返回列表
+                </a>
+                <div class="page-header-title-row">
+                    <div>
+                        <h1 class="page-header-title">详情页</h1>
+                    </div>
+                    <div class="page-header-extra">
+                        <button class="btn btn-primary">保存</button>
+                        <button class="btn btn-ghost">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="page-header"&gt;
+    &lt;a href="#" class="page-header-back"&gt;
+        &lt;i class="fa-solid fa-arrow-left"&gt;&lt;/i&gt;
+        返回列表
+    &lt;/a&gt;
+    &lt;div class="page-header-title-row"&gt;
+        &lt;div&gt;
+            &lt;h1 class="page-header-title"&gt;详情页&lt;/h1&gt;
+        &lt;/div&gt;
+        &lt;div class="page-header-extra"&gt;
+            &lt;button class="btn btn-primary"&gt;保存&lt;/button&gt;
+            &lt;button class="btn btn-ghost"&gt;取消&lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 带面包屑 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">带面包屑</h2>
+        <div class="demo-box">
+            <div class="demo-title">配合面包屑导航使用</div>
+            <div class="page-header page-header-with-breadcrumb">
+                <nav class="breadcrumb">
+                    <a href="#" class="breadcrumb-item">首页</a>
+                    <span class="breadcrumb-separator"><i class="fa-solid fa-chevron-right"></i></span>
+                    <a href="#" class="breadcrumb-item">用户管理</a>
+                    <span class="breadcrumb-separator"><i class="fa-solid fa-chevron-right"></i></span>
+                    <span class="breadcrumb-item active">用户详情</span>
+                </nav>
+                <div class="page-header-title-row">
+                    <div>
+                        <h1 class="page-header-title">用户详情</h1>
+                        <div class="page-header-subtitle">查看和编辑用户基本信息</div>
+                    </div>
+                    <div class="page-header-extra">
+                        <button class="btn btn-primary btn-sm">编辑</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="page-header page-header-with-breadcrumb"&gt;
+    &lt;nav class="breadcrumb"&gt;
+        &lt;a href="#" class="breadcrumb-item"&gt;首页&lt;/a&gt;
+        &lt;span class="breadcrumb-separator"&gt;&lt;i class="fa-solid fa-chevron-right"&gt;&lt;/i&gt;&lt;/span&gt;
+        &lt;a href="#" class="breadcrumb-item"&gt;用户管理&lt;/a&gt;
+        &lt;span class="breadcrumb-separator"&gt;&lt;i class="fa-solid fa-chevron-right"&gt;&lt;/i&gt;&lt;/span&gt;
+        &lt;span class="breadcrumb-item active"&gt;用户详情&lt;/span&gt;
+    &lt;/nav&gt;
+    &lt;div class="page-header-title-row"&gt;
+        &lt;div&gt;
+            &lt;h1 class="page-header-title"&gt;用户详情&lt;/h1&gt;
+            &lt;div class="page-header-subtitle"&gt;查看和编辑用户基本信息&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="page-header-extra"&gt;
+            &lt;button class="btn btn-primary btn-sm"&gt;编辑&lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 带内容区域 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">带内容区域</h2>
+        <div class="demo-box">
+            <div class="demo-title">添加详细的描述内容</div>
+            <div class="page-header">
+                <div class="page-header-title-row">
+                    <div style="flex: 1;">
+                        <h1 class="page-header-title">项目文档</h1>
+                        <div class="page-header-subtitle">前端组件库设计规范</div>
+                        <div class="page-header-content">
+                            这是页面的详细描述内容，可以包含多行文字说明。
+                            用于向用户传达当前页面的用途和重要信息。
+                        </div>
+                        <div class="page-header-tags">
+                            <span class="page-header-tag">文档</span>
+                            <span class="page-header-tag">前端</span>
+                            <span class="page-header-tag">UI组件</span>
+                        </div>
+                    </div>
+                    <div class="page-header-extra">
+                        <button class="btn btn-outline">导出</button>
+                        <button class="btn btn-primary">发布</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="page-header"&gt;
+    &lt;div class="page-header-title-row"&gt;
+        &lt;div style="flex: 1;"&gt;
+            &lt;h1 class="page-header-title"&gt;项目文档&lt;/h1&gt;
+            &lt;div class="page-header-subtitle"&gt;前端组件库设计规范&lt;/div&gt;
+            &lt;div class="page-header-content"&gt;
+                这是页面的详细描述内容...
+            &lt;/div&gt;
+            &lt;div class="page-header-tags"&gt;
+                &lt;span class="page-header-tag"&gt;文档&lt;/span&gt;
+                &lt;span class="page-header-tag"&gt;前端&lt;/span&gt;
+                &lt;span class="page-header-tag"&gt;UI组件&lt;/span&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="page-header-extra"&gt;
+            &lt;button class="btn btn-outline"&gt;导出&lt;/button&gt;
+            &lt;button class="btn btn-primary"&gt;发布&lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 带头像 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">带头像</h2>
+        <div class="demo-box">
+            <div class="demo-title">显示用户头像</div>
+            <div class="page-header">
+                <div class="page-header-title-row">
+                    <div style="display: flex; gap: 16px; align-items: flex-start;">
+                        <div class="page-header-avatar">JD</div>
+                        <div>
+                            <h1 class="page-header-title">张三的个人主页</h1>
+                            <div class="page-header-subtitle">前端开发工程师</div>
+                            <div class="page-header-content">
+                                <i class="fa-solid fa-envelope" style="margin-right: 6px;"></i>
+                                zhangsan@example.com
+                            </div>
+                        </div>
+                    </div>
+                    <div class="page-header-extra">
+                        <button class="btn btn-outline">发送消息</button>
+                        <button class="btn btn-primary">关注</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="page-header"&gt;
+    &lt;div class="page-header-title-row"&gt;
+        &lt;div style="display: flex; gap: 16px; align-items: flex-start;"&gt;
+            &lt;div class="page-header-avatar"&gt;JD&lt;/div&gt;
+            &lt;div&gt;
+                &lt;h1 class="page-header-title"&gt;张三的个人主页&lt;/h1&gt;
+                &lt;div class="page-header-subtitle"&gt;前端开发工程师&lt;/div&gt;
+                &lt;div class="page-header-content"&gt;
+                    &lt;i class="fa-solid fa-envelope"&gt;&lt;/i&gt;
+                    zhangsan@example.com
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="page-header-extra"&gt;
+            &lt;button class="btn btn-outline"&gt;发送消息&lt;/button&gt;
+            &lt;button class="btn btn-primary"&gt;关注&lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 紧凑模式 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">紧凑模式</h2>
+        <div class="demo-box">
+            <div class="demo-title">简洁的页头样式</div>
+            <div class="page-header" style="padding: 16px 20px;">
+                <div class="page-header-title-row">
+                    <h1 class="page-header-title" style="font-size: 18px;">列表页面</h1>
+                    <div class="page-header-extra">
+                        <button class="btn btn-primary btn-sm">
+                            <i class="fa-solid fa-plus"></i>
+                            新建
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="page-header" style="padding: 16px 20px;"&gt;
+    &lt;div class="page-header-title-row"&gt;
+        &lt;h1 class="page-header-title" style="font-size: 18px;"&gt;列表页面&lt;/h1&gt;
+        &lt;div class="page-header-extra"&gt;
+            &lt;button class="btn btn-primary btn-sm"&gt;
+                &lt;i class="fa-solid fa-plus"&gt;&lt;/i&gt;
+                新建
+            &lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 多种操作按钮 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">多种操作按钮</h2>
+        <div class="demo-box">
+            <div class="demo-title">包含多个操作按钮的页头</div>
+            <div class="page-header">
+                <div class="page-header-title-row">
+                    <div>
+                        <h1 class="page-header-title">数据报表</h1>
+                        <div class="page-header-subtitle">2024年度数据统计分析</div>
+                    </div>
+                    <div class="page-header-extra">
+                        <button class="btn btn-ghost btn-sm">
+                            <i class="fa-solid fa-download"></i>
+                        </button>
+                        <button class="btn btn-ghost btn-sm">
+                            <i class="fa-solid fa-share-nodes"></i>
+                        </button>
+                        <button class="btn btn-outline btn-sm">导出数据</button>
+                        <button class="btn btn-primary btn-sm">
+                            <i class="fa-solid fa-plus"></i>
+                            新建报表
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="page-header"&gt;
+    &lt;div class="page-header-title-row"&gt;
+        &lt;div&gt;
+            &lt;h1 class="page-header-title"&gt;数据报表&lt;/h1&gt;
+            &lt;div class="page-header-subtitle"&gt;2024年度数据统计分析&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div class="page-header-extra"&gt;
+            &lt;button class="btn btn-ghost btn-sm"&gt;
+                &lt;i class="fa-solid fa-download"&gt;&lt;/i&gt;
+            &lt;/button&gt;
+            &lt;button class="btn btn-ghost btn-sm"&gt;
+                &lt;i class="fa-solid fa-share-nodes"&gt;&lt;/i&gt;
+            &lt;/button&gt;
+            &lt;button class="btn btn-outline btn-sm"&gt;导出数据&lt;/button&gt;
+            &lt;button class="btn btn-primary btn-sm"&gt;
+                &lt;i class="fa-solid fa-plus"&gt;&lt;/i&gt;
+                新建报表
+            &lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- API 文档 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">PageHeader Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>title</code></td>
+                    <td>标题</td>
+                    <td>string | ReactNode</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>subTitle</code></td>
+                    <td>副标题</td>
+                    <td>string | ReactNode</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>backIcon</code></td>
+                    <td>返回图标</td>
+                    <td>ReactNode</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>onBack</code></td>
+                    <td>返回按钮点击事件</td>
+                    <td>() => void</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>extra</code></td>
+                    <td>操作区</td>
+                    <td>ReactNode | ReactNode[]</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>tags</code></td>
+                    <td>标签列表</td>
+                    <td>ReactNode[]</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>footer</code></td>
+                    <td>页脚</td>
+                    <td>ReactNode</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>avatar</code></td>
+                    <td>头像</td>
+                    <td>ReactNode</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>breadcrumb</code></td>
+                    <td>面包屑配置</td>
+                    <td>BreadcrumbProps</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>ghost</code></td>
+                    <td>是否为幽灵模式</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">CSS 类名</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>类名</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>page-header</code></td>
+                    <td>基础页头样式</td>
+                </tr>
+                <tr>
+                    <td><code>page-header-back</code></td>
+                    <td>返回按钮</td>
+                </tr>
+                <tr>
+                    <td><code>page-header-title-row</code></td>
+                    <td>标题行容器</td>
+                </tr>
+                <tr>
+                    <td><code>page-header-title</code></td>
+                    <td>标题样式</td>
+                </tr>
+                <tr>
+                    <td><code>page-header-subtitle</code></td>
+                    <td>副标题样式</td>
+                </tr>
+                <tr>
+                    <td><code>page-header-content</code></td>
+                    <td>内容区域</td>
+                </tr>
+                <tr>
+                    <td><code>page-header-extra</code></td>
+                    <td>额外操作区</td>
+                </tr>
+                <tr>
+                    <td><code>page-header-tags</code></td>
+                    <td>标签容器</td>
+                </tr>
+                <tr>
+                    <td><code>page-header-tag</code></td>
+                    <td>标签样式</td>
+                </tr>
+                <tr>
+                    <td><code>page-header-avatar</code></td>
+                    <td>头像样式</td>
+                </tr>
+                <tr>
+                    <td><code>page-header-with-breadcrumb</code></td>
+                    <td>带面包屑的页头</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

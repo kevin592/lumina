@@ -9,7 +9,6 @@ import { RootStore } from "@/store";
 import { DialogStore } from "@/store/module/Dialog";
 import { LuminaEditor } from "../LuminaEditor";
 import { useEffect, useState } from "react";
-import { NoteType } from "@shared/lib/types";
 import { AiStore } from "@/store/aiStore";
 import { parseAbsoluteToLocal } from "@internationalized/date";
 import i18n from "@/lib/i18n";
@@ -209,14 +208,10 @@ const handleSelectAll = () => {
   const currentPath = new URLSearchParams(window.location.search).get('path');
   let items: Array<{ id?: number | null }> | undefined;
 
-  if (currentPath === 'todo') {
-    items = Lumina.todoList.value;
-  } else if (currentPath === 'archived') {
+  if (currentPath === 'archived') {
     items = Lumina.archivedList.value;
   } else if (currentPath === 'trash') {
     items = Lumina.trashList.value;
-  } else if (currentPath === 'all') {
-    items = Lumina.noteList.value;
   } else {
     items = Lumina.LuminaList.value;
   }

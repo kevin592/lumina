@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List 列表 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .api-table th, .api-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .api-table th {
+            background: #F7F8FA;
+            color: #1C1C1E;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .api-table td {
+            color: #4E5969;
+            font-size: 13px;
+        }
+        .api-table code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #165DFF;
+        }
+
+        /* List Styles */
+        .list {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .list-bordered {
+            border: 1px solid #E5E6EB;
+        }
+        .list-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            transition: background 0.2s;
+        }
+        .list-item:not(:last-child) {
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .list-item:hover {
+            background: #F7F8FA;
+        }
+        .list-item-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6750A4 0%, #4F7AFF 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        .list-item-content {
+            flex: 1;
+            min-width: 0;
+        }
+        .list-item-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 2px;
+        }
+        .list-item-desc {
+            font-size: 12px;
+            color: #636366;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .list-item-action {
+            margin-left: 12px;
+            display: flex;
+            gap: 8px;
+        }
+        .list-item-meta {
+            font-size: 12px;
+            color: #9CA3AF;
+            margin-left: 12px;
+        }
+        .list-header {
+            padding: 16px;
+            background: #F7F8FA;
+            border-bottom: 1px solid #E5E6EB;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1C1C1E;
+        }
+        .list-footer {
+            padding: 12px 16px;
+            background: #F7F8FA;
+            border-top: 1px solid #E5E6EB;
+            text-align: center;
+        }
+        .list-sm .list-item {
+            padding: 10px 12px;
+        }
+        .list-sm .list-item-avatar {
+            width: 32px;
+            height: 32px;
+            font-size: 12px;
+        }
+        .list-lg .list-item {
+            padding: 18px 20px;
+        }
+        .list-lg .list-item-avatar {
+            width: 48px;
+            height: 48px;
+            font-size: 16px;
+        }
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            color: #636366;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: transparent;
+            border: none;
+        }
+        .icon-btn:hover {
+            background: #E5E6EB;
+            color: #1C1C1E;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: 500;
+            border-radius: 9999px;
+            background: #EADDFF;
+            color: #21005D;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">List 列表</h1>
+    <p class="component-subtitle">用于展示一系列相关信息的列表组件</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">基础列表样式</div>
+            <div style="max-width: 480px;">
+                <div class="list list-bordered">
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <div class="list-item-title">项目一</div>
+                        </div>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <div class="list-item-title">项目二</div>
+                        </div>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <div class="list-item-title">项目三</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="list list-bordered"&gt;
+    &lt;div class="list-item"&gt;
+        &lt;div class="list-item-content"&gt;
+            &lt;div class="list-item-title"&gt;项目一&lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 带头像 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">带头像</h2>
+        <div class="demo-box">
+            <div class="demo-title">带头像的列表项</div>
+            <div style="max-width: 480px;">
+                <div class="list list-bordered">
+                    <div class="list-item">
+                        <div class="list-item-avatar">张</div>
+                        <div class="list-item-content">
+                            <div class="list-item-title">张三</div>
+                            <div class="list-item-desc">这是张三的个人简介</div>
+                        </div>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-avatar">李</div>
+                        <div class="list-item-content">
+                            <div class="list-item-title">李四</div>
+                            <div class="list-item-desc">这是李四的个人简介</div>
+                        </div>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-avatar">王</div>
+                        <div class="list-item-content">
+                            <div class="list-item-title">王五</div>
+                            <div class="list-item-desc">这是王五的个人简介</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="list-item"&gt;
+    &lt;div class="list-item-avatar"&gt;张&lt;/div&gt;
+    &lt;div class="list-item-content"&gt;
+        &lt;div class="list-item-title"&gt;张三&lt;/div&gt;
+        &lt;div class="list-item-desc"&gt;个人简介&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 带操作 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">带操作</h2>
+        <div class="demo-box">
+            <div class="demo-title">右侧带操作按钮的列表</div>
+            <div style="max-width: 480px;">
+                <div class="list list-bordered">
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <div class="list-item-title">文档标题</div>
+                            <div class="list-item-desc">2024-01-15 14:30</div>
+                        </div>
+                        <div class="list-item-action">
+                            <button class="icon-btn"><i class="fa-solid fa-pen"></i></button>
+                            <button class="icon-btn"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <div class="list-item-title">表格数据</div>
+                            <div class="list-item-desc">2024-01-14 09:15</div>
+                        </div>
+                        <div class="list-item-action">
+                            <button class="icon-btn"><i class="fa-solid fa-pen"></i></button>
+                            <button class="icon-btn"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="list-item"&gt;
+    &lt;div class="list-item-content"&gt;
+        &lt;div class="list-item-title"&gt;文档标题&lt;/div&gt;
+        &lt;div class="list-item-desc"&gt;2024-01-15&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="list-item-action"&gt;
+        &lt;button class="icon-btn"&gt;&lt;i class="fa-solid fa-pen"&gt;&lt;/i&gt;&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 尺寸 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">尺寸</h2>
+        <div class="demo-box">
+            <div class="demo-title">小、中(默认)、大三种尺寸</div>
+            <div style="display: flex; flex-direction: column; gap: 20px; max-width: 480px;">
+                <div class="list list-bordered list-sm">
+                    <div class="list-item">
+                        <div class="list-item-avatar">小</div>
+                        <div class="list-item-content">
+                            <div class="list-item-title">小尺寸列表</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="list list-bordered">
+                    <div class="list-item">
+                        <div class="list-item-avatar">中</div>
+                        <div class="list-item-content">
+                            <div class="list-item-title">中尺寸列表</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="list list-bordered list-lg">
+                    <div class="list-item">
+                        <div class="list-item-avatar">大</div>
+                        <div class="list-item-content">
+                            <div class="list-item-title">大尺寸列表</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="list list-bordered list-sm"&gt;...&lt;/div&gt;
+&lt;div class="list list-bordered"&gt;...&lt;/div&gt;
+&lt;div class="list list-bordered list-lg"&gt;...&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 带标题和底部 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">带标题和底部</h2>
+        <div class="demo-box">
+            <div class="demo-title">包含头部和底部的完整列表</div>
+            <div style="max-width: 480px;">
+                <div class="list list-bordered">
+                    <div class="list-header">
+                        消息列表 (3)
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-avatar"><i class="fa-solid fa-envelope"></i></div>
+                        <div class="list-item-content">
+                            <div class="list-item-title">系统通知</div>
+                            <div class="list-item-desc">您的账户已完成验证</div>
+                        </div>
+                        <span class="badge">未读</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-avatar"><i class="fa-solid fa-comment"></i></div>
+                        <div class="list-item-content">
+                            <div class="list-item-title">新评论</div>
+                            <div class="list-item-desc">有人评论了您的文章</div>
+                        </div>
+                    </div>
+                    <div class="list-footer">
+                        <span style="font-size: 13px; color: #165DFF; cursor: pointer;">查看全部</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="list list-bordered"&gt;
+    &lt;div class="list-header"&gt;消息列表 (3)&lt;/div&gt;
+    &lt;div class="list-item"&gt;...&lt;/div&gt;
+    &lt;div class="list-footer"&gt;查看全部&lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 元信息列表 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">元信息列表</h2>
+        <div class="demo-box">
+            <div class="demo-title">右侧显示元信息（时间、状态等）</div>
+            <div style="max-width: 480px;">
+                <div class="list list-bordered">
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <div class="list-item-title">任务进行中</div>
+                        </div>
+                        <span class="badge" style="background: #D1FAE5; color: #065F46;">进行中</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <div class="list-item-title">任务已完成</div>
+                        </div>
+                        <span class="badge" style="background: #F3F4F6; color: #374151;">已完成</span>
+                    </div>
+                    <div class="list-item">
+                        <div class="list-item-content">
+                            <div class="list-item-title">任务已延期</div>
+                        </div>
+                        <span class="badge" style="background: #FEE2E2; color: #991B1B;">已延期</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="list-item"&gt;
+    &lt;div class="list-item-content"&gt;
+        &lt;div class="list-item-title"&gt;任务进行中&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;span class="badge"&gt;进行中&lt;/span&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- API 文档 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">List Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>bordered</code></td>
+                    <td>是否显示边框</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>size</code></td>
+                    <td>列表尺寸</td>
+                    <td>'sm' | 'md' | 'lg'</td>
+                    <td>'md'</td>
+                </tr>
+                <tr>
+                    <td><code>split</code></td>
+                    <td>是否显示分割线</td>
+                    <td>boolean</td>
+                    <td>true</td>
+                </tr>
+                <tr>
+                    <td><code>hoverable</code></td>
+                    <td>是否显示悬浮效果</td>
+                    <td>boolean</td>
+                    <td>true</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">CSS 类名</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>类名</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>list</code></td>
+                    <td>基础列表样式</td>
+                </tr>
+                <tr>
+                    <td><code>list-bordered</code></td>
+                    <td>带边框的列表</td>
+                </tr>
+                <tr>
+                    <td><code>list-sm</code></td>
+                    <td>小尺寸列表</td>
+                </tr>
+                <tr>
+                    <td><code>list-lg</code></td>
+                    <td>大尺寸列表</td>
+                </tr>
+                <tr>
+                    <td><code>list-item</code></td>
+                    <td>列表项</td>
+                </tr>
+                <tr>
+                    <td><code>list-item-avatar</code></td>
+                    <td>列表项头像</td>
+                </tr>
+                <tr>
+                    <td><code>list-item-content</code></td>
+                    <td>列表项内容</td>
+                </tr>
+                <tr>
+                    <td><code>list-item-title</code></td>
+                    <td>列表项标题</td>
+                </tr>
+                <tr>
+                    <td><code>list-item-desc</code></td>
+                    <td>列表项描述</td>
+                </tr>
+                <tr>
+                    <td><code>list-item-action</code></td>
+                    <td>列表项操作区</td>
+                </tr>
+                <tr>
+                    <td><code>list-item-meta</code></td>
+                    <td>列表项元信息</td>
+                </tr>
+                <tr>
+                    <td><code>list-header</code></td>
+                    <td>列表头部</td>
+                </tr>
+                <tr>
+                    <td><code>list-footer</code></td>
+                    <td>列表底部</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

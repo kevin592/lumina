@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alert 警告提示 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .api-table th, .api-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .api-table th {
+            background: #F7F8FA;
+            color: #1C1C1E;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .api-table td {
+            color: #4E5969;
+            font-size: 13px;
+        }
+        .api-table code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #165DFF;
+        }
+
+        /* Alert Styles */
+        .alert {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            border-left: 4px solid;
+            transition: all 0.3s;
+        }
+        .alert-success {
+            background: #E8FFEA;
+            border-left-color: #00A48A;
+        }
+        .alert-success .alert-icon {
+            color: #00A48A;
+        }
+        .alert-info {
+            background: #E8F3FF;
+            border-left-color: #165DFF;
+        }
+        .alert-info .alert-icon {
+            color: #165DFF;
+        }
+        .alert-warning {
+            background: #FFF7E8;
+            border-left-color: #FF7D00;
+        }
+        .alert-warning .alert-icon {
+            color: #FF7D00;
+        }
+        .alert-error {
+            background: #FFECE8;
+            border-left-color: #FF3B30;
+        }
+        .alert-error .alert-icon {
+            color: #FF3B30;
+        }
+        .alert-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .alert-content {
+            flex: 1;
+        }
+        .alert-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 4px;
+        }
+        .alert-description {
+            font-size: 14px;
+            color: #4E5969;
+            line-height: 1.5;
+        }
+        .alert-close {
+            color: #86909C;
+            cursor: pointer;
+            font-size: 16px;
+            transition: color 0.2s;
+            flex-shrink: 0;
+        }
+        .alert-close:hover {
+            color: #1C1C1E;
+        }
+        .alert-sm {
+            padding: 10px 16px;
+        }
+        .alert-sm .alert-icon {
+            font-size: 14px;
+        }
+        .alert-sm .alert-title {
+            font-size: 13px;
+        }
+        .alert-sm .alert-description {
+            font-size: 12px;
+        }
+        .alert-without-icon {
+            padding-left: 20px;
+        }
+        .alert-banner {
+            border-radius: 0;
+            border-left: none;
+            border-top: 4px solid;
+        }
+        .alert-banner.alert-success {
+            border-top-color: #00A48A;
+        }
+        .alert-banner.alert-info {
+            border-top-color: #165DFF;
+        }
+        .alert-banner.alert-warning {
+            border-top-color: #FF7D00;
+        }
+        .alert-banner.alert-error {
+            border-top-color: #FF3B30;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Alert 警告提示</h1>
+    <p class="component-subtitle">用于页面中展示重要的提示信息</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">四种基本类型</div>
+            <div class="alert alert-success">
+                <i class="fa-solid fa-circle-check alert-icon"></i>
+                <div class="alert-content">
+                    <div class="alert-title">成功</div>
+                    <div class="alert-description">这是一条成功的提示信息</div>
+                </div>
+            </div>
+            <div class="alert alert-info">
+                <i class="fa-solid fa-circle-info alert-icon"></i>
+                <div class="alert-content">
+                    <div class="alert-title">信息</div>
+                    <div class="alert-description">这是一条普通的信息提示</div>
+                </div>
+            </div>
+            <div class="alert alert-warning">
+                <i class="fa-solid fa-triangle-exclamation alert-icon"></i>
+                <div class="alert-content">
+                    <div class="alert-title">警告</div>
+                    <div class="alert-description">这是一条警告提示信息</div>
+                </div>
+            </div>
+            <div class="alert alert-error">
+                <i class="fa-solid fa-circle-xmark alert-icon"></i>
+                <div class="alert-content">
+                    <div class="alert-title">错误</div>
+                    <div class="alert-description">这是一条错误提示信息</div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="alert alert-success"&gt;
+    &lt;i class="fa-solid fa-circle-check alert-icon"&gt;&lt;/i&gt;
+    &lt;div class="alert-content"&gt;
+        &lt;div class="alert-title"&gt;成功&lt;/div&gt;
+        &lt;div class="alert-description"&gt;这是一条成功的提示信息&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 可关闭 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">可关闭</h2>
+        <div class="demo-box">
+            <div class="demo-title">显示关闭按钮</div>
+            <div class="alert alert-info">
+                <i class="fa-solid fa-circle-info alert-icon"></i>
+                <div class="alert-content">
+                    <div class="alert-title">可关闭提示</div>
+                    <div class="alert-description">点击右侧关闭按钮可以关闭此提示</div>
+                </div>
+                <i class="fa-solid fa-xmark alert-close" onclick="this.parentElement.style.display='none'"></i>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="alert alert-info"&gt;
+    &lt;i class="fa-solid fa-circle-info alert-icon"&gt;&lt;/i&gt;
+    &lt;div class="alert-content"&gt;
+        &lt;div class="alert-title"&gt;可关闭提示&lt;/div&gt;
+        &lt;div class="alert-description"&gt;点击右侧关闭按钮可以关闭此提示&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;i class="fa-solid fa-xmark alert-close"&gt;&lt;/i&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 不同尺寸 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">不同尺寸</h2>
+        <div class="demo-box">
+            <div class="demo-title">大、默认、小三种尺寸</div>
+            <div class="alert alert-info">
+                <i class="fa-solid fa-circle-info alert-icon"></i>
+                <div class="alert-content">
+                    <div class="alert-title">默认尺寸</div>
+                    <div class="alert-description">这是默认尺寸的提示信息</div>
+                </div>
+            </div>
+            <div class="alert alert-info alert-sm">
+                <i class="fa-solid fa-circle-info alert-icon"></i>
+                <div class="alert-content">
+                    <div class="alert-title">小尺寸</div>
+                    <div class="alert-description">这是小尺寸的提示信息</div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="alert alert-info"&gt;
+    &lt;i class="fa-solid fa-circle-info alert-icon"&gt;&lt;/i&gt;
+    &lt;div class="alert-content"&gt;
+        &lt;div class="alert-title"&gt;默认尺寸&lt;/div&gt;
+        &lt;div class="alert-description"&gt;这是默认尺寸的提示信息&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class="alert alert-info alert-sm"&gt;
+    &lt;i class="fa-solid fa-circle-info alert-icon"&gt;&lt;/i&gt;
+    &lt;div class="alert-content"&gt;
+        &lt;div class="alert-title"&gt;小尺寸&lt;/div&gt;
+        &lt;div class="alert-description"&gt;这是小尺寸的提示信息&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 无图标 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">无图标</h2>
+        <div class="demo-box">
+            <div class="demo-title">不显示图标</div>
+            <div class="alert alert-warning alert-without-icon">
+                <div class="alert-content">
+                    <div class="alert-title">无图标提示</div>
+                    <div class="alert-description">这是不显示图标的提示信息</div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="alert alert-warning alert-without-icon"&gt;
+    &lt;div class="alert-content"&gt;
+        &lt;div class="alert-title"&gt;无图标提示&lt;/div&gt;
+        &lt;div class="alert-description"&gt;这是不显示图标的提示信息&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- Banner 形式 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">Banner 形式</h2>
+        <div class="demo-box">
+            <div class="demo-title">顶部横幅样式</div>
+            <div class="alert alert-success alert-banner">
+                <i class="fa-solid fa-circle-check alert-icon"></i>
+                <div class="alert-content">
+                    <div class="alert-title">操作成功</div>
+                    <div class="alert-description">您的更改已成功保存</div>
+                </div>
+                <i class="fa-solid fa-xmark alert-close" onclick="this.parentElement.style.display='none'"></i>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="alert alert-success alert-banner"&gt;
+    &lt;i class="fa-solid fa-circle-check alert-icon"&gt;&lt;/i&gt;
+    &lt;div class="alert-content"&gt;
+        &lt;div class="alert-title"&gt;操作成功&lt;/div&gt;
+        &lt;div class="alert-description"&gt;您的更改已成功保存&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;i class="fa-solid fa-xmark alert-close"&gt;&lt;/i&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 只有描述 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">只有描述</h2>
+        <div class="demo-box">
+            <div class="demo-title">只有描述文字的简洁提示</div>
+            <div class="alert alert-info">
+                <i class="fa-solid fa-circle-info alert-icon"></i>
+                <div class="alert-content">
+                    <div class="alert-description">这是一条只有描述的简洁提示信息</div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="alert alert-info"&gt;
+    &lt;i class="fa-solid fa-circle-info alert-icon"&gt;&lt;/i&gt;
+    &lt;div class="alert-content"&gt;
+        &lt;div class="alert-description"&gt;这是一条只有描述的简洁提示信息&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- API 文档 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Alert Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>type</code></td>
+                    <td>警告类型</td>
+                    <td>'success' | 'info' | 'warning' | 'error'</td>
+                    <td>'info'</td>
+                </tr>
+                <tr>
+                    <td><code>closable</code></td>
+                    <td>是否可关闭</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>showIcon</code></td>
+                    <td>是否显示图标</td>
+                    <td>boolean</td>
+                    <td>true</td>
+                </tr>
+                <tr>
+                    <td><code>size</code></td>
+                    <td>尺寸</td>
+                    <td>'default' | 'small'</td>
+                    <td>'default'</td>
+                </tr>
+                <tr>
+                    <td><code>banner</code></td>
+                    <td>是否为 Banner 形式</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>onClose</code></td>
+                    <td>关闭时的回调</td>
+                    <td>() => void</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">CSS 类名</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>类名</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>alert</code></td>
+                    <td>基础警告样式</td>
+                </tr>
+                <tr>
+                    <td><code>alert-success</code></td>
+                    <td>成功类型</td>
+                </tr>
+                <tr>
+                    <td><code>alert-info</code></td>
+                    <td>信息类型</td>
+                </tr>
+                <tr>
+                    <td><code>alert-warning</code></td>
+                    <td>警告类型</td>
+                </tr>
+                <tr>
+                    <td><code>alert-error</code></td>
+                    <td>错误类型</td>
+                </tr>
+                <tr>
+                    <td><code>alert-sm</code></td>
+                    <td>小尺寸</td>
+                </tr>
+                <tr>
+                    <td><code>alert-without-icon</code></td>
+                    <td>无图标</td>
+                </tr>
+                <tr>
+                    <td><code>alert-banner</code></td>
+                    <td>Banner 形式</td>
+                </tr>
+                <tr>
+                    <td><code>alert-icon</code></td>
+                    <td>图标样式</td>
+                </tr>
+                <tr>
+                    <td><code>alert-content</code></td>
+                    <td>内容区域</td>
+                </tr>
+                <tr>
+                    <td><code>alert-title</code></td>
+                    <td>标题样式</td>
+                </tr>
+                <tr>
+                    <td><code>alert-description</code></td>
+                    <td>描述样式</td>
+                </tr>
+                <tr>
+                    <td><code>alert-close</code></td>
+                    <td>关闭按钮</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

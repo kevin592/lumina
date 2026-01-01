@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card 卡片 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .api-table th, .api-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .api-table th {
+            background: #F7F8FA;
+            color: #1C1C1E;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .api-table td {
+            color: #4E5969;
+            font-size: 13px;
+        }
+        .api-table code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #165DFF;
+        }
+
+        /* Card Styles */
+        .card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .card-sm {
+            width: 280px;
+        }
+        .card-md {
+            width: 320px;
+        }
+        .card-lg {
+            width: 380px;
+        }
+        .card-shadow {
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+        .card-shadow-lg {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+        .card-bordered {
+            border: 1px solid #E5E6EB;
+        }
+        .card-header {
+            padding: 20px;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 4px;
+        }
+        .card-subtitle {
+            font-size: 13px;
+            color: #636366;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .card-text {
+            font-size: 14px;
+            color: #4E5969;
+            line-height: 1.6;
+        }
+        .card-footer {
+            padding: 16px 20px;
+            background: #F7F8FA;
+            border-top: 1px solid #E5E6EB;
+            display: flex;
+            gap: 8px;
+        }
+        .card-cover {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        .card-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .card-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .card-meta-text {
+            font-size: 13px;
+            color: #636366;
+        }
+        .card-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 12px 20px;
+            border-top: 1px solid #E5E6EB;
+            background: #FAFAFA;
+        }
+        .demo-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6750A4 0%, #4F7AFF 100%);
+            color: white;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #6750A4;
+            color: #6750A4;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Card 卡片</h1>
+    <p class="component-subtitle">用于组织和展示相关信息的容器</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">基础卡片样式</div>
+            <div class="demo-row">
+                <div class="card card-sm card-bordered">
+                    <div class="card-header">
+                        <h3 class="card-title">卡片标题</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">这是一段卡片内容描述，可以包含文本、图片或其他元素。</p>
+                    </div>
+                </div>
+                <div class="card card-md card-bordered">
+                    <div class="card-header">
+                        <h3 class="card-title">卡片标题</h3>
+                        <p class="card-subtitle">副标题说明</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">这是卡片的主要内容区域，可以放置任意内容。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="card card-sm card-bordered"&gt;
+    &lt;div class="card-header"&gt;
+        &lt;h3 class="card-title"&gt;卡片标题&lt;/h3&gt;
+    &lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;p class="card-text"&gt;卡片内容&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 带图卡片 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">带图卡片</h2>
+        <div class="demo-box">
+            <div class="demo-title">包含封面图片的卡片</div>
+            <div class="demo-row">
+                <div class="card card-sm card-shadow">
+                    <img src="https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=400&h=200&fit=crop" alt="封面" class="card-cover">
+                    <div class="card-body">
+                        <h3 class="card-title" style="font-size: 16px;">美丽的风景</h3>
+                        <p class="card-text" style="font-size: 13px;">探索大自然的壮丽景色</p>
+                    </div>
+                </div>
+                <div class="card card-sm card-shadow">
+                    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=200&fit=crop" alt="封面" class="card-cover">
+                    <div class="card-body">
+                        <h3 class="card-title" style="font-size: 16px;">山川美景</h3>
+                        <p class="card-text" style="font-size: 13px;">感受高山的雄伟壮观</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="card card-sm card-shadow"&gt;
+    &lt;img src="cover.jpg" alt="封面" class="card-cover"&gt;
+    &lt;div class="card-body"&gt;
+        &lt;h3 class="card-title"&gt;标题&lt;/h3&gt;
+        &lt;p class="card-text"&gt;描述&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 带操作卡片 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">带操作卡片</h2>
+        <div class="demo-box">
+            <div class="demo-title">带有操作按钮的卡片</div>
+            <div class="demo-row">
+                <div class="card card-md card-bordered">
+                    <div class="card-header">
+                        <h3 class="card-title">功能卡片</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">这是一个带有操作按钮的卡片示例，底部可以放置各种操作。</p>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-outline">取消</button>
+                        <button class="btn btn-primary">确定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="card card-md card-bordered"&gt;
+    &lt;div class="card-header"&gt;
+        &lt;h3 class="card-title"&gt;功能卡片&lt;/h3&gt;
+    &lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        &lt;p class="card-text"&gt;卡片内容&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class="card-footer"&gt;
+        &lt;button class="btn btn-outline"&gt;取消&lt;/button&gt;
+        &lt;button class="btn btn-primary"&gt;确定&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 悬浮效果 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">悬浮效果</h2>
+        <div class="demo-box">
+            <div class="demo-title">鼠标悬浮时卡片上升效果</div>
+            <div class="demo-row">
+                <div class="card card-sm card-shadow card-hover">
+                    <div class="card-body">
+                        <h3 class="card-title" style="font-size: 16px;">悬浮效果</h3>
+                        <p class="card-text" style="font-size: 13px;">鼠标悬浮时卡片会向上浮动</p>
+                    </div>
+                </div>
+                <div class="card card-sm card-shadow-lg card-hover">
+                    <div class="card-body">
+                        <h3 class="card-title" style="font-size: 16px;">强阴影</h3>
+                        <p class="card-text" style="font-size: 13px;">带有更强的阴影效果</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="card card-sm card-shadow card-hover"&gt;
+    &lt;div class="card-body"&gt;
+        &lt;h3 class="card-title"&gt;悬浮效果&lt;/h3&gt;
+        &lt;p class="card-text"&gt;内容&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 用户信息卡片 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">用户信息卡片</h2>
+        <div class="demo-box">
+            <div class="demo-title">展示用户信息的卡片</div>
+            <div class="demo-row">
+                <div class="card card-md card-shadow">
+                    <div class="card-body">
+                        <div class="card-meta">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=John" alt="头像" class="card-avatar">
+                            <div>
+                                <h3 class="card-title" style="font-size: 16px;">张三</h3>
+                                <p class="card-meta-text">产品经理</p>
+                            </div>
+                        </div>
+                        <p class="card-text" style="font-size: 13px;">负责产品规划和设计工作，专注于用户体验优化。</p>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-outline" style="padding: 6px 12px; font-size: 12px;">
+                            <i class="fa-solid fa-message"></i>
+                            私信
+                        </button>
+                        <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">
+                            <i class="fa-solid fa-user-plus"></i>
+                            关注
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="card card-md card-shadow"&gt;
+    &lt;div class="card-body"&gt;
+        &lt;div class="card-meta"&gt;
+            &lt;img src="avatar.png" alt="头像" class="card-avatar"&gt;
+            &lt;div&gt;
+                &lt;h3 class="card-title"&gt;张三&lt;/h3&gt;
+                &lt;p class="card-meta-text"&gt;产品经理&lt;/p&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;p class="card-text"&gt;个人简介&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class="card-actions"&gt;
+        &lt;button class="btn btn-outline"&gt;私信&lt;/button&gt;
+        &lt;button class="btn btn-primary"&gt;关注&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 无边框卡片 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">无边框卡片</h2>
+        <div class="demo-box">
+            <div class="demo-title">无边框的简洁卡片</div>
+            <div class="demo-row">
+                <div class="card card-sm" style="background: #F7F8FA;">
+                    <div class="card-body" style="padding: 16px;">
+                        <h3 class="card-title" style="font-size: 15px;">简洁卡片</h3>
+                        <p class="card-text" style="font-size: 13px; color: #636366;">无边框的设计风格</p>
+                    </div>
+                </div>
+                <div class="card card-sm" style="background: linear-gradient(135deg, #6750A4 0%, #4F7AFF 100%);">
+                    <div class="card-body" style="padding: 16px;">
+                        <h3 class="card-title" style="font-size: 15px; color: white;">渐变卡片</h3>
+                        <p class="card-text" style="font-size: 13px; color: rgba(255,255,255,0.9);">使用渐变背景</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="card card-sm" style="background: #F7F8FA;"&gt;
+    &lt;div class="card-body" style="padding: 16px;"&gt;
+        &lt;h3 class="card-title"&gt;简洁卡片&lt;/h3&gt;
+        &lt;p class="card-text"&gt;无边框的设计&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- API 文档 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Card Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>size</code></td>
+                    <td>卡片尺寸</td>
+                    <td>'sm' | 'md' | 'lg'</td>
+                    <td>'md'</td>
+                </tr>
+                <tr>
+                    <td><code>bordered</code></td>
+                    <td>是否显示边框</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>shadow</code></td>
+                    <td>阴影级别</td>
+                    <td>'none' | 'shadow' | 'shadow-lg'</td>
+                    <td>'none'</td>
+                </tr>
+                <tr>
+                    <td><code>hoverable</code></td>
+                    <td>是否可悬浮</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>cover</code></td>
+                    <td>封面图片</td>
+                    <td>string</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">CSS 类名</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>类名</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>card</code></td>
+                    <td>基础卡片样式</td>
+                </tr>
+                <tr>
+                    <td><code>card-sm</code></td>
+                    <td>小尺寸卡片 (280px)</td>
+                </tr>
+                <tr>
+                    <td><code>card-md</code></td>
+                    <td>中尺寸卡片 (320px)</td>
+                </tr>
+                <tr>
+                    <td><code>card-lg</code></td>
+                    <td>大尺寸卡片 (380px)</td>
+                </tr>
+                <tr>
+                    <td><code>card-shadow</code></td>
+                    <td>基础阴影</td>
+                </tr>
+                <tr>
+                    <td><code>card-shadow-lg</code></td>
+                    <td>强阴影</td>
+                </tr>
+                <tr>
+                    <td><code>card-hover</code></td>
+                    <td>悬浮效果</td>
+                </tr>
+                <tr>
+                    <td><code>card-bordered</code></td>
+                    <td>显示边框</td>
+                </tr>
+                <tr>
+                    <td><code>card-header</code></td>
+                    <td>卡片头部</td>
+                </tr>
+                <tr>
+                    <td><code>card-title</code></td>
+                    <td>卡片标题</td>
+                </tr>
+                <tr>
+                    <td><code>card-subtitle</code></td>
+                    <td>卡片副标题</td>
+                </tr>
+                <tr>
+                    <td><code>card-body</code></td>
+                    <td>卡片内容区</td>
+                </tr>
+                <tr>
+                    <td><code>card-footer</code></td>
+                    <td>卡片底部</td>
+                </tr>
+                <tr>
+                    <td><code>card-actions</code></td>
+                    <td>卡片操作区</td>
+                </tr>
+                <tr>
+                    <td><code>card-cover</code></td>
+                    <td>封面图片</td>
+                </tr>
+                <tr>
+                    <td><code>card-text</code></td>
+                    <td>卡片文本</td>
+                </tr>
+                <tr>
+                    <td><code>card-meta</code></td>
+                    <td>元信息容器</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next"
 import { HeatMap } from "@/components/LuminaAnalytics/HeatMap"
 import { StatsCards } from "@/components/LuminaAnalytics/StatsCards"
 import { TagDistributionChart } from "@/components/LuminaAnalytics/TagDistributionChart"
-import { TodoStatsCard } from "@/components/LuminaAnalytics/TodoStatsCard"
 import dayjs from "dayjs"
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button } from "@heroui/react"
 import { Icon } from '@/components/Common/Iconify/icons'
@@ -36,7 +35,7 @@ const Analytics = observer(() => {
 
   return (
     <ScrollArea onBottom={() => { }} fixMobileTopBar className="px-6 space-y-6 md:p-6 mx-auto max-w-7xl" >
-      {/* Design v2.0 - 月份选择器白色卡�?*/}
+      {/* Design v2.0 - 月份选择器白色卡�?*/}
       <div className="bg-white rounded-2xl shadow-card ring-1 ring-gray-900/5 p-4">
         <div className="w-72">
           <Dropdown>
@@ -75,8 +74,6 @@ const Analytics = observer(() => {
       </div>
 
       <StatsCards stats={stats ?? {}} />
-
-      <TodoStatsCard />
 
       <HeatMap
         data={data}

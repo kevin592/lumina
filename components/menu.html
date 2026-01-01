@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu 导航菜单 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .api-table th, .api-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .api-table th {
+            background: #F7F8FA;
+            color: #1C1C1E;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .api-table td {
+            color: #4E5969;
+            font-size: 13px;
+        }
+        .api-table code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #165DFF;
+        }
+
+        /* Menu Styles */
+        .menu {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #E5E6EB;
+            width: 240px;
+            display: inline-block;
+        }
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: #4E5969;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .menu-item:hover {
+            background: #F7F8FA;
+            color: #6750A4;
+        }
+        .menu-item.active {
+            background: linear-gradient(90deg, rgba(103, 80, 164, 0.1) 0%, transparent 100%);
+            color: #6750A4;
+            font-weight: 500;
+        }
+        .menu-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #6750A4;
+            border-radius: 2px 0 0 2px;
+        }
+        .menu-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .menu-item.disabled:hover {
+            background: transparent;
+            color: #4E5969;
+        }
+        .menu-icon {
+            width: 20px;
+            margin-right: 10px;
+            text-align: center;
+        }
+        .menu-item-arrow {
+            margin-left: auto;
+            font-size: 12px;
+            transition: transform 0.2s;
+        }
+        .menu-submenu {
+            background: #F7F8FA;
+        }
+        .menu-submenu .menu-item {
+            padding-left: 46px;
+        }
+        .menu-inline {
+            display: block;
+            width: 100%;
+        }
+        .menu-inline .menu-item {
+            border-radius: 6px;
+            margin: 4px 8px;
+        }
+        .menu-horizontal {
+            display: flex;
+            width: 100%;
+            border: none;
+            border-bottom: 2px solid #E5E6EB;
+            border-radius: 0;
+        }
+        .menu-horizontal .menu-item {
+            border-radius: 0;
+            padding: 14px 20px;
+        }
+        .menu-horizontal .menu-item.active {
+            background: transparent;
+        }
+        .menu-horizontal .menu-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -2px;
+            top: auto;
+            width: 100%;
+            height: 2px;
+            border-radius: 0;
+        }
+        .menu-group-title {
+            padding: 8px 16px;
+            color: #86909C;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .menu-dark {
+            background: #1D2129;
+            border-color: #32353E;
+        }
+        .menu-dark .menu-item {
+            color: #E5E6EB;
+        }
+        .menu-dark .menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .menu-dark .menu-item.active {
+            background: rgba(103, 80, 164, 0.2);
+            color: #EADDFF;
+        }
+        .menu-dark .menu-group-title {
+            color: #86909C;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Menu 导航菜单</h1>
+    <p class="component-subtitle">为页面和功能提供导航的菜单列表</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">最简单的垂直菜单</div>
+            <div class="menu">
+                <a href="#" class="menu-item active">
+                    <i class="fa-solid fa-house menu-icon"></i>
+                    首页
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fa-solid fa-user menu-icon"></i>
+                    用户中心
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fa-solid fa-gear menu-icon"></i>
+                    系统设置
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fa-solid fa-chart-line menu-icon"></i>
+                    数据统计
+                </a>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="menu"&gt;
+    &lt;a href="#" class="menu-item active"&gt;
+        &lt;i class="fa-solid fa-house menu-icon"&gt;&lt;/i&gt;
+        首页
+    &lt;/a&gt;
+    &lt;a href="#" class="menu-item"&gt;
+        &lt;i class="fa-solid fa-user menu-icon"&gt;&lt;/i&gt;
+        用户中心
+    &lt;/a&gt;
+    &lt;a href="#" class="menu-item"&gt;
+        &lt;i class="fa-solid fa-gear menu-icon"&gt;&lt;/i&gt;
+        系统设置
+    &lt;/a&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 水平菜单 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">水平菜单</h2>
+        <div class="demo-box">
+            <div class="demo-title">水平排列的导航菜单</div>
+            <div class="menu menu-horizontal">
+                <a href="#" class="menu-item active">
+                    <i class="fa-solid fa-house menu-icon"></i>
+                    首页
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fa-solid fa-box menu-icon"></i>
+                    产品
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fa-solid fa-newspaper menu-icon"></i>
+                    新闻
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fa-solid fa-phone menu-icon"></i>
+                    联系我们
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fa-solid fa-circle-info menu-icon"></i>
+                    关于
+                </a>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="menu menu-horizontal"&gt;
+    &lt;a href="#" class="menu-item active"&gt;
+        &lt;i class="fa-solid fa-house menu-icon"&gt;&lt;/i&gt;
+        首页
+    &lt;/a&gt;
+    &lt;a href="#" class="menu-item"&gt;
+        &lt;i class="fa-solid fa-box menu-icon"&gt;&lt;/i&gt;
+        产品
+    &lt;/a&gt;
+    &lt;a href="#" class="menu-item"&gt;
+        &lt;i class="fa-solid fa-newspaper menu-icon"&gt;&lt;/i&gt;
+        新闻
+    &lt;/a&gt;
+    &lt;a href="#" class="menu-item"&gt;
+        &lt;i class="fa-solid fa-phone menu-icon"&gt;&lt;/i&gt;
+        联系我们
+    &lt;/a&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 分组菜单 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">分组菜单</h2>
+        <div class="demo-box">
+            <div class="demo-title">使用标题进行分组</div>
+            <div class="menu">
+                <div class="menu-group-title">系统管理</div>
+                <a href="#" class="menu-item active">
+                    <i class="fa-solid fa-users menu-icon"></i>
+                    用户管理
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fa-solid fa-user-shield menu-icon"></i>
+                    角色管理
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fa-solid fa-key menu-icon"></i>
+                    权限管理
+                </a>
+                <div class="menu-group-title">业务功能</div>
+                <a href="#" class="menu-item">
+                    <i class="fa-solid fa-file-lines menu-icon"></i>
+                    文章管理
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fa-solid fa-comments menu-icon"></i>
+                    评论管理
+                </a>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="menu"&gt;
+    &lt;div class="menu-group-title"&gt;系统管理&lt;/div&gt;
+    &lt;a href="#" class="menu-item active"&gt;
+        &lt;i class="fa-solid fa-users menu-icon"&gt;&lt;/i&gt;
+        用户管理
+    &lt;/a&gt;
+    &lt;a href="#" class="menu-item"&gt;
+        &lt;i class="fa-solid fa-user-shield menu-icon"&gt;&lt;/i&gt;
+        角色管理
+    &lt;/a&gt;
+    &lt;div class="menu-group-title"&gt;业务功能&lt;/div&gt;
+    &lt;a href="#" class="menu-item"&gt;
+        &lt;i class="fa-solid fa-file-lines menu-icon"&gt;&lt;/i&gt;
+        文章管理
+    &lt;/a&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 子菜单 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">子菜单</h2>
+        <div class="demo-box">
+            <div class="demo-title">支持多级嵌套菜单</div>
+            <div class="menu">
+                <a href="#" class="menu-item active">
+                    <i class="fa-solid fa-house menu-icon"></i>
+                    首页
+                </a>
+                <div class="menu-item">
+                    <i class="fa-solid fa-cube menu-icon"></i>
+                    产品中心
+                    <i class="fa-solid fa-chevron-right menu-item-arrow"></i>
+                </div>
+                <div class="menu-submenu">
+                    <a href="#" class="menu-item">产品列表</a>
+                    <a href="#" class="menu-item">产品分类</a>
+                    <a href="#" class="menu-item">库存管理</a>
+                </div>
+                <div class="menu-item">
+                    <i class="fa-solid fa-cart-shopping menu-icon"></i>
+                    订单管理
+                    <i class="fa-solid fa-chevron-right menu-item-arrow"></i>
+                </div>
+                <div class="menu-submenu">
+                    <a href="#" class="menu-item">订单列表</a>
+                    <a href="#" class="menu-item">退款管理</a>
+                </div>
+                <a href="#" class="menu-item">
+                    <i class="fa-solid fa-gear menu-icon"></i>
+                    系统设置
+                </a>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="menu"&gt;
+    &lt;a href="#" class="menu-item active"&gt;
+        &lt;i class="fa-solid fa-house menu-icon"&gt;&lt;/i&gt;
+        首页
+    &lt;/a&gt;
+    &lt;div class="menu-item"&gt;
+        &lt;i class="fa-solid fa-cube menu-icon"&gt;&lt;/i&gt;
+        产品中心
+        &lt;i class="fa-solid fa-chevron-right menu-item-arrow"&gt;&lt;/i&gt;
+    &lt;/div&gt;
+    &lt;div class="menu-submenu"&gt;
+        &lt;a href="#" class="menu-item"&gt;产品列表&lt;/a&gt;
+        &lt;a href="#" class="menu-item"&gt;产品分类&lt;/a&gt;
+        &lt;a href="#" class="menu-item"&gt;库存管理&lt;/a&gt;
+    &lt;/div&gt;
+    &lt;a href="#" class="menu-item"&gt;
+        &lt;i class="fa-solid fa-gear menu-icon"&gt;&lt;/i&gt;
+        系统设置
+    &lt;/a&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 深色主题 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">深色主题</h2>
+        <div class="demo-box">
+            <div class="demo-title">深色背景的菜单</div>
+            <div class="menu menu-dark">
+                <a href="#" class="menu-item active">
+                    <i class="fa-solid fa-house menu-icon"></i>
+                    首页
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fa-solid fa-user menu-icon"></i>
+                    用户中心
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fa-solid fa-chart-bar menu-icon"></i>
+                    数据分析
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fa-solid fa-gear menu-icon"></i>
+                    系统设置
+                </a>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="menu menu-dark"&gt;
+    &lt;a href="#" class="menu-item active"&gt;
+        &lt;i class="fa-solid fa-house menu-icon"&gt;&lt;/i&gt;
+        首页
+    &lt;/a&gt;
+    &lt;a href="#" class="menu-item"&gt;
+        &lt;i class="fa-solid fa-user menu-icon"&gt;&lt;/i&gt;
+        用户中心
+    &lt;/a&gt;
+    &lt;a href="#" class="menu-item"&gt;
+        &lt;i class="fa-solid fa-chart-bar menu-icon"&gt;&lt;/i&gt;
+        数据分析
+    &lt;/a&gt;
+    &lt;a href="#" class="menu-item"&gt;
+        &lt;i class="fa-solid fa-gear menu-icon"&gt;&lt;/i&gt;
+        系统设置
+    &lt;/a&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 禁用状态 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">禁用状态</h2>
+        <div class="demo-box">
+            <div class="demo-title">禁用某些菜单项</div>
+            <div class="menu">
+                <a href="#" class="menu-item active">
+                    <i class="fa-solid fa-house menu-icon"></i>
+                    首页
+                </a>
+                <a href="#" class="menu-item disabled">
+                    <i class="fa-solid fa-lock menu-icon"></i>
+                    需要授权
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fa-solid fa-user menu-icon"></i>
+                    用户中心
+                </a>
+                <a href="#" class="menu-item disabled">
+                    <i class="fa-solid fa-ban menu-icon"></i>
+                    不可用
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fa-solid fa-gear menu-icon"></i>
+                    系统设置
+                </a>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="menu"&gt;
+    &lt;a href="#" class="menu-item active"&gt;首页&lt;/a&gt;
+    &lt;a href="#" class="menu-item disabled"&gt;
+        &lt;i class="fa-solid fa-lock menu-icon"&gt;&lt;/i&gt;
+        需要授权
+    &lt;/a&gt;
+    &lt;a href="#" class="menu-item"&gt;用户中心&lt;/a&gt;
+    &lt;a href="#" class="menu-item disabled"&gt;
+        &lt;i class="fa-solid fa-ban menu-icon"&gt;&lt;/i&gt;
+        不可用
+    &lt;/a&gt;
+    &lt;a href="#" class="menu-item"&gt;系统设置&lt;/a&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 缩起菜单 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">缩起菜单</h2>
+        <div class="demo-box">
+            <div class="demo-title">只显示图标的收缩菜单</div>
+            <div style="display: flex; gap: 20px;">
+                <div class="menu" style="width: 80px;">
+                    <a href="#" class="menu-item active" style="justify-content: center;">
+                        <i class="fa-solid fa-house menu-icon" style="margin: 0;"></i>
+                    </a>
+                    <a href="#" class="menu-item" style="justify-content: center;">
+                        <i class="fa-solid fa-user menu-icon" style="margin: 0;"></i>
+                    </a>
+                    <a href="#" class="menu-item" style="justify-content: center;">
+                        <i class="fa-solid fa-chart-line menu-icon" style="margin: 0;"></i>
+                    </a>
+                    <a href="#" class="menu-item" style="justify-content: center;">
+                        <i class="fa-solid fa-gear menu-icon" style="margin: 0;"></i>
+                    </a>
+                </div>
+                <div class="menu" style="width: 240px;">
+                    <a href="#" class="menu-item active">
+                        <i class="fa-solid fa-house menu-icon"></i>
+                        首页
+                    </a>
+                    <a href="#" class="menu-item">
+                        <i class="fa-solid fa-user menu-icon"></i>
+                        用户中心
+                    </a>
+                    <a href="#" class="menu-item">
+                        <i class="fa-solid fa-chart-line menu-icon"></i>
+                        数据统计
+                    </a>
+                    <a href="#" class="menu-item">
+                        <i class="fa-solid fa-gear menu-icon"></i>
+                        系统设置
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;!-- 缩起状态 --&gt;
+&lt;div class="menu" style="width: 80px;"&gt;
+    &lt;a href="#" class="menu-item active" style="justify-content: center;"&gt;
+        &lt;i class="fa-solid fa-house menu-icon" style="margin: 0;"&gt;&lt;/i&gt;
+    &lt;/a&gt;
+    &lt;a href="#" class="menu-item" style="justify-content: center;"&gt;
+        &lt;i class="fa-solid fa-user menu-icon" style="margin: 0;"&gt;&lt;/i&gt;
+    &lt;/a&gt;
+&lt;/div&gt;
+
+&lt;!-- 展开状态 --&gt;
+&lt;div class="menu" style="width: 240px;"&gt;
+    &lt;a href="#" class="menu-item active"&gt;
+        &lt;i class="fa-solid fa-house menu-icon"&gt;&lt;/i&gt;
+        首页
+    &lt;/a&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- API 文档 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Menu Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>mode</code></td>
+                    <td>菜单类型</td>
+                    <td>'vertical' | 'horizontal' | 'inline'</td>
+                    <td>'vertical'</td>
+                </tr>
+                <tr>
+                    <td><code>theme</code></td>
+                    <td>主题</td>
+                    <td>'light' | 'dark'</td>
+                    <td>'light'</td>
+                </tr>
+                <tr>
+                    <td><code>selectedKeys</code></td>
+                    <td>当前选中的菜单项 key 数组</td>
+                    <td>string[]</td>
+                    <td>[]</td>
+                </tr>
+                <tr>
+                    <td><code>defaultSelectedKeys</code></td>
+                    <td>初始选中的菜单项 key 数组</td>
+                    <td>string[]</td>
+                    <td>[]</td>
+                </tr>
+                <tr>
+                    <td><code>openKeys</code></td>
+                    <td>当前展开的SubMenu菜单项 key 数组</td>
+                    <td>string[]</td>
+                    <td>[]</td>
+                </tr>
+                <tr>
+                    <td><code>defaultOpenKeys</code></td>
+                    <td>初始展开的SubMenu菜单项 key 数组</td>
+                    <td>string[]</td>
+                    <td>[]</td>
+                </tr>
+                <tr>
+                    <td><code>onClick</code></td>
+                    <td>点击 MenuItem 时的回调</td>
+                    <td>(item: MenuItem) => void</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>inlineIndent</code></td>
+                    <td>inline 模式下的菜单缩进宽度</td>
+                    <td>number</td>
+                    <td>24</td>
+                </tr>
+                <tr>
+                    <td><code>collapsed</code></td>
+                    <td>是否收起菜单</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">MenuItem Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>key</code></td>
+                    <td>唯一标识</td>
+                    <td>string</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>disabled</code></td>
+                    <td>是否禁用</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>icon</code></td>
+                    <td>菜单图标</td>
+                    <td>ReactNode</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>danger</code></td>
+                    <td>是否展示为危险操作</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">SubMenu Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>key</code></td>
+                    <td>唯一标识</td>
+                    <td>string</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>disabled</code></td>
+                    <td>是否禁用</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>icon</code></td>
+                    <td>菜单图标</td>
+                    <td>ReactNode</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>title</code></td>
+                    <td>子菜单标题</td>
+                    <td>string | ReactNode</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>onTitleClick</code></td>
+                    <td>点击子菜单标题时的回调</td>
+                    <td>(info: MenuInfo) => void</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">CSS 类名</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>类名</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>menu</code></td>
+                    <td>基础菜单样式</td>
+                </tr>
+                <tr>
+                    <td><code>menu-item</code></td>
+                    <td>菜单项</td>
+                </tr>
+                <tr>
+                    <td><code>menu-item.active</code></td>
+                    <td>激活状态</td>
+                </tr>
+                <tr>
+                    <td><code>menu-item.disabled</code></td>
+                    <td>禁用状态</td>
+                </tr>
+                <tr>
+                    <td><code>menu-icon</code></td>
+                    <td>图标样式</td>
+                </tr>
+                <tr>
+                    <td><code>menu-item-arrow</code></td>
+                    <td>箭头样式</td>
+                </tr>
+                <tr>
+                    <td><code>menu-submenu</code></td>
+                    <td>子菜单容器</td>
+                </tr>
+                <tr>
+                    <td><code>menu-horizontal</code></td>
+                    <td>水平菜单</td>
+                </tr>
+                <tr>
+                    <td><code>menu-inline</code></td>
+                    <td>内联菜单</td>
+                </tr>
+                <tr>
+                    <td><code>menu-dark</code></td>
+                    <td>深色主题</td>
+                </tr>
+                <tr>
+                    <td><code>menu-group-title</code></td>
+                    <td>分组标题</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+
+        // 菜单项点击交互
+        document.querySelectorAll('.menu-item[href="#"]').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (!item.classList.contains('disabled')) {
+                    e.preventDefault();
+                    // 移除同级菜单项的激活状态
+                    const menu = item.closest('.menu');
+                    menu.querySelectorAll('.menu-item.active').forEach(i => {
+                        i.classList.remove('active');
+                    });
+                    // 激活当前菜单项
+                    item.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

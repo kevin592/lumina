@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Divider 分割线 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Divider Styles */
+        .divider {
+            border: none;
+            border-top: 1px solid #E5E6EB;
+            margin: 24px 0;
+        }
+        .divider-dashed {
+            border-top-style: dashed;
+        }
+        .divider-with-text {
+            display: flex;
+            align-items: center;
+            margin: 24px 0;
+            color: #4E5969;
+            font-size: 14px;
+        }
+        .divider-with-text::before,
+        .divider-with-text::after {
+            content: '';
+            flex: 1;
+            border-top: 1px solid #E5E6EB;
+        }
+        .divider-with-text::before {
+            margin-right: 16px;
+        }
+        .divider-with-text::after {
+            margin-left: 16px;
+        }
+        .divider-vertical {
+            display: inline-block;
+            width: 1px;
+            height: 1em;
+            margin: 0 12px;
+            border-left: 1px solid #E5E6EB;
+            border-top: none;
+            vertical-align: middle;
+        }
+        .divider-text-left {
+            justify-content: flex-start;
+        }
+        .divider-text-left::before {
+            display: none;
+        }
+        .divider-text-right {
+            justify-content: flex-end;
+        }
+        .divider-text-right::after {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Divider 分割线</h1>
+    <p class="component-subtitle">用于区隔内容的分割线</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">默认分割线</div>
+            <p style="color: #4E5969; margin-bottom: 12px;">这是一段内容</p>
+            <hr class="divider">
+            <p style="color: #4E5969; margin-top: 12px;">这是另一段内容</p>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;p&gt;这是一段内容&lt;/p&gt;
+&lt;hr class="divider"&gt;
+&lt;p&gt;这是另一段内容&lt;/p&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 虚线分割 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">虚线分割</h2>
+        <div class="demo-box">
+            <div class="demo-title">使用虚线样式的分割线</div>
+            <p style="color: #4E5969; margin-bottom: 12px;">第一段内容</p>
+            <hr class="divider divider-dashed">
+            <p style="color: #4E5969; margin-top: 12px;">第二段内容</p>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;p&gt;第一段内容&lt;/p&gt;
+&lt;hr class="divider divider-dashed"&gt;
+&lt;p&gt;第二段内容&lt;/p&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 带文字的分割线 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">带文字的分割线</h2>
+        <div class="demo-box">
+            <div class="demo-title">居中文字</div>
+            <div class="divider-with-text">文本</div>
+            <div class="divider-with-text">标题</div>
+            <div class="divider-with-text" style="font-size: 16px; font-weight: 600; color: #1C1C1E;">重要提示</div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="divider-with-text"&gt;文本&lt;/div&gt;
+&lt;div class="divider-with-text"&gt;标题&lt;/div&gt;
+&lt;div class="divider-with-text" style="font-size: 16px; font-weight: 600; color: #1C1C1E;"&gt;重要提示&lt;/div&gt;</pre>
+        </div>
+
+        <div class="demo-title" style="margin-top: 24px;">左侧文字</div>
+        <div class="demo-box">
+            <div class="divider-with-text divider-text-left">左侧文本</div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="divider-with-text divider-text-left"&gt;左侧文本&lt;/div&gt;</pre>
+        </div>
+
+        <div class="demo-title" style="margin-top: 24px;">右侧文字</div>
+        <div class="demo-box">
+            <div class="divider-with-text divider-text-right">右侧文本</div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="divider-with-text divider-text-right"&gt;右侧文本&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 垂直分割线 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">垂直分割线</h2>
+        <div class="demo-box">
+            <div class="demo-title">内联垂直分割</div>
+            <span style="color: #4E5969;">第一项</span>
+            <span class="divider-vertical"></span>
+            <span style="color: #4E5969;">第二项</span>
+            <span class="divider-vertical"></span>
+            <span style="color: #4E5969;">第三项</span>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;span&gt;第一项&lt;/span&gt;
+&lt;span class="divider-vertical"&gt;&lt;/span&gt;
+&lt;span&gt;第二项&lt;/span&gt;
+&lt;span class="divider-vertical"&gt;&lt;/span&gt;
+&lt;span&gt;第三项&lt;/span&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 自定义间距 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">自定义间距</h2>
+        <div class="demo-box">
+            <div class="demo-title">调整分割线上下的间距</div>
+            <p style="color: #4E5969; margin-bottom: 12px;">内容 A</p>
+            <hr class="divider" style="margin: 40px 0;">
+            <p style="color: #4E5969; margin-top: 12px;">内容 B</p>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;p&gt;内容 A&lt;/p&gt;
+&lt;hr class="divider" style="margin: 40px 0;"&gt;
+&lt;p&gt;内容 B&lt;/p&gt;</pre>
+        </div>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,10 +1,8 @@
-import { NoteType } from "@shared/lib/types";
 import { PromiseState } from "@/store/standard/PromiseState";
 
 export type OnSendContentType = {
   content: string;
   files: (FileType & { uploadPath: string })[]
-  noteType: NoteType;
   references: number[]
   metadata?: any;
 }

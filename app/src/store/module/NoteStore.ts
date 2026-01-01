@@ -7,7 +7,7 @@ import { ToastPlugin } from '../module/Toast/Toast';
 import i18n from '@/lib/i18n';
 import { api } from '@/lib/trpc';
 import { eventBus } from '@/lib/event';
-import { Attachment, NoteType, type Note } from '@shared/lib/types';
+import { Attachment, type Note } from '@shared/lib/types';
 import { makeAutoObservable } from 'mobx';
 
 // 笔记更新参数接口
@@ -15,7 +15,6 @@ export interface UpsertNoteParams {
     content?: string | null;
     isArchived?: boolean;
     isRecycle?: boolean;
-    type?: NoteType;
     id?: number;
     attachments?: Attachment[];
     refresh?: boolean;
@@ -66,7 +65,6 @@ export class NoteOperationStore {
                 content = null,
                 isArchived,
                 isRecycle,
-                type,
                 id,
                 attachments = [],
                 refresh = true,
@@ -81,7 +79,6 @@ export class NoteOperationStore {
 
             const res = await api.notes.upsert.mutate({
                 content,
-                type,
                 isArchived,
                 isRecycle,
                 id,

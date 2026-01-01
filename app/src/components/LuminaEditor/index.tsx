@@ -4,7 +4,6 @@ import { RootStore } from "@/store"
 import { LuminaStore } from "@/store/luminaStore"
 import dayjs from "@/lib/dayjs"
 import { useEffect, useRef } from "react"
-import { NoteType } from "@shared/lib/types"
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom"
 
 type IProps = {
@@ -142,14 +141,14 @@ export const LuminaEditor = observer(({ mode, onSended, onHeightChange, isInDial
         isCreateMode ? <div className='text-xs text-ignore ml-2'>Drop to upload files</div> :
           <div className='text-xs text-desc'>{dayjs(Lumina.curSelectedNote!.createdAt).format("YYYY-MM-DD hh:mm:ss")}</div>
       }
-      onSend={async ({ files, references, noteType, metadata }) => {
+      onSend={async ({ files, references, metadata }) => {
         if (isCreateMode) {
-          console.log("createMode", files, references, noteType, metadata)
+          console.log("createMode", files, references, metadata)
           //@ts-ignore
-          await Lumina.upsertNote.call({ type: noteType, references, refresh: false, content: Lumina.noteContent, attachments: files.map(i => { return { name: i.name, path: i.uploadPath, size: i.size, type: i.type } }), metadata })
+          await Lumina.upsertNote.call({ references, refresh: false, content: Lumina.noteContent, attachments: files.map(i => { return { name: i.name, path: i.uploadPath, size: i.size, type: i.type } }), metadata })
           Lumina.createAttachmentsStorage.clear()
           Lumina.createContentStorage.clear()
-          if (Lumina.noteTypeDefault == NoteType.Lumina && location.pathname != '/') {
+          if (location.pathname != '/') {
             await navigate('/')
             Lumina.forceQuery++
           }
@@ -157,7 +156,6 @@ export const LuminaEditor = observer(({ mode, onSended, onHeightChange, isInDial
         } else {
           await Lumina.upsertNote.call({
             id: Lumina.curSelectedNote!.id,
-            type: noteType,
             //@ts-ignore
             content: Lumina.curSelectedNote.content,
             //@ts-ignore

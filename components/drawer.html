@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drawer 抽屉 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .api-table th, .api-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .api-table th {
+            background: #F7F8FA;
+            color: #1C1C1E;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .api-table td {
+            color: #4E5969;
+            font-size: 13px;
+        }
+        .api-table code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #165DFF;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            line-height: 1;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6750A4 0%, #4F7AFF 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(103, 80, 164, 0.3);
+        }
+        .btn-secondary {
+            background: #EADDFF;
+            color: #21005D;
+        }
+        .btn-ghost {
+            background: transparent;
+            color: #6750A4;
+        }
+        .btn-ghost:hover {
+            background: #F7F8FA;
+        }
+
+        /* Drawer Styles */
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            backdrop-filter: blur(4px);
+        }
+        .drawer-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .drawer {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            background: white;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            z-index: 1001;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .drawer-right {
+            right: 0;
+            transform: translateX(100%);
+        }
+        .drawer-left {
+            left: 0;
+            transform: translateX(-100%);
+        }
+        .drawer-top {
+            top: 0;
+            left: 0;
+            right: 0;
+            height: auto;
+            transform: translateY(-100%);
+        }
+        .drawer-bottom {
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: auto;
+            transform: translateY(100%);
+        }
+        .drawer-overlay.active .drawer-right,
+        .drawer-overlay.active .drawer-left,
+        .drawer-overlay.active .drawer-top,
+        .drawer-overlay.active .drawer-bottom {
+            transform: translateX(0) translateY(0);
+        }
+        .drawer-sm {
+            width: 300px;
+        }
+        .drawer-md {
+            width: 500px;
+        }
+        .drawer-lg {
+            width: 700px;
+        }
+        .drawer-xl {
+            width: 900px;
+        }
+        .drawer-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #E5E6EB;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .drawer-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin: 0;
+        }
+        .drawer-close {
+            background: transparent;
+            border: none;
+            color: #86909C;
+            font-size: 20px;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .drawer-close:hover {
+            background: #F7F8FA;
+            color: #1C1C1E;
+        }
+        .drawer-body {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+        .drawer-body p {
+            margin: 0 0 16px 0;
+            color: #4E5969;
+            line-height: 1.6;
+        }
+        .drawer-body p:last-child {
+            margin-bottom: 0;
+        }
+        .drawer-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #E5E6EB;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Drawer 抽屉</h1>
+    <p class="component-subtitle">从屏幕一侧滑出的浮动面板,用于展示更多内容或操作</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">从右侧滑出</div>
+            <button class="btn btn-primary" onclick="openDrawer('basic-drawer')">
+                <i class="fa-solid fa-bars"></i>
+                打开抽屉
+            </button>
+
+            <div class="drawer-overlay" id="basic-drawer">
+                <div class="drawer drawer-right drawer-md">
+                    <div class="drawer-header">
+                        <h3 class="drawer-title">抽屉标题</h3>
+                        <button class="drawer-close" onclick="closeDrawer('basic-drawer')">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div class="drawer-body">
+                        <p>这是一个基础的抽屉组件。抽屉可以从屏幕的一侧滑出,用于展示额外的内容或操作。</p>
+                        <p>抽屉适合用于需要保留当前页面上下文的场景,用户可以在不离开当前页面的情况下查看或编辑信息。</p>
+                        <p>与对话框相比,抽屉可以展示更多的内容,且不会完全遮挡页面。</p>
+                    </div>
+                    <div class="drawer-footer">
+                        <button class="btn btn-ghost" onclick="closeDrawer('basic-drawer')">取消</button>
+                        <button class="btn btn-primary" onclick="closeDrawer('basic-drawer')">确定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="drawer-overlay" id="drawer-id"&gt;
+    &lt;div class="drawer drawer-right drawer-md"&gt;
+        &lt;div class="drawer-header"&gt;
+            &lt;h3 class="drawer-title"&gt;抽屉标题&lt;/h3&gt;
+            &lt;button class="drawer-close"&gt;
+                &lt;i class="fa-solid fa-xmark"&gt;&lt;/i&gt;
+            &lt;/button&gt;
+        &lt;/div&gt;
+        &lt;div class="drawer-body"&gt;
+            &lt;p&gt;抽屉内容&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class="drawer-footer"&gt;
+            &lt;button class="btn btn-ghost"&gt;取消&lt;/button&gt;
+            &lt;button class="btn btn-primary"&gt;确定&lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 不同位置 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">不同位置</h2>
+        <div class="demo-box">
+            <div class="demo-title">上、下、左、右四个方向</div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="openDrawer('top-drawer')">从上方</button>
+                <button class="btn btn-primary" onclick="openDrawer('bottom-drawer')">从下方</button>
+                <button class="btn btn-primary" onclick="openDrawer('left-drawer')">从左侧</button>
+                <button class="btn btn-primary" onclick="openDrawer('right-drawer')">从右侧</button>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;!-- 从上方 --&gt;
+&lt;div class="drawer drawer-top"&gt;&lt;/div&gt;
+
+&lt;!-- 从下方 --&gt;
+&lt;div class="drawer drawer-bottom"&gt;&lt;/div&gt;
+
+&lt;!-- 从左侧 --&gt;
+&lt;div class="drawer drawer-left"&gt;&lt;/div&gt;
+
+&lt;!-- 从右侧 --&gt;
+&lt;div class="drawer drawer-right"&gt;&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 不同尺寸 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">不同尺寸</h2>
+        <div class="demo-box">
+            <div class="demo-title">小、中、大、超大四种尺寸</div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="openDrawer('size-sm-drawer')">小尺寸</button>
+                <button class="btn btn-primary" onclick="openDrawer('size-md-drawer')">中尺寸</button>
+                <button class="btn btn-primary" onclick="openDrawer('size-lg-drawer')">大尺寸</button>
+                <button class="btn btn-primary" onclick="openDrawer('size-xl-drawer')">超大</button>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="drawer drawer-right drawer-sm"&gt;&lt;!-- 300px --&gt;&lt;/div&gt;
+&lt;div class="drawer drawer-right drawer-md"&gt;&lt;!-- 500px --&gt;&lt;/div&gt;
+&lt;div class="drawer drawer-right drawer-lg"&gt;&lt;!-- 700px --&gt;&lt;/div&gt;
+&lt;div class="drawer drawer-right drawer-xl"&gt;&lt;!-- 900px --&gt;&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 无页脚 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">无页脚</h2>
+        <div class="demo-box">
+            <div class="demo-title">不需要底部操作按钮</div>
+            <button class="btn btn-primary" onclick="openDrawer('no-footer-drawer')">无页脚抽屉</button>
+
+            <div class="drawer-overlay" id="no-footer-drawer">
+                <div class="drawer drawer-right drawer-md">
+                    <div class="drawer-header">
+                        <h3 class="drawer-title">无页脚抽屉</h3>
+                        <button class="drawer-close" onclick="closeDrawer('no-footer-drawer')">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div class="drawer-body">
+                        <p>这是一个没有页脚的抽屉,适用于简单的信息展示场景。</p>
+                        <p>用户可以通过点击右上角的关闭按钮或点击遮罩层来关闭抽屉。</p>
+                        <p>这种类型的抽屉适合用于查看详情、阅读文档等不需要用户进行确认操作的场景。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="drawer drawer-right drawer-md"&gt;
+    &lt;div class="drawer-header"&gt;
+        &lt;h3 class="drawer-title"&gt;无页脚抽屉&lt;/h3&gt;
+        &lt;button class="drawer-close"&gt;
+            &lt;i class="fa-solid fa-xmark"&gt;&lt;/i&gt;
+        &lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="drawer-body"&gt;
+        &lt;p&gt;抽屉内容&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 自定义页脚 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">自定义页脚</h2>
+        <div class="demo-box">
+            <div class="demo-title">自定义底部操作按钮</div>
+            <button class="btn btn-primary" onclick="openDrawer('custom-footer-drawer')">自定义页脚</button>
+
+            <div class="drawer-overlay" id="custom-footer-drawer">
+                <div class="drawer drawer-right drawer-md">
+                    <div class="drawer-header">
+                        <h3 class="drawer-title">自定义页脚</h3>
+                        <button class="drawer-close" onclick="closeDrawer('custom-footer-drawer')">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div class="drawer-body">
+                        <p>这是一个带有自定义页脚的抽屉。你可以根据需要添加任意数量的按钮。</p>
+                    </div>
+                    <div class="drawer-footer">
+                        <button class="btn btn-ghost" onclick="closeDrawer('custom-footer-drawer')">取消</button>
+                        <button class="btn btn-secondary">上一步</button>
+                        <button class="btn btn-primary" onclick="closeDrawer('custom-footer-drawer')">下一步</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="drawer-footer"&gt;
+    &lt;button class="btn btn-ghost"&gt;取消&lt;/button&gt;
+    &lt;button class="btn btn-secondary"&gt;上一步&lt;/button&gt;
+    &lt;button class="btn btn-primary"&gt;下一步&lt;/button&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- API 文档 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Drawer Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>visible</code></td>
+                    <td>抽屉是否可见</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>placement</code></td>
+                    <td>抽屉位置</td>
+                    <td>'top' | 'bottom' | 'left' | 'right'</td>
+                    <td>'right'</td>
+                </tr>
+                <tr>
+                    <td><code>size</code></td>
+                    <td>抽屉尺寸</td>
+                    <td>'sm' | 'md' | 'lg' | 'xl'</td>
+                    <td>'md'</td>
+                </tr>
+                <tr>
+                    <td><code>title</code></td>
+                    <td>抽屉标题</td>
+                    <td>string</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>closable</code></td>
+                    <td>是否显示关闭按钮</td>
+                    <td>boolean</td>
+                    <td>true</td>
+                </tr>
+                <tr>
+                    <td><code>maskClosable</code></td>
+                    <td>点击遮罩层是否关闭</td>
+                    <td>boolean</td>
+                    <td>true</td>
+                </tr>
+                <tr>
+                    <td><code>onClose</code></td>
+                    <td>关闭时的回调</td>
+                    <td>() => void</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">CSS 类名</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>类名</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>drawer-overlay</code></td>
+                    <td>遮罩层</td>
+                </tr>
+                <tr>
+                    <td><code>drawer</code></td>
+                    <td>抽屉容器</td>
+                </tr>
+                <tr>
+                    <td><code>drawer-right</code></td>
+                    <td>从右侧滑出</td>
+                </tr>
+                <tr>
+                    <td><code>drawer-left</code></td>
+                    <td>从左侧滑出</td>
+                </tr>
+                <tr>
+                    <td><code>drawer-top</code></td>
+                    <td>从上方滑出</td>
+                </tr>
+                <tr>
+                    <td><code>drawer-bottom</code></td>
+                    <td>从下方滑出</td>
+                </tr>
+                <tr>
+                    <td><code>drawer-sm</code></td>
+                    <td>小尺寸 (300px)</td>
+                </tr>
+                <tr>
+                    <td><code>drawer-md</code></td>
+                    <td>中尺寸 (500px)</td>
+                </tr>
+                <tr>
+                    <td><code>drawer-lg</code></td>
+                    <td>大尺寸 (700px)</td>
+                </tr>
+                <tr>
+                    <td><code>drawer-xl</code></td>
+                    <td>超大尺寸 (900px)</td>
+                </tr>
+                <tr>
+                    <td><code>drawer-header</code></td>
+                    <td>抽屉头部</td>
+                </tr>
+                <tr>
+                    <td><code>drawer-title</code></td>
+                    <td>抽屉标题</td>
+                </tr>
+                <tr>
+                    <td><code>drawer-close</code></td>
+                    <td>关闭按钮</td>
+                </tr>
+                <tr>
+                    <td><code>drawer-body</code></td>
+                    <td>抽屉内容</td>
+                </tr>
+                <tr>
+                    <td><code>drawer-footer</code></td>
+                    <td>抽屉底部</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 隐藏的抽屉 -->
+    <div class="drawer-overlay" id="top-drawer">
+        <div class="drawer drawer-top" style="height: 300px;">
+            <div class="drawer-header">
+                <h3 class="drawer-title">从上方</h3>
+                <button class="drawer-close" onclick="closeDrawer('top-drawer')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="drawer-body">
+                <p>这是从上方滑出的抽屉,适合用于展示通知或简短的信息。</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="drawer-overlay" id="bottom-drawer">
+        <div class="drawer drawer-bottom" style="height: 300px;">
+            <div class="drawer-header">
+                <h3 class="drawer-title">从下方</h3>
+                <button class="drawer-close" onclick="closeDrawer('bottom-drawer')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="drawer-body">
+                <p>这是从下方滑出的抽屉,适合移动端或需要用户输入的场景。</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="drawer-overlay" id="left-drawer">
+        <div class="drawer drawer-left drawer-md">
+            <div class="drawer-header">
+                <h3 class="drawer-title">从左侧</h3>
+                <button class="drawer-close" onclick="closeDrawer('left-drawer')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="drawer-body">
+                <p>这是从左侧滑出的抽屉。在某些场景下,左侧抽屉可能更符合用户的阅读习惯。</p>
+            </div>
+            <div class="drawer-footer">
+                <button class="btn btn-ghost" onclick="closeDrawer('left-drawer')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="drawer-overlay" id="right-drawer">
+        <div class="drawer drawer-right drawer-md">
+            <div class="drawer-header">
+                <h3 class="drawer-title">从右侧</h3>
+                <button class="drawer-close" onclick="closeDrawer('right-drawer')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="drawer-body">
+                <p>这是从右侧滑出的抽屉,是最常见的抽屉形式。</p>
+            </div>
+            <div class="drawer-footer">
+                <button class="btn btn-ghost" onclick="closeDrawer('right-drawer')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="drawer-overlay" id="size-sm-drawer">
+        <div class="drawer drawer-right drawer-sm">
+            <div class="drawer-header">
+                <h3 class="drawer-title">小尺寸抽屉</h3>
+                <button class="drawer-close" onclick="closeDrawer('size-sm-drawer')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="drawer-body">
+                <p>宽度为 300px 的小尺寸抽屉。</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="drawer-overlay" id="size-md-drawer">
+        <div class="drawer drawer-right drawer-md">
+            <div class="drawer-header">
+                <h3 class="drawer-title">中尺寸抽屉</h3>
+                <button class="drawer-close" onclick="closeDrawer('size-md-drawer')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="drawer-body">
+                <p>宽度为 500px 的中尺寸抽屉。</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="drawer-overlay" id="size-lg-drawer">
+        <div class="drawer drawer-right drawer-lg">
+            <div class="drawer-header">
+                <h3 class="drawer-title">大尺寸抽屉</h3>
+                <button class="drawer-close" onclick="closeDrawer('size-lg-drawer')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="drawer-body">
+                <p>宽度为 700px 的大尺寸抽屉。</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="drawer-overlay" id="size-xl-drawer">
+        <div class="drawer drawer-right drawer-xl">
+            <div class="drawer-header">
+                <h3 class="drawer-title">超大尺寸抽屉</h3>
+                <button class="drawer-close" onclick="closeDrawer('size-xl-drawer')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="drawer-body">
+                <p>宽度为 900px 的超大尺寸抽屉。</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openDrawer(id) {
+            const drawer = document.getElementById(id);
+            if (drawer) {
+                drawer.classList.add('active');
+            }
+        }
+
+        function closeDrawer(id) {
+            const drawer = document.getElementById(id);
+            if (drawer) {
+                drawer.classList.remove('active');
+            }
+        }
+
+        // 点击遮罩层关闭
+        document.querySelectorAll('.drawer-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.classList.remove('active');
+                }
+            });
+        });
+
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

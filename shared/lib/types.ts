@@ -11,18 +11,7 @@ export type Comment = NonNullable<RouterOutput['comments']['list']>
 export type InstalledPluginInfo = NonNullable<RouterOutput['plugin']['getInstalledPlugins']>[0]
 export type Conversation = NonNullable<RouterOutput['conversation']['list']>[0]
 export type Message = NonNullable<RouterOutput['message']['list']>[0]
-export enum NoteType {
-  'LUMINA',
-}
 export type PublicUser = NonNullable<RouterOutput['users']['publicUserList']>[0]
-export function toNoteTypeEnum(v?: number, fallback: NoteType = NoteType.LUMINA): NoteType {
-  switch (v) {
-    case 0:
-      return NoteType.LUMINA;
-    default:
-      return fallback;
-  }
-}
 
 export const ZUserPerferConfigKey = z.union([
   z.literal('textFoldLength'),
@@ -332,3 +321,48 @@ export interface TrayMenuItem {
   accelerator?: string;
   enabled?: boolean;
 }
+
+// ============================================================================
+// 新增：重构后的类型定义
+// 以下类型从独立的类型文件导出，提供更好的类型安全性
+// ============================================================================
+
+// 从 note.types.ts 导出
+export type {
+  NoteType,
+  NoteMetadata,
+  NoteFilterConfig,
+  NoteListParams,
+  UpsertNoteParams,
+  AttachmentInput,
+  TagTreeNode,
+  NoteReference,
+  NoteHistory,
+  NoteShareInfo,
+  CompleteNote,
+  Attachment,
+  TagRelation,
+  Tag,
+  Comment,
+  NoteListResponse,
+  NoteStats,
+  BatchOperationResult,
+  PaginationParams,
+  PaginationResponse,
+} from './note.types';
+
+// 从 api.types.ts 导出
+export type {
+  ApiResponse,
+  PaginationParams as ApiPaginationParams,
+  PaginationResponse as ApiPaginationResponse,
+  ApiError,
+  ApiErrorCode,
+  createApiError,
+  handleApiError,
+  BatchOperationParams,
+  BatchOperationResult as ApiBatchOperationResult,
+  SearchParams,
+  SortParams,
+  QueryParams,
+} from './api.types';

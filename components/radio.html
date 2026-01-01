@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radio 单选框 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .api-table th, .api-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .api-table th {
+            background: #F7F8FA;
+            color: #1C1C1E;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .api-table td {
+            color: #4E5969;
+            font-size: 13px;
+        }
+        .api-table code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #165DFF;
+        }
+
+        /* Radio Styles */
+        .radio-wrapper {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .radio {
+            position: relative;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .radio input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .radio-box {
+            width: 100%;
+            height: 100%;
+            border: 2px solid #C9CDD4;
+            border-radius: 50%;
+            background: white;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .radio:hover .radio-box {
+            border-color: #6750A4;
+        }
+        .radio input[type="radio"]:checked + .radio-box {
+            border-color: #6750A4;
+            background: white;
+        }
+        .radio input[type="radio"]:checked + .radio-box::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #6750A4;
+            border-radius: 50%;
+        }
+        .radio-label {
+            font-size: 14px;
+            color: #4E5969;
+        }
+        .radio-wrapper.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .radio-wrapper.disabled .radio {
+            cursor: not-allowed;
+        }
+        .radio-sm {
+            width: 14px;
+            height: 14px;
+        }
+        .radio-sm input[type="radio"]:checked + .radio-box::after {
+            width: 6px;
+            height: 6px;
+        }
+        .radio-lg {
+            width: 22px;
+            height: 22px;
+        }
+        .radio-lg input[type="radio"]:checked + .radio-box::after {
+            width: 10px;
+            height: 10px;
+        }
+        .demo-row {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .radio-horizontal {
+            flex-direction: row;
+        }
+        .radio-button-wrapper {
+            display: inline-flex;
+            cursor: pointer;
+        }
+        .radio-button-wrapper input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+        .radio-button-label {
+            padding: 8px 16px;
+            border: 1.5px solid #E5E6EB;
+            background: white;
+            color: #4E5969;
+            font-size: 14px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .radio-button-wrapper:first-child .radio-button-label {
+            border-radius: 6px 0 0 6px;
+        }
+        .radio-button-wrapper:last-child .radio-button-label {
+            border-radius: 0 6px 6px 0;
+        }
+        .radio-button-wrapper:not(:last-child) .radio-button-label {
+            border-right: none;
+        }
+        .radio-button-wrapper input[type="radio"]:checked + .radio-button-label {
+            background: #6750A4;
+            color: white;
+            border-color: #6750A4;
+        }
+        .radio-button-wrapper:hover .radio-button-label {
+            color: #6750A4;
+        }
+        .radio-button-wrapper input[type="radio"]:checked + .radio-button-label:hover {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Radio 单选框</h1>
+    <p class="component-subtitle">用于在一组选项中单选</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">简单的单选框组</div>
+            <div class="demo-row">
+                <label class="radio-wrapper">
+                    <div class="radio">
+                        <input type="radio" name="option1" value="A">
+                        <div class="radio-box"></div>
+                    </div>
+                    <span class="radio-label">选项 A</span>
+                </label>
+                <label class="radio-wrapper">
+                    <div class="radio">
+                        <input type="radio" name="option1" value="B" checked>
+                        <div class="radio-box"></div>
+                    </div>
+                    <span class="radio-label">选项 B</span>
+                </label>
+                <label class="radio-wrapper">
+                    <div class="radio">
+                        <input type="radio" name="option1" value="C">
+                        <div class="radio-box"></div>
+                    </div>
+                    <span class="radio-label">选项 C</span>
+                </label>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;label class="radio-wrapper"&gt;
+    &lt;div class="radio"&gt;
+        &lt;input type="radio" name="option" value="A"&gt;
+        &lt;div class="radio-box"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;span class="radio-label"&gt;选项 A&lt;/span&gt;
+&lt;/label&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 禁用状态 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">禁用状态</h2>
+        <div class="demo-box">
+            <div class="demo-title">禁用的单选框</div>
+            <div class="demo-row">
+                <label class="radio-wrapper disabled">
+                    <div class="radio">
+                        <input type="radio" name="option2" value="A" disabled>
+                        <div class="radio-box"></div>
+                    </div>
+                    <span class="radio-label">未选中禁用</span>
+                </label>
+                <label class="radio-wrapper disabled">
+                    <div class="radio">
+                        <input type="radio" name="option2" value="B" checked disabled>
+                        <div class="radio-box"></div>
+                    </div>
+                    <span class="radio-label">已选中禁用</span>
+                </label>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;label class="radio-wrapper disabled"&gt;
+    &lt;div class="radio"&gt;
+        &lt;input type="radio" name="option" value="A" disabled&gt;
+        &lt;div class="radio-box"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;span class="radio-label"&gt;未选中禁用&lt;/span&gt;
+&lt;/label&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 尺寸 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">尺寸</h2>
+        <div class="demo-box">
+            <div class="demo-title">小、中(默认)、大三种尺寸</div>
+            <div class="demo-row">
+                <label class="radio-wrapper">
+                    <div class="radio radio-sm">
+                        <input type="radio" name="size" value="sm">
+                        <div class="radio-box"></div>
+                    </div>
+                    <span class="radio-label">小尺寸</span>
+                </label>
+                <label class="radio-wrapper">
+                    <div class="radio">
+                        <input type="radio" name="size" value="md" checked>
+                        <div class="radio-box"></div>
+                    </div>
+                    <span class="radio-label">默认尺寸</span>
+                </label>
+                <label class="radio-wrapper">
+                    <div class="radio radio-lg">
+                        <input type="radio" name="size" value="lg">
+                        <div class="radio-box"></div>
+                    </div>
+                    <span class="radio-label">大尺寸</span>
+                </label>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="radio radio-sm"&gt;&lt;/div&gt;
+&lt;div class="radio"&gt;&lt;/div&gt;
+&lt;div class="radio radio-lg"&gt;&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 单选框组 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">单选框组</h2>
+        <div class="demo-box">
+            <div class="demo-title">垂直和水平排列的单选框组</div>
+            <div style="display: flex; gap: 40px;">
+                <div>
+                    <div class="demo-title" style="margin-bottom: 8px;">垂直排列</div>
+                    <div class="radio-group">
+                        <label class="radio-wrapper">
+                            <div class="radio">
+                                <input type="radio" name="city" value="beijing">
+                                <div class="radio-box"></div>
+                            </div>
+                            <span class="radio-label">北京</span>
+                        </label>
+                        <label class="radio-wrapper">
+                            <div class="radio">
+                                <input type="radio" name="city" value="shanghai">
+                                <div class="radio-box"></div>
+                            </div>
+                            <span class="radio-label">上海</span>
+                        </label>
+                        <label class="radio-wrapper">
+                            <div class="radio">
+                                <input type="radio" name="city" value="guangzhou">
+                                <div class="radio-box"></div>
+                            </div>
+                            <span class="radio-label">广州</span>
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <div class="demo-title" style="margin-bottom: 8px;">水平排列</div>
+                    <div class="radio-group radio-horizontal">
+                        <label class="radio-wrapper">
+                            <div class="radio">
+                                <input type="radio" name="gender" value="male">
+                                <div class="radio-box"></div>
+                            </div>
+                            <span class="radio-label">男</span>
+                        </label>
+                        <label class="radio-wrapper">
+                            <div class="radio">
+                                <input type="radio" name="gender" value="female">
+                                <div class="radio-box"></div>
+                            </div>
+                            <span class="radio-label">女</span>
+                        </label>
+                        <label class="radio-wrapper">
+                            <div class="radio">
+                                <input type="radio" name="gender" value="other">
+                                <div class="radio-box"></div>
+                            </div>
+                            <span class="radio-label">其他</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="radio-group"&gt;
+    &lt;label class="radio-wrapper"&gt;
+        &lt;div class="radio"&gt;
+            &lt;input type="radio" name="city" value="beijing"&gt;
+            &lt;div class="radio-box"&gt;&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;span class="radio-label"&gt;北京&lt;/span&gt;
+    &lt;/label&gt;
+    &lt;!-- 更多选项 --&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 按钮样式 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">按钮样式</h2>
+        <div class="demo-box">
+            <div class="demo-title">按钮形式的单选框</div>
+            <div class="demo-row">
+                <div class="radio-button-wrapper">
+                    <input type="radio" name="btnOption" value="left" checked>
+                    <label class="radio-button-label">左</label>
+                </div>
+                <div class="radio-button-wrapper">
+                    <input type="radio" name="btnOption" value="center">
+                    <label class="radio-button-label">中</label>
+                </div>
+                <div class="radio-button-wrapper">
+                    <input type="radio" name="btnOption" value="right">
+                    <label class="radio-button-label">右</label>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="radio-button-wrapper"&gt;
+    &lt;input type="radio" name="btnOption" value="left" checked&gt;
+    &lt;label class="radio-button-label"&gt;左&lt;/label&gt;
+&lt;/div&gt;
+&lt;div class="radio-button-wrapper"&gt;
+    &lt;input type="radio" name="btnOption" value="center"&gt;
+    &lt;label class="radio-button-label"&gt;中&lt;/label&gt;
+&lt;/div&gt;
+&lt;div class="radio-button-wrapper"&gt;
+    &lt;input type="radio" name="btnOption" value="right"&gt;
+    &lt;label class="radio-button-label"&gt;右&lt;/label&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- API 文档 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Radio Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>checked</code></td>
+                    <td>是否选中</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>disabled</code></td>
+                    <td>是否禁用</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>value</code></td>
+                    <td>单选框的值</td>
+                    <td>string</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>name</code></td>
+                    <td>表单项名称</td>
+                    <td>string</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">CSS 类名</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>类名</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>radio-wrapper</code></td>
+                    <td>单选框容器</td>
+                </tr>
+                <tr>
+                    <td><code>radio</code></td>
+                    <td>基础单选框样式</td>
+                </tr>
+                <tr>
+                    <td><code>radio-box</code></td>
+                    <td>单选框外观</td>
+                </tr>
+                <tr>
+                    <td><code>radio-label</code></td>
+                    <td>单选框标签</td>
+                </tr>
+                <tr>
+                    <td><code>radio-sm</code></td>
+                    <td>小尺寸 (14px)</td>
+                </tr>
+                <tr>
+                    <td><code>radio-lg</code></td>
+                    <td>大尺寸 (22px)</td>
+                </tr>
+                <tr>
+                    <td><code>radio-group</code></td>
+                    <td>单选框组容器</td>
+                </tr>
+                <tr>
+                    <td><code>radio-horizontal</code></td>
+                    <td>水平排列的单选框组</td>
+                </tr>
+                <tr>
+                    <td><code>radio-button-wrapper</code></td>
+                    <td>按钮样式单选框容器</td>
+                </tr>
+                <tr>
+                    <td><code>radio-button-label</code></td>
+                    <td>按钮样式标签</td>
+                </tr>
+                <tr>
+                    <td><code>disabled</code></td>
+                    <td>禁用状态</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">事件</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>事件名</th>
+                    <th>说明</th>
+                    <th>回调参数</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>change</code></td>
+                    <td>状态改变时触发</td>
+                    <td>event: Event</td>
+                </tr>
+                <tr>
+                    <td><code>click</code></td>
+                    <td>点击时触发</td>
+                    <td>event: Event</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Switch 开关 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .api-table th, .api-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .api-table th {
+            background: #F7F8FA;
+            color: #1C1C1E;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .api-table td {
+            color: #4E5969;
+            font-size: 13px;
+        }
+        .api-table code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #165DFF;
+        }
+
+        /* Switch Styles */
+        .switch-wrapper {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .switch {
+            position: relative;
+            width: 48px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+        .switch input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .switch-slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #C9CDD4;
+            border-radius: 14px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .switch-slider::before {
+            content: '';
+            position: absolute;
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .switch input:checked + .switch-slider {
+            background: #6750A4;
+        }
+        .switch input:checked + .switch-slider::before {
+            transform: translateX(20px);
+        }
+        .switch:hover .switch-slider {
+            background: #A097BA;
+        }
+        .switch input:checked:hover + .switch-slider {
+            background: #55418A;
+        }
+        .switch-label {
+            font-size: 14px;
+            color: #4E5969;
+        }
+        .switch-wrapper.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .switch-wrapper.disabled .switch {
+            cursor: not-allowed;
+        }
+        .switch-sm {
+            width: 40px;
+            height: 24px;
+        }
+        .switch-sm .switch-slider::before {
+            height: 18px;
+            width: 18px;
+        }
+        .switch-sm input:checked + .switch-slider::before {
+            transform: translateX(16px);
+        }
+        .switch-lg {
+            width: 56px;
+            height: 32px;
+        }
+        .switch-lg .switch-slider::before {
+            height: 26px;
+            width: 26px;
+        }
+        .switch-lg input:checked + .switch-slider::before {
+            transform: translateX(24px);
+        }
+        .switch-loading .switch-slider::after {
+            content: '';
+            position: absolute;
+            height: 16px;
+            width: 16px;
+            left: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 2px solid white;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: translateY(-50%) rotate(360deg); }
+        }
+        .demo-row {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Switch 开关</h1>
+    <p class="component-subtitle">用于在两个互斥的状态之间切换</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">基本的开关</div>
+            <div class="demo-row">
+                <label class="switch-wrapper">
+                    <div class="switch">
+                        <input type="checkbox">
+                        <div class="switch-slider"></div>
+                    </div>
+                    <span class="switch-label">关闭</span>
+                </label>
+                <label class="switch-wrapper">
+                    <div class="switch">
+                        <input type="checkbox" checked>
+                        <div class="switch-slider"></div>
+                    </div>
+                    <span class="switch-label">开启</span>
+                </label>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;label class="switch-wrapper"&gt;
+    &lt;div class="switch"&gt;
+        &lt;input type="checkbox"&gt;
+        &lt;div class="switch-slider"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;span class="switch-label"&gt;关闭&lt;/span&gt;
+&lt;/label&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 尺寸 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">尺寸</h2>
+        <div class="demo-box">
+            <div class="demo-title">小、中(默认)、大三种尺寸</div>
+            <div class="demo-row">
+                <label class="switch-wrapper">
+                    <div class="switch switch-sm">
+                        <input type="checkbox" checked>
+                        <div class="switch-slider"></div>
+                    </div>
+                    <span class="switch-label">小尺寸</span>
+                </label>
+                <label class="switch-wrapper">
+                    <div class="switch">
+                        <input type="checkbox" checked>
+                        <div class="switch-slider"></div>
+                    </div>
+                    <span class="switch-label">默认尺寸</span>
+                </label>
+                <label class="switch-wrapper">
+                    <div class="switch switch-lg">
+                        <input type="checkbox" checked>
+                        <div class="switch-slider"></div>
+                    </div>
+                    <span class="switch-label">大尺寸</span>
+                </label>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="switch switch-sm"&gt;&lt;/div&gt;
+&lt;div class="switch"&gt;&lt;/div&gt;
+&lt;div class="switch switch-lg"&gt;&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 禁用状态 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">禁用状态</h2>
+        <div class="demo-box">
+            <div class="demo-title">禁用的开关</div>
+            <div class="demo-row">
+                <label class="switch-wrapper disabled">
+                    <div class="switch">
+                        <input type="checkbox" disabled>
+                        <div class="switch-slider"></div>
+                    </div>
+                    <span class="switch-label">禁用关闭</span>
+                </label>
+                <label class="switch-wrapper disabled">
+                    <div class="switch">
+                        <input type="checkbox" checked disabled>
+                        <div class="switch-slider"></div>
+                    </div>
+                    <span class="switch-label">禁用开启</span>
+                </label>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;label class="switch-wrapper disabled"&gt;
+    &lt;div class="switch"&gt;
+        &lt;input type="checkbox" disabled&gt;
+        &lt;div class="switch-slider"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;span class="switch-label"&gt;禁用关闭&lt;/span&gt;
+&lt;/label&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 加载状态 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">加载状态</h2>
+        <div class="demo-box">
+            <div class="demo-title">加载中的开关</div>
+            <div class="demo-row">
+                <label class="switch-wrapper switch-loading">
+                    <div class="switch">
+                        <input type="checkbox" disabled>
+                        <div class="switch-slider"></div>
+                    </div>
+                    <span class="switch-label">加载中</span>
+                </label>
+                <label class="switch-wrapper switch-loading">
+                    <div class="switch">
+                        <input type="checkbox" checked disabled>
+                        <div class="switch-slider"></div>
+                    </div>
+                    <span class="switch-label">加载中</span>
+                </label>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;label class="switch-wrapper switch-loading"&gt;
+    &lt;div class="switch"&gt;
+        &lt;input type="checkbox" disabled&gt;
+        &lt;div class="switch-slider"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;span class="switch-label"&gt;加载中&lt;/span&gt;
+&lt;/label&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 文字和图标 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">文字和图标</h2>
+        <div class="demo-box">
+            <div class="demo-title">带文字说明的开关</div>
+            <div class="demo-row" style="flex-direction: column; align-items: flex-start;">
+                <label class="switch-wrapper">
+                    <div class="switch">
+                        <input type="checkbox" checked>
+                        <div class="switch-slider"></div>
+                    </div>
+                    <span class="switch-label">推送通知</span>
+                </label>
+                <label class="switch-wrapper">
+                    <div class="switch">
+                        <input type="checkbox">
+                        <div class="switch-slider"></div>
+                    </div>
+                    <span class="switch-label">自动更新</span>
+                </label>
+                <label class="switch-wrapper">
+                    <div class="switch">
+                        <input type="checkbox" checked>
+                        <div class="switch-slider"></div>
+                    </div>
+                    <span class="switch-label">显示在线状态</span>
+                </label>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;label class="switch-wrapper"&gt;
+    &lt;div class="switch"&gt;
+        &lt;input type="checkbox" checked&gt;
+        &lt;div class="switch-slider"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;span class="switch-label"&gt;推送通知&lt;/span&gt;
+&lt;/label&gt;</pre>
+        </div>
+    </div>
+
+    <!-- API 文档 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Switch Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>checked</code></td>
+                    <td>是否选中</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>disabled</code></td>
+                    <td>是否禁用</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>loading</code></td>
+                    <td>是否加载中</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>size</code></td>
+                    <td>开关尺寸</td>
+                    <td>'sm' | 'md' | 'lg'</td>
+                    <td>'md'</td>
+                </tr>
+                <tr>
+                    <td><code>checkedText</code></td>
+                    <td>选中时的文字</td>
+                    <td>string</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>uncheckedText</code></td>
+                    <td>未选中时的文字</td>
+                    <td>string</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">CSS 类名</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>类名</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>switch-wrapper</code></td>
+                    <td>开关容器</td>
+                </tr>
+                <tr>
+                    <td><code>switch</code></td>
+                    <td>基础开关样式</td>
+                </tr>
+                <tr>
+                    <td><code>switch-slider</code></td>
+                    <td>开关滑块</td>
+                </tr>
+                <tr>
+                    <td><code>switch-label</code></td>
+                    <td>开关标签</td>
+                </tr>
+                <tr>
+                    <td><code>switch-sm</code></td>
+                    <td>小尺寸 (40x24px)</td>
+                </tr>
+                <tr>
+                    <td><code>switch-lg</code></td>
+                    <td>大尺寸 (56x32px)</td>
+                </tr>
+                <tr>
+                    <td><code>switch-loading</code></td>
+                    <td>加载状态</td>
+                </tr>
+                <tr>
+                    <td><code>disabled</code></td>
+                    <td>禁用状态</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">事件</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>事件名</th>
+                    <th>说明</th>
+                    <th>回调参数</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>change</code></td>
+                    <td>状态改变时触发</td>
+                    <td>checked: boolean</td>
+                </tr>
+                <tr>
+                    <td><code>click</code></td>
+                    <td>点击时触发</td>
+                    <td>event: Event</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

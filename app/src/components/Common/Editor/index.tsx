@@ -8,7 +8,7 @@ import { FileType, OnSendContentType } from './type';
 import { LuminaStore } from '@/store/luminaStore';
 import { useTranslation } from 'react-i18next';
 import { useMediaQuery } from 'usehooks-ts';
-import { type Attachment, NoteType } from '@shared/lib/types';
+import { type Attachment } from '@shared/lib/types';
 import { Card, Popover, PopoverTrigger, PopoverContent, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button } from '@heroui/react';
 import { AttachmentsRender, ReferenceRender } from '../AttachmentRender';
 import { UploadButtons } from './Toolbar/UploadButtons';
@@ -16,7 +16,6 @@ import { ReferenceButton } from './Toolbar/ReferenceButton';
 import { HashtagButton } from './Toolbar/HashtagButton';
 import { ViewModeButton } from './Toolbar/ViewModeButton';
 import { SendButton } from './Toolbar/SendButton';
-import { NoteTypeButton } from './Toolbar/NoteTypeButton';
 import {
   useEditorInit,
   useEditorEvents,
@@ -176,14 +175,6 @@ const Editor = observer(({ content, onChange, onSend, isSendLoading, originFiles
           <div className='flex w-full items-center gap-1 mt-auto'>
             {!hiddenToolbar && (
               <>
-                {/* 笔记类型切换按钮 */}
-                <NoteTypeButton
-                  noteType={store.noteType}
-                  setNoteType={(newType) => {
-                    store.noteType = newType;
-                  }}
-                />
-                {/* Design v2.0 - 只保?个核心按钮，其他放到...菜单 */}
                 <UploadButtons
                   getInputProps={getInputProps}
                   open={open}

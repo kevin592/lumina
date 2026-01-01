@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Popconfirm 气泡确认 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .api-table th, .api-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .api-table th {
+            background: #F7F8FA;
+            color: #1C1C1E;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .api-table td {
+            color: #4E5969;
+            font-size: 13px;
+        }
+        .api-table code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #165DFF;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            line-height: 1;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6750A4 0%, #4F7AFF 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(103, 80, 164, 0.3);
+        }
+        .btn-danger {
+            background: #FF3B30;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #FF453A;
+            box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
+        }
+        .btn-link {
+            background: transparent;
+            color: #6750A4;
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+        .btn-link:hover {
+            background: #F7F8FA;
+        }
+
+        /* Popconfirm Styles */
+        .popconfirm-wrapper {
+            display: inline-block;
+            position: relative;
+        }
+        .popconfirm {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%) scale(0.9);
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            padding: 12px 16px;
+            min-width: 240px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+        }
+        .popconfirm.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) scale(1);
+        }
+        .popconfirm-arrow {
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%) rotate(45deg);
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 2px;
+        }
+        .popconfirm-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .popconfirm-icon.warning {
+            background: #FFF7E8;
+            color: #FF7D00;
+        }
+        .popconfirm-icon.info {
+            background: #E8F3FF;
+            color: #165DFF;
+        }
+        .popconfirm-icon.error {
+            background: #FFECE8;
+            color: #FF3B30;
+        }
+        .popconfirm-message {
+            font-size: 14px;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+        .popconfirm-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+        .popconfirm-btn {
+            padding: 6px 14px;
+            font-size: 13px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .popconfirm-btn-cancel {
+            background: #F7F8FA;
+            color: #4E5969;
+        }
+        .popconfirm-btn-cancel:hover {
+            background: #E5E6EB;
+        }
+        .popconfirm-btn-confirm {
+            background: linear-gradient(135deg, #6750A4 0%, #4F7AFF 100%);
+            color: white;
+        }
+        .popconfirm-btn-confirm:hover {
+            box-shadow: 0 2px 8px rgba(103, 80, 164, 0.3);
+        }
+        .popconfirm-btn-confirm.danger {
+            background: #FF3B30;
+        }
+        .popconfirm-btn-confirm.danger:hover {
+            background: #FF453A;
+            box-shadow: 0 2px 8px rgba(255, 59, 48, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Popconfirm 气泡确认</h1>
+    <p class="component-subtitle">点击元素时,弹出气泡确认框,用于确认关键操作</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">默认气泡确认</div>
+            <div class="popconfirm-wrapper">
+                <button class="btn btn-danger" onclick="togglePopconfirm(this)">删除</button>
+                <div class="popconfirm">
+                    <div class="popconfirm-arrow"></div>
+                    <div class="popconfirm-icon warning">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div class="popconfirm-message">确定要删除吗?</div>
+                    <div class="popconfirm-buttons">
+                        <button class="popconfirm-btn popconfirm-btn-cancel" onclick="closePopconfirm(this)">取消</button>
+                        <button class="popconfirm-btn popconfirm-btn-confirm danger" onclick="confirmAction(this)">确定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="popconfirm-wrapper"&gt;
+    &lt;button class="btn btn-danger" onclick="togglePopconfirm(this)"&gt;删除&lt;/button&gt;
+    &lt;div class="popconfirm"&gt;
+        &lt;div class="popconfirm-arrow"&gt;&lt;/div&gt;
+        &lt;div class="popconfirm-icon warning"&gt;
+            &lt;i class="fa-solid fa-triangle-exclamation"&gt;&lt;/i&gt;
+        &lt;/div&gt;
+        &lt;div class="popconfirm-message"&gt;确定要删除吗?&lt;/div&gt;
+        &lt;div class="popconfirm-buttons"&gt;
+            &lt;button class="popconfirm-btn popconfirm-btn-cancel"&gt;取消&lt;/button&gt;
+            &lt;button class="popconfirm-btn popconfirm-btn-confirm danger"&gt;确定&lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 不同类型 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">不同类型</h2>
+        <div class="demo-box">
+            <div class="demo-title">警告、信息、错误三种类型</div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                <div class="popconfirm-wrapper">
+                    <button class="btn btn-primary" onclick="togglePopconfirm(this)">警告确认</button>
+                    <div class="popconfirm">
+                        <div class="popconfirm-arrow"></div>
+                        <div class="popconfirm-icon warning">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <div class="popconfirm-message">此操作可能影响系统性能,是否继续?</div>
+                        <div class="popconfirm-buttons">
+                            <button class="popconfirm-btn popconfirm-btn-cancel" onclick="closePopconfirm(this)">取消</button>
+                            <button class="popconfirm-btn popconfirm-btn-confirm" onclick="confirmAction(this)">继续</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="popconfirm-wrapper">
+                    <button class="btn btn-link" onclick="togglePopconfirm(this)">
+                        <i class="fa-solid fa-info-circle"></i>
+                        信息确认
+                    </button>
+                    <div class="popconfirm">
+                        <div class="popconfirm-arrow"></div>
+                        <div class="popconfirm-icon info">
+                            <i class="fa-solid fa-circle-info"></i>
+                        </div>
+                        <div class="popconfirm-message">确认要执行此操作吗?</div>
+                        <div class="popconfirm-buttons">
+                            <button class="popconfirm-btn popconfirm-btn-cancel" onclick="closePopconfirm(this)">取消</button>
+                            <button class="popconfirm-btn popconfirm-btn-confirm" onclick="confirmAction(this)">确定</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="popconfirm-wrapper">
+                    <button class="btn btn-danger" onclick="togglePopconfirm(this)">
+                        <i class="fa-solid fa-trash"></i>
+                        危险操作
+                    </button>
+                    <div class="popconfirm">
+                        <div class="popconfirm-arrow"></div>
+                        <div class="popconfirm-icon error">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                        </div>
+                        <div class="popconfirm-message">此操作不可恢复,确定要删除吗?</div>
+                        <div class="popconfirm-buttons">
+                            <button class="popconfirm-btn popconfirm-btn-cancel" onclick="closePopconfirm(this)">取消</button>
+                            <button class="popconfirm-btn popconfirm-btn-confirm danger" onclick="confirmAction(this)">删除</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;!-- 警告类型 --&gt;
+&lt;div class="popconfirm-icon warning"&gt;
+    &lt;i class="fa-solid fa-triangle-exclamation"&gt;&lt;/i&gt;
+&lt;/div&gt;
+
+&lt;!-- 信息类型 --&gt;
+&lt;div class="popconfirm-icon info"&gt;
+    &lt;i class="fa-solid fa-circle-info"&gt;&lt;/i&gt;
+&lt;/div&gt;
+
+&lt;!-- 错误类型 --&gt;
+&lt;div class="popconfirm-icon error"&gt;
+    &lt;i class="fa-solid fa-circle-xmark"&gt;&lt;/i&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 自定义内容 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">自定义内容</h2>
+        <div class="demo-box">
+            <div class="demo-title">可以自定义确认框的内容和按钮</div>
+            <div class="popconfirm-wrapper">
+                <button class="btn btn-primary" onclick="togglePopconfirm(this)">自定义</button>
+                <div class="popconfirm">
+                    <div class="popconfirm-arrow"></div>
+                    <div class="popconfirm-message">
+                        <strong>自定义标题</strong><br>
+                        这是一段自定义的确认信息,可以包含更多的内容和说明。
+                    </div>
+                    <div class="popconfirm-buttons">
+                        <button class="popconfirm-btn popconfirm-btn-cancel" onclick="closePopconfirm(this)">稍后提醒</button>
+                        <button class="popconfirm-btn popconfirm-btn-cancel" onclick="closePopconfirm(this)">不再提醒</button>
+                        <button class="popconfirm-btn popconfirm-btn-confirm" onclick="confirmAction(this)">立即处理</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="popconfirm"&gt;
+    &lt;div class="popconfirm-arrow"&gt;&lt;/div&gt;
+    &lt;div class="popconfirm-message"&gt;
+        &lt;strong&gt;自定义标题&lt;/strong&gt;&lt;br&gt;
+        这是一段自定义的确认信息,可以包含更多的内容和说明。
+    &lt;/div&gt;
+    &lt;div class="popconfirm-buttons"&gt;
+        &lt;button class="popconfirm-btn popconfirm-btn-cancel"&gt;稍后提醒&lt;/button&gt;
+        &lt;button class="popconfirm-btn popconfirm-btn-cancel"&gt;不再提醒&lt;/button&gt;
+        &lt;button class="popconfirm-btn popconfirm-btn-confirm"&gt;立即处理&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 自定义按钮文字 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">自定义按钮文字</h2>
+        <div class="demo-box">
+            <div class="demo-title">自定义确认和取消按钮的文字</div>
+            <div class="popconfirm-wrapper">
+                <button class="btn btn-link" onclick="togglePopconfirm(this)">退出登录</button>
+                <div class="popconfirm">
+                    <div class="popconfirm-arrow"></div>
+                    <div class="popconfirm-icon warning">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </div>
+                    <div class="popconfirm-message">确定要退出当前账号吗?</div>
+                    <div class="popconfirm-buttons">
+                        <button class="popconfirm-btn popconfirm-btn-cancel" onclick="closePopconfirm(this)">继续使用</button>
+                        <button class="popconfirm-btn popconfirm-btn-confirm danger" onclick="confirmAction(this)">退出登录</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="popconfirm-buttons"&gt;
+    &lt;button class="popconfirm-btn popconfirm-btn-cancel"&gt;继续使用&lt;/button&gt;
+    &lt;button class="popconfirm-btn popconfirm-btn-confirm danger"&gt;退出登录&lt;/button&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 异步关闭 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">异步关闭</h2>
+        <div class="demo-box">
+            <div class="demo-title">点击确定后异步关闭</div>
+            <div class="popconfirm-wrapper">
+                <button class="btn btn-primary" onclick="togglePopconfirm(this)">提交审核</button>
+                <div class="popconfirm">
+                    <div class="popconfirm-arrow"></div>
+                    <div class="popconfirm-icon info">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </div>
+                    <div class="popconfirm-message">提交后将进入审核流程,确认提交吗?</div>
+                    <div class="popconfirm-buttons">
+                        <button class="popconfirm-btn popconfirm-btn-cancel" onclick="closePopconfirm(this)">取消</button>
+                        <button class="popconfirm-btn popconfirm-btn-confirm" onclick="asyncConfirm(this)">提交</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>function asyncConfirm(btn) {
+    // 显示加载状态
+    btn.textContent = '提交中...';
+    btn.disabled = true;
+
+    // 模拟异步操作
+    setTimeout(() => {
+        closePopconfirm(btn);
+        showMessage('提交成功!');
+    }, 1500);
+}</pre>
+        </div>
+    </div>
+
+    <!-- API 文档 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Popconfirm Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>visible</code></td>
+                    <td>是否显示</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>title</code></td>
+                    <td>确认框标题</td>
+                    <td>string</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>description</code></td>
+                    <td>确认框描述</td>
+                    <td>string</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>icon</code></td>
+                    <td>图标类型</td>
+                    <td>'warning' | 'info' | 'error'</td>
+                    <td>'warning'</td>
+                </tr>
+                <tr>
+                    <td><code>okText</code></td>
+                    <td>确认按钮文字</td>
+                    <td>string</td>
+                    <td>'确定'</td>
+                </tr>
+                <tr>
+                    <td><code>cancelText</code></td>
+                    <td>取消按钮文字</td>
+                    <td>string</td>
+                    <td>'取消'</td>
+                </tr>
+                <tr>
+                    <td><code>onConfirm</code></td>
+                    <td>点击确认回调</td>
+                    <td>() => void | Promise&lt;void&gt;</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>onCancel</code></td>
+                    <td>点击取消回调</td>
+                    <td>() => void</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>asyncConfirm</code></td>
+                    <td>是否异步关闭</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">CSS 类名</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>类名</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>popconfirm-wrapper</code></td>
+                    <td>包装容器</td>
+                </tr>
+                <tr>
+                    <td><code>popconfirm</code></td>
+                    <td>气泡确认框</td>
+                </tr>
+                <tr>
+                    <td><code>popconfirm-arrow</code></td>
+                    <td>箭头</td>
+                </tr>
+                <tr>
+                    <td><code>popconfirm-icon</code></td>
+                    <td>图标容器</td>
+                </tr>
+                <tr>
+                    <td><code>popconfirm-message</code></td>
+                    <td>消息内容</td>
+                </tr>
+                <tr>
+                    <td><code>popconfirm-buttons</code></td>
+                    <td>按钮组</td>
+                </tr>
+                <tr>
+                    <td><code>popconfirm-btn</code></td>
+                    <td>按钮基础样式</td>
+                </tr>
+                <tr>
+                    <td><code>popconfirm-btn-cancel</code></td>
+                    <td>取消按钮</td>
+                </tr>
+                <tr>
+                    <td><code>popconfirm-btn-confirm</code></td>
+                    <td>确认按钮</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function togglePopconfirm(btn) {
+            const wrapper = btn.parentElement;
+            const popconfirm = wrapper.querySelector('.popconfirm');
+
+            // 关闭其他打开的 popconfirm
+            document.querySelectorAll('.popconfirm.active').forEach(p => {
+                if (p !== popconfirm) {
+                    p.classList.remove('active');
+                }
+            });
+
+            popconfirm.classList.toggle('active');
+        }
+
+        function closePopconfirm(btn) {
+            const popconfirm = btn.closest('.popconfirm');
+            popconfirm.classList.remove('active');
+        }
+
+        function confirmAction(btn) {
+            const popconfirm = btn.closest('.popconfirm');
+            popconfirm.classList.remove('active');
+            alert('操作已确认!');
+        }
+
+        function asyncConfirm(btn) {
+            btn.textContent = '提交中...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                closePopconfirm(btn);
+                alert('提交成功!');
+                btn.textContent = '提交';
+                btn.disabled = false;
+            }, 1500);
+        }
+
+        // 点击外部关闭
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.popconfirm-wrapper')) {
+                document.querySelectorAll('.popconfirm.active').forEach(popconfirm => {
+                    popconfirm.classList.remove('active');
+                });
+            }
+        });
+
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 import { Tooltip } from '@heroui/react';
-import { Note, NoteType } from '@shared/lib/types';
+import { Note } from '@shared/lib/types';
 import { LuminaStore } from '@/store/luminaStore';
 import { useTranslation } from 'react-i18next';
 import { CommentCount } from './commentButton';

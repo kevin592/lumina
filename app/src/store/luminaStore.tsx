@@ -20,7 +20,7 @@ import i18n from '@/lib/i18n';
 
 import { api } from '@/lib/trpc';
 
-import { Attachment, NoteType, type Note } from '@shared/lib/types';
+import { Attachment, type Note } from '@shared/lib/types';
 
 import { ARCHIVE_LUMINA_TASK_NAME, DBBAK_TASK_NAME } from '@shared/lib/sharedConstant';
 
@@ -63,10 +63,6 @@ interface UpsertNoteParams {
   /** Whether the note is in recycle bin */
 
   isRecycle?: boolean;
-
-  /** Note type */
-
-  type?: NoteType;
 
   /** Note ID */
 
@@ -204,13 +200,9 @@ export class LuminaStore implements Store {
 
     startDate: null as Date | null,
 
-    endDate: null as Date | null,
-
-    hasTodo: false
+    endDate: null as Date | null
 
   }
-
-  noteTypeDefault: NoteType = NoteType.Lumina
 
   currentCommonFilter: filterType | null = null
 
@@ -376,8 +368,6 @@ export class LuminaStore implements Store {
 
         isRecycle,
 
-        type,
-
         id,
 
         attachments = [],
@@ -412,7 +402,7 @@ export class LuminaStore implements Store {
 
           content: content || '',
 
-          type,
+          type: 0,
 
           isArchived: !!isArchived,
 
@@ -455,8 +445,6 @@ export class LuminaStore implements Store {
       const res = await api.notes.upsert.mutate({
 
         content,
-
-        type,
 
         isArchived,
 
@@ -975,10 +963,6 @@ export class LuminaStore implements Store {
 
 
 
-      this.noteListFilterConfig.type = NoteType.Lumina
-
-      this.noteTypeDefault = NoteType.Lumina
-
       this.noteListFilterConfig.tagId = null
 
       this.noteListFilterConfig.isArchived = false
@@ -997,17 +981,7 @@ export class LuminaStore implements Store {
 
       this.noteListFilterConfig.isShare = null
 
-
-
-      // Update all filter configurations before making the API call
-      // 删除了 todo 和 all 视图，只保留 archived 和 trash
-      if (path == 'archived') {
-        this.noteListFilterConfig.type = -1
-        this.noteListFilterConfig.isArchived = true
-      } else if (path == 'trash') {
-        this.noteListFilterConfig.type = -1
-        this.noteListFilterConfig.isRecycle = true
-      }
+      this.noteListFilterConfig.type = 0
 
 
 
@@ -1085,12 +1059,12 @@ export class LuminaStore implements Store {
           page,
           size,
           filterConfig: {
-            type: NoteType.Lumina,
+            type: 0,
             isArchived: false,
             isRecycle: false
           },
           offlineFilter: (note: OfflineNote) => {
-            return Boolean(note.type === NoteType.Lumina && !note.isArchived && !note.isRecycle);
+            return Boolean(note.type === 0 && !note.isArchived && !note.isRecycle);
           }
         });
       }

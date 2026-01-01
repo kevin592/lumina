@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typography 排版 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .api-table th, .api-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .api-table th {
+            background: #F7F8FA;
+            color: #1C1C1E;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .api-table td {
+            color: #4E5969;
+            font-size: 13px;
+        }
+        .api-table code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #165DFF;
+        }
+
+        /* Typography Styles */
+        .typography-h1 {
+            font-size: 48px;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #1C1C1E;
+            margin-bottom: 16px;
+        }
+        .typography-h2 {
+            font-size: 36px;
+            font-weight: 600;
+            line-height: 1.3;
+            color: #1C1C1E;
+            margin-bottom: 14px;
+        }
+        .typography-h3 {
+            font-size: 28px;
+            font-weight: 600;
+            line-height: 1.4;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .typography-h4 {
+            font-size: 24px;
+            font-weight: 600;
+            line-height: 1.4;
+            color: #1C1C1E;
+            margin-bottom: 10px;
+        }
+        .typography-h5 {
+            font-size: 20px;
+            font-weight: 600;
+            line-height: 1.5;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .typography-h6 {
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1.5;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .typography-body1 {
+            font-size: 16px;
+            line-height: 1.7;
+            color: #4E5969;
+        }
+        .typography-body2 {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #4E5969;
+        }
+        .typography-caption {
+            font-size: 12px;
+            line-height: 1.5;
+            color: #636366;
+        }
+        .typography-small {
+            font-size: 11px;
+            line-height: 1.4;
+            color: #636366;
+        }
+        .typography-muted {
+            color: #86909C;
+        }
+        .typography-primary {
+            color: #1C1C1E;
+        }
+        .typography-secondary {
+            color: #4E5969;
+        }
+        .typography-success {
+            color: #00A48A;
+        }
+        .typography-warning {
+            color: #FF7D00;
+        }
+        .typography-danger {
+            color: #FF3B30;
+        }
+        .typography-link {
+            color: #165DFF;
+            text-decoration: none;
+        }
+        .typography-link:hover {
+            text-decoration: underline;
+        }
+        .typography-code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            color: #165DFF;
+        }
+        .typography-mark {
+            background: #FEF0C7;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .typography-delete {
+            text-decoration: line-through;
+            color: #86909C;
+        }
+        .typography-underline {
+            text-decoration: underline;
+        }
+        .typography-strong {
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Typography 排版</h1>
+    <p class="component-subtitle">文本排版组件，包括标题、段落、文本样式等</p>
+
+    <!-- 标题 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">标题</h2>
+        <div class="demo-box">
+            <div class="demo-title">从 h1 到 h6 的标题样式</div>
+            <h1 class="typography-h1">Heading 1 - 一级标题</h1>
+            <h2 class="typography-h2">Heading 2 - 二级标题</h2>
+            <h3 class="typography-h3">Heading 3 - 三级标题</h3>
+            <h4 class="typography-h4">Heading 4 - 四级标题</h4>
+            <h5 class="typography-h5">Heading 5 - 五级标题</h5>
+            <h6 class="typography-h6">Heading 6 - 六级标题</h6>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;h1 class="typography-h1"&gt;Heading 1 - 一级标题&lt;/h1&gt;
+&lt;h2 class="typography-h2"&gt;Heading 2 - 二级标题&lt;/h2&gt;
+&lt;h3 class="typography-h3"&gt;Heading 3 - 三级标题&lt;/h3&gt;
+&lt;h4 class="typography-h4"&gt;Heading 4 - 四级标题&lt;/h4&gt;
+&lt;h5 class="typography-h5"&gt;Heading 5 - 五级标题&lt;/h5&gt;
+&lt;h6 class="typography-h6"&gt;Heading 6 - 六级标题&lt;/h6&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 正文文本 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">正文文本</h2>
+        <div class="demo-box">
+            <div class="demo-title">不同大小的正文文本</div>
+            <p class="typography-body1" style="margin-bottom: 12px;">
+                Body 1 - 这是一段正文文本，使用16px字体大小，适用于主要的文章内容。
+                良好的排版设计能够提升阅读体验，让信息传达更加清晰有效。
+            </p>
+            <p class="typography-body2" style="margin-bottom: 12px;">
+                Body 2 - 这是一段次要正文，使用14px字体大小，适用于辅助说明文字。
+            </p>
+            <p class="typography-caption" style="margin-bottom: 12px;">
+                Caption - 这是说明文字，使用12px字体，常用于图片说明、注释等场景。
+            </p>
+            <p class="typography-small">
+                Small - 这是最小的文本，使用11px字体，用于版权信息、免责声明等。
+            </p>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;p class="typography-body1"&gt;Body 1 - 主要正文内容&lt;/p&gt;
+&lt;p class="typography-body2"&gt;Body 2 - 次要正文内容&lt;/p&gt;
+&lt;p class="typography-caption"&gt;Caption - 说明文字&lt;/p&gt;
+&lt;p class="typography-small"&gt;Small - 最小文本&lt;/p&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 文本颜色 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">文本颜色</h2>
+        <div class="demo-box">
+            <div class="demo-title">不同语义的文本颜色</div>
+            <p class="typography-primary typography-body2" style="margin-bottom: 8px;">主要文本 - 用于最重要的信息</p>
+            <p class="typography-secondary typography-body2" style="margin-bottom: 8px;">次要文本 - 用于辅助说明</p>
+            <p class="typography-muted typography-body2" style="margin-bottom: 8px;">弱化文本 - 用于禁用或提示</p>
+            <p class="typography-success typography-body2" style="margin-bottom: 8px;">成功文本 - 表示成功状态</p>
+            <p class="typography-warning typography-body2" style="margin-bottom: 8px;">警告文本 - 表示警告信息</p>
+            <p class="typography-danger typography-body2">危险文本 - 表示错误或危险</p>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;p class="typography-primary typography-body2"&gt;主要文本&lt;/p&gt;
+&lt;p class="typography-secondary typography-body2"&gt;次要文本&lt;/p&gt;
+&lt;p class="typography-muted typography-body2"&gt;弱化文本&lt;/p&gt;
+&lt;p class="typography-success typography-body2"&gt;成功文本&lt;/p&gt;
+&lt;p class="typography-warning typography-body2"&gt;警告文本&lt;/p&gt;
+&lt;p class="typography-danger typography-body2"&gt;危险文本&lt;/p&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 文本样式 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">文本样式</h2>
+        <div class="demo-box">
+            <div class="demo-title">各种文本修饰样式</div>
+            <p class="typography-body2" style="margin-bottom: 8px;">
+                <span class="typography-strong">加粗文本</span> - 使用 strong 样式
+            </p>
+            <p class="typography-body2" style="margin-bottom: 8px;">
+                <span class="typography-code">代码文本</span> - 使用 code 样式
+            </p>
+            <p class="typography-body2" style="margin-bottom: 8px;">
+                <span class="typography-mark">标记文本</span> - 使用 mark 样式
+            </p>
+            <p class="typography-body2" style="margin-bottom: 8px;">
+                <span class="typography-delete">删除文本</span> - 使用 delete 样式
+            </p>
+            <p class="typography-body2" style="margin-bottom: 8px;">
+                <span class="typography-underline">下划线文本</span> - 使用 underline 样式
+            </p>
+            <p class="typography-body2">
+                <a href="#" class="typography-link">链接文本</a> - 使用 link 样式
+            </p>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;span class="typography-strong"&gt;加粗文本&lt;/span&gt;
+&lt;span class="typography-code"&gt;代码文本&lt;/span&gt;
+&lt;span class="typography-mark"&gt;标记文本&lt;/span&gt;
+&lt;span class="typography-delete"&gt;删除文本&lt;/span&gt;
+&lt;span class="typography-underline"&gt;下划线文本&lt;/span&gt;
+&lt;a href="#" class="typography-link"&gt;链接文本&lt;/a&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 文本对齐 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">文本对齐</h2>
+        <div class="demo-box">
+            <div class="demo-title">不同的文本对齐方式</div>
+            <p class="typography-body2" style="text-align: left; border-bottom: 1px solid #E5E6EB; padding-bottom: 8px; margin-bottom: 8px;">
+                左对齐文本 - 这是一段左对齐的示例文本
+            </p>
+            <p class="typography-body2" style="text-align: center; border-bottom: 1px solid #E5E6EB; padding-bottom: 8px; margin-bottom: 8px;">
+                居中对齐文本 - 这是一段居中对齐的示例文本
+            </p>
+            <p class="typography-body2" style="text-align: right; border-bottom: 1px solid #E5E6EB; padding-bottom: 8px; margin-bottom: 8px;">
+                右对齐文本 - 这是一段右对齐的示例文本
+            </p>
+            <p class="typography-body2" style="text-align: justify;">
+                两端对齐文本 - 这是一段两端对齐的示例文本。当文本超过一行时，两端对齐会让每一行的文字均匀分布，形成整齐的视觉效果。
+            </p>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;p class="typography-body2" style="text-align: left;"&gt;左对齐&lt;/p&gt;
+&lt;p class="typography-body2" style="text-align: center;"&gt;居中对齐&lt;/p&gt;
+&lt;p class="typography-body2" style="text-align: right;"&gt;右对齐&lt;/p&gt;
+&lt;p class="typography-body2" style="text-align: justify;"&gt;两端对齐&lt;/p&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 文本省略 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">文本省略</h2>
+        <div class="demo-box">
+            <div class="demo-title">超长文本的省略显示</div>
+            <div style="margin-bottom: 16px;">
+                <p style="font-size: 12px; color: #86909C; margin-bottom: 4px;">单行省略：</p>
+                <div style="width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; color: #4E5969;">
+                    这是一段很长的文本内容，当容器宽度不足以显示全部内容时，多余的部分会被省略号替换。
+                </div>
+            </div>
+            <div>
+                <p style="font-size: 12px; color: #86909C; margin-bottom: 4px;">多行省略（2行）：</p>
+                <div style="width: 300px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 14px; color: #4E5969; line-height: 1.6;">
+                    这是一段很长的文本内容，当容器宽度不足以显示全部内容时，多余的部分会被省略号替换。这里演示的是多行文本省略效果，超出指定行数的文本将被隐藏。
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;!-- 单行省略 --&gt;
+&lt;div style="width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"&gt;
+    这是一段很长的文本内容...
+&lt;/div&gt;
+
+&lt;!-- 多行省略 --&gt;
+&lt;div style="width: 300px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"&gt;
+    这是一段很长的文本内容...
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- API 文档 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">CSS 类名</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>类名</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="2" style="background: #F7F8FA; font-weight: 600; color: #1C1C1E;">标题</td>
+                </tr>
+                <tr>
+                    <td><code>typography-h1</code></td>
+                    <td>一级标题 (48px)</td>
+                </tr>
+                <tr>
+                    <td><code>typography-h2</code></td>
+                    <td>二级标题 (36px)</td>
+                </tr>
+                <tr>
+                    <td><code>typography-h3</code></td>
+                    <td>三级标题 (28px)</td>
+                </tr>
+                <tr>
+                    <td><code>typography-h4</code></td>
+                    <td>四级标题 (24px)</td>
+                </tr>
+                <tr>
+                    <td><code>typography-h5</code></td>
+                    <td>五级标题 (20px)</td>
+                </tr>
+                <tr>
+                    <td><code>typography-h6</code></td>
+                    <td>六级标题 (16px)</td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="background: #F7F8FA; font-weight: 600; color: #1C1C1E;">正文</td>
+                </tr>
+                <tr>
+                    <td><code>typography-body1</code></td>
+                    <td>主要正文 (16px)</td>
+                </tr>
+                <tr>
+                    <td><code>typography-body2</code></td>
+                    <td>次要正文 (14px)</td>
+                </tr>
+                <tr>
+                    <td><code>typography-caption</code></td>
+                    <td>说明文字 (12px)</td>
+                </tr>
+                <tr>
+                    <td><code>typography-small</code></td>
+                    <td>最小文本 (11px)</td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="background: #F7F8FA; font-weight: 600; color: #1C1C1E;">颜色</td>
+                </tr>
+                <tr>
+                    <td><code>typography-primary</code></td>
+                    <td>主要文本颜色</td>
+                </tr>
+                <tr>
+                    <td><code>typography-secondary</code></td>
+                    <td>次要文本颜色</td>
+                </tr>
+                <tr>
+                    <td><code>typography-muted</code></td>
+                    <td>弱化文本颜色</td>
+                </tr>
+                <tr>
+                    <td><code>typography-success</code></td>
+                    <td>成功文本颜色</td>
+                </tr>
+                <tr>
+                    <td><code>typography-warning</code></td>
+                    <td>警告文本颜色</td>
+                </tr>
+                <tr>
+                    <td><code>typography-danger</code></td>
+                    <td>危险文本颜色</td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="background: #F7F8FA; font-weight: 600; color: #1C1C1E;">样式</td>
+                </tr>
+                <tr>
+                    <td><code>typography-code</code></td>
+                    <td>代码样式</td>
+                </tr>
+                <tr>
+                    <td><code>typography-mark</code></td>
+                    <td>标记样式</td>
+                </tr>
+                <tr>
+                    <td><code>typography-delete</code></td>
+                    <td>删除线样式</td>
+                </tr>
+                <tr>
+                    <td><code>typography-underline</code></td>
+                    <td>下划线样式</td>
+                </tr>
+                <tr>
+                    <td><code>typography-strong</code></td>
+                    <td>加粗样式</td>
+                </tr>
+                <tr>
+                    <td><code>typography-link</code></td>
+                    <td>链接样式</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

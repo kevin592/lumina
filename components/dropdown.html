@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dropdown 下拉菜单 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .api-table th, .api-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .api-table th {
+            background: #F7F8FA;
+            color: #1C1C1E;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .api-table td {
+            color: #4E5969;
+            font-size: 13px;
+        }
+        .api-table code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #165DFF;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            line-height: 1;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6750A4 0%, #4F7AFF 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(103, 80, 164, 0.3);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #6750A4;
+            color: #6750A4;
+        }
+        .btn-outline:hover {
+            background: #EADDFF;
+        }
+        .btn-link {
+            background: transparent;
+            color: #6750A4;
+            padding: 8px 16px;
+        }
+        .btn-link:hover {
+            background: #F7F8FA;
+        }
+
+        /* Dropdown Styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: 8px;
+            background: white;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            min-width: 160px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+        }
+        .dropdown.active .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            color: #4E5969;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .dropdown-item:hover {
+            background: #F7F8FA;
+            color: #6750A4;
+        }
+        .dropdown-item.danger:hover {
+            background: #FFF1F0;
+            color: #FF3B30;
+        }
+        .dropdown-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .dropdown-item.disabled:hover {
+            background: transparent;
+            color: #4E5969;
+        }
+        .dropdown-divider {
+            height: 1px;
+            background: #E5E6EB;
+            margin: 4px 0;
+        }
+        .dropdown-header {
+            padding: 8px 16px;
+            color: #86909C;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .dropdown-item-icon {
+            width: 16px;
+            text-align: center;
+        }
+        .dropdown-item-arrow {
+            margin-left: auto;
+            font-size: 12px;
+        }
+        .dropdown-right .dropdown-menu {
+            left: auto;
+            right: 0;
+        }
+
+        /* Dropdown positions */
+        .dropdown-top .dropdown-menu {
+            top: auto;
+            bottom: 100%;
+            margin-top: 0;
+            margin-bottom: 8px;
+            transform: translateY(10px);
+        }
+        .dropdown-top.active .dropdown-menu {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Dropdown 下拉菜单</h1>
+    <p class="component-subtitle">向下弹出的菜单列表，用于承载更多操作</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">最简单的下拉菜单</div>
+            <div class="dropdown" id="dropdown1">
+                <button class="btn btn-primary" onclick="toggleDropdown('dropdown1')">
+                    点击展开
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <a href="#" class="dropdown-item">
+                        <i class="fa-solid fa-user dropdown-item-icon"></i>
+                        个人中心
+                    </a>
+                    <a href="#" class="dropdown-item">
+                        <i class="fa-solid fa-gear dropdown-item-icon"></i>
+                        设置
+                    </a>
+                    <a href="#" class="dropdown-item">
+                        <i class="fa-solid fa-bell dropdown-item-icon"></i>
+                        消息通知
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item danger">
+                        <i class="fa-solid fa-right-from-bracket dropdown-item-icon"></i>
+                        退出登录
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="dropdown" id="dropdown1"&gt;
+    &lt;button class="btn btn-primary" onclick="toggleDropdown('dropdown1')"&gt;
+        点击展开
+        &lt;i class="fa-solid fa-chevron-down"&gt;&lt;/i&gt;
+    &lt;/button&gt;
+    &lt;div class="dropdown-menu"&gt;
+        &lt;a href="#" class="dropdown-item"&gt;个人中心&lt;/a&gt;
+        &lt;a href="#" class="dropdown-item"&gt;设置&lt;/a&gt;
+        &lt;div class="dropdown-divider"&gt;&lt;/div&gt;
+        &lt;a href="#" class="dropdown-item danger"&gt;退出登录&lt;/a&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 触发方式 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">触发方式</h2>
+        <div class="demo-box">
+            <div class="demo-title">支持点击和悬停两种触发方式</div>
+            <div style="display: flex; gap: 20px;">
+                <div class="dropdown" id="dropdown2">
+                    <button class="btn btn-outline" onclick="toggleDropdown('dropdown2')">
+                        <i class="fa-solid fa-mouse-pointer"></i>
+                        点击触发
+                    </button>
+                    <div class="dropdown-menu">
+                        <a href="#" class="dropdown-item">选项1</a>
+                        <a href="#" class="dropdown-item">选项2</a>
+                        <a href="#" class="dropdown-item">选项3</a>
+                    </div>
+                </div>
+                <div class="dropdown" id="dropdown3" onmouseenter="showDropdown('dropdown3')" onmouseleave="hideDropdown('dropdown3')">
+                    <button class="btn btn-outline">
+                        <i class="fa-solid fa-hand-pointer"></i>
+                        悬停触发
+                    </button>
+                    <div class="dropdown-menu">
+                        <a href="#" class="dropdown-item">选项1</a>
+                        <a href="#" class="dropdown-item">选项2</a>
+                        <a href="#" class="dropdown-item">选项3</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;!-- 点击触发 --&gt;
+&lt;div class="dropdown" id="dropdown2"&gt;
+    &lt;button class="btn btn-outline" onclick="toggleDropdown('dropdown2')"&gt;
+        点击触发
+    &lt;/button&gt;
+    &lt;div class="dropdown-menu"&gt;...&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- 悬停触发 --&gt;
+&lt;div class="dropdown" id="dropdown3"
+     onmouseenter="showDropdown('dropdown3')"
+     onmouseleave="hideDropdown('dropdown3')"&gt;
+    &lt;button class="btn btn-outline"&gt;悬停触发&lt;/button&gt;
+    &lt;div class="dropdown-menu"&gt;...&lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 菜单项类型 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">菜单项类型</h2>
+        <div class="demo-box">
+            <div class="demo-title">包含禁用项、分组、图标等</div>
+            <div class="dropdown" id="dropdown4">
+                <button class="btn btn-primary" onclick="toggleDropdown('dropdown4')">
+                    操作菜单
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <div class="dropdown-header">用户操作</div>
+                    <a href="#" class="dropdown-item">
+                        <i class="fa-solid fa-user-pen dropdown-item-icon"></i>
+                        编辑资料
+                    </a>
+                    <a href="#" class="dropdown-item">
+                        <i class="fa-solid fa-lock dropdown-item-icon"></i>
+                        修改密码
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-header">系统设置</div>
+                    <a href="#" class="dropdown-item">
+                        <i class="fa-solid fa-display dropdown-item-icon"></i>
+                        显示设置
+                    </a>
+                    <a href="#" class="dropdown-item">
+                        <i class="fa-solid fa-volume-high dropdown-item-icon"></i>
+                        通知设置
+                    </a>
+                    <a href="#" class="dropdown-item disabled">
+                        <i class="fa-solid fa-ban dropdown-item-icon"></i>
+                        禁用选项
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item danger">
+                        <i class="fa-solid fa-trash dropdown-item-icon"></i>
+                        删除账号
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="dropdown-menu"&gt;
+    &lt;div class="dropdown-header"&gt;用户操作&lt;/div&gt;
+    &lt;a href="#" class="dropdown-item"&gt;
+        &lt;i class="fa-solid fa-user-pen dropdown-item-icon"&gt;&lt;/i&gt;
+        编辑资料
+    &lt;/a&gt;
+    &lt;div class="dropdown-divider"&gt;&lt;/div&gt;
+    &lt;a href="#" class="dropdown-item disabled"&gt;
+        &lt;i class="fa-solid fa-ban dropdown-item-icon"&gt;&lt;/i&gt;
+        禁用选项
+    &lt;/a&gt;
+    &lt;a href="#" class="dropdown-item danger"&gt;
+        &lt;i class="fa-solid fa-trash dropdown-item-icon"&gt;&lt;/i&gt;
+        删除账号
+    &lt;/a&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 对齐方向 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">对齐方向</h2>
+        <div class="demo-box">
+            <div class="demo-title">支持左对齐和右对齐</div>
+            <div style="display: flex; gap: 20px; justify-content: space-between;">
+                <div class="dropdown" id="dropdown5">
+                    <button class="btn btn-outline" onclick="toggleDropdown('dropdown5')">
+                        左对齐
+                    </button>
+                    <div class="dropdown-menu">
+                        <a href="#" class="dropdown-item">选项1</a>
+                        <a href="#" class="dropdown-item">选项2</a>
+                        <a href="#" class="dropdown-item">选项3</a>
+                    </div>
+                </div>
+                <div class="dropdown dropdown-right" id="dropdown6">
+                    <button class="btn btn-outline" onclick="toggleDropdown('dropdown6')">
+                        右对齐
+                    </button>
+                    <div class="dropdown-menu">
+                        <a href="#" class="dropdown-item">选项1</a>
+                        <a href="#" class="dropdown-item">选项2</a>
+                        <a href="#" class="dropdown-item">选项3</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;!-- 左对齐 --&gt;
+&lt;div class="dropdown" id="dropdown5"&gt;
+    &lt;button class="btn btn-outline" onclick="toggleDropdown('dropdown5')"&gt;
+        左对齐
+    &lt;/button&gt;
+    &lt;div class="dropdown-menu"&gt;...&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- 右对齐 --&gt;
+&lt;div class="dropdown dropdown-right" id="dropdown6"&gt;
+    &lt;button class="btn btn-outline" onclick="toggleDropdown('dropdown6')"&gt;
+        右对齐
+    &lt;/button&gt;
+    &lt;div class="dropdown-menu"&gt;...&lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 弹出位置 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">弹出位置</h2>
+        <div class="demo-box">
+            <div class="demo-title">支持向上和向下弹出</div>
+            <div style="display: flex; gap: 100px;">
+                <div class="dropdown" id="dropdown7">
+                    <button class="btn btn-outline" onclick="toggleDropdown('dropdown7')">
+                        <i class="fa-solid fa-chevron-up"></i>
+                        向上弹出
+                    </button>
+                    <div class="dropdown-menu">
+                        <a href="#" class="dropdown-item">选项1</a>
+                        <a href="#" class="dropdown-item">选项2</a>
+                        <a href="#" class="dropdown-item">选项3</a>
+                    </div>
+                </div>
+                <div class="dropdown" id="dropdown8">
+                    <button class="btn btn-outline" onclick="toggleDropdown('dropdown8')">
+                        向下弹出
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-menu">
+                        <a href="#" class="dropdown-item">选项1</a>
+                        <a href="#" class="dropdown-item">选项2</a>
+                        <a href="#" class="dropdown-item">选项3</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;!-- 向上弹出 --&gt;
+&lt;div class="dropdown dropdown-top" id="dropdown7"&gt;
+    &lt;button class="btn btn-outline" onclick="toggleDropdown('dropdown7')"&gt;
+        向上弹出
+    &lt;/button&gt;
+    &lt;div class="dropdown-menu"&gt;...&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- 向下弹出（默认） --&gt;
+&lt;div class="dropdown" id="dropdown8"&gt;
+    &lt;button class="btn btn-outline" onclick="toggleDropdown('dropdown8')"&gt;
+        向下弹出
+    &lt;/button&gt;
+    &lt;div class="dropdown-menu"&gt;...&lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 嵌套菜单 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">嵌套菜单</h2>
+        <div class="demo-box">
+            <div class="demo-title">支持多级菜单嵌套</div>
+            <div class="dropdown" id="dropdown9">
+                <button class="btn btn-primary" onclick="toggleDropdown('dropdown9')">
+                    文件
+                    <i class="fa-solid fa-chevron-down"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <a href="#" class="dropdown-item">
+                        <i class="fa-solid fa-file dropdown-item-icon"></i>
+                        新建文件
+                        <i class="fa-solid fa-chevron-right dropdown-item-arrow"></i>
+                    </a>
+                    <a href="#" class="dropdown-item">
+                        <i class="fa-solid fa-folder-open dropdown-item-icon"></i>
+                        新建文件夹
+                        <i class="fa-solid fa-chevron-right dropdown-item-arrow"></i>
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item">
+                        <i class="fa-solid fa-scissors dropdown-item-icon"></i>
+                        剪切
+                    </a>
+                    <a href="#" class="dropdown-item">
+                        <i class="fa-solid fa-copy dropdown-item-icon"></i>
+                        复制
+                    </a>
+                    <a href="#" class="dropdown-item">
+                        <i class="fa-solid fa-paste dropdown-item-icon"></i>
+                        粘贴
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="dropdown-menu"&gt;
+    &lt;a href="#" class="dropdown-item"&gt;
+        &lt;i class="fa-solid fa-file dropdown-item-icon"&gt;&lt;/i&gt;
+        新建文件
+        &lt;i class="fa-solid fa-chevron-right dropdown-item-arrow"&gt;&lt;/i&gt;
+    &lt;/a&gt;
+    &lt;a href="#" class="dropdown-item"&gt;
+        &lt;i class="fa-solid fa-folder-open dropdown-item-icon"&gt;&lt;/i&gt;
+        新建文件夹
+        &lt;i class="fa-solid fa-chevron-right dropdown-item-arrow"&gt;&lt;/i&gt;
+    &lt;/a&gt;
+    &lt;div class="dropdown-divider"&gt;&lt;/div&gt;
+    &lt;a href="#" class="dropdown-item"&gt;
+        &lt;i class="fa-solid fa-scissors dropdown-item-icon"&gt;&lt;/i&gt;
+        剪切
+    &lt;/a&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 文本触发 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">文本触发</h2>
+        <div class="demo-box">
+            <div class="demo-title">使用文本链接作为触发器</div>
+            <div class="dropdown" id="dropdown10">
+                <a href="#" class="btn btn-link" onclick="toggleDropdown('dropdown10')">
+                    操作
+                    <i class="fa-solid fa-chevron-down"></i>
+                </a>
+                <div class="dropdown-menu">
+                    <a href="#" class="dropdown-item">编辑</a>
+                    <a href="#" class="dropdown-item">复制</a>
+                    <a href="#" class="dropdown-item">删除</a>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="dropdown" id="dropdown10"&gt;
+    &lt;a href="#" class="btn btn-link" onclick="toggleDropdown('dropdown10')"&gt;
+        操作
+        &lt;i class="fa-solid fa-chevron-down"&gt;&lt;/i&gt;
+    &lt;/a&gt;
+    &lt;div class="dropdown-menu"&gt;
+        &lt;a href="#" class="dropdown-item"&gt;编辑&lt;/a&gt;
+        &lt;a href="#" class="dropdown-item"&gt;复制&lt;/a&gt;
+        &lt;a href="#" class="dropdown-item"&gt;删除&lt;/a&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- API 文档 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Dropdown Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>trigger</code></td>
+                    <td>触发方式</td>
+                    <td>'click' | 'hover' | 'contextMenu'</td>
+                    <td>'click'</td>
+                </tr>
+                <tr>
+                    <td><code>placement</code></td>
+                    <td>弹出位置</td>
+                    <td>'top' | 'bottom' | 'left' | 'right'</td>
+                    <td>'bottom'</td>
+                </tr>
+                <tr>
+                    <td><code>align</code></td>
+                    <td>对齐方式</td>
+                    <td>'left' | 'right' | 'center'</td>
+                    <td>'left'</td>
+                </tr>
+                <tr>
+                    <td><code>disabled</code></td>
+                    <td>是否禁用</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>visible</code></td>
+                    <td>是否可见（受控）</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>onVisibleChange</code></td>
+                    <td>显示状态变化回调</td>
+                    <td>(visible: boolean) => void</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">Menu Item Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>key</code></td>
+                    <td>唯一标识</td>
+                    <td>string</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>icon</code></td>
+                    <td>图标</td>
+                    <td>ReactNode</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>disabled</code></td>
+                    <td>是否禁用</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>danger</code></td>
+                    <td>是否危险操作</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>onClick</code></td>
+                    <td>点击事件</td>
+                    <td>() => void</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">CSS 类名</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>类名</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>dropdown</code></td>
+                    <td>基础下拉菜单样式</td>
+                </tr>
+                <tr>
+                    <td><code>dropdown.active</code></td>
+                    <td>激活状态</td>
+                </tr>
+                <tr>
+                    <td><code>dropdown-menu</code></td>
+                    <td>菜单容器</td>
+                </tr>
+                <tr>
+                    <td><code>dropdown-item</code></td>
+                    <td>菜单项</td>
+                </tr>
+                <tr>
+                    <td><code>dropdown-item.disabled</code></td>
+                    <td>禁用状态</td>
+                </tr>
+                <tr>
+                    <td><code>dropdown-item.danger</code></td>
+                    <td>危险操作样式</td>
+                </tr>
+                <tr>
+                    <td><code>dropdown-divider</code></td>
+                    <td>分隔线</td>
+                </tr>
+                <tr>
+                    <td><code>dropdown-header</code></td>
+                    <td>分组标题</td>
+                </tr>
+                <tr>
+                    <td><code>dropdown-right</code></td>
+                    <td>右对齐</td>
+                </tr>
+                <tr>
+                    <td><code>dropdown-top</code></td>
+                    <td>向上弹出</td>
+                </tr>
+                <tr>
+                    <td><code>dropdown-item-icon</code></td>
+                    <td>图标样式</td>
+                </tr>
+                <tr>
+                    <td><code>dropdown-item-arrow</code></td>
+                    <td>箭头样式</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+
+        function toggleDropdown(id) {
+            const dropdown = document.getElementById(id);
+            const isActive = dropdown.classList.contains('active');
+
+            // 关闭所有其他下拉菜单
+            document.querySelectorAll('.dropdown.active').forEach(d => {
+                if (d.id !== id) {
+                    d.classList.remove('active');
+                }
+            });
+
+            // 切换当前下拉菜单
+            dropdown.classList.toggle('active');
+        }
+
+        function showDropdown(id) {
+            const dropdown = document.getElementById(id);
+            dropdown.classList.add('active');
+        }
+
+        function hideDropdown(id) {
+            const dropdown = document.getElementById(id);
+            dropdown.classList.remove('active');
+        }
+
+        // 点击外部关闭下拉菜单
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown.active').forEach(d => {
+                    d.classList.remove('active');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

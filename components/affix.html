@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Affix 固钉 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+            position: relative;
+            height: 300px;
+            overflow-y: auto;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .api-table th, .api-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .api-table th {
+            background: #F7F8FA;
+            color: #1C1C1E;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .api-table td {
+            color: #4E5969;
+            font-size: 13px;
+        }
+        .api-table code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #165DFF;
+        }
+
+        /* Affix Styles */
+        .affix {
+            position: fixed;
+            z-index: 1000;
+        }
+        .affix-placeholder {
+            visibility: hidden;
+        }
+        .affix-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+            background: linear-gradient(135deg, #6750A4 0%, #4F7AFF 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(103, 80, 164, 0.2);
+            transition: all 0.2s;
+        }
+        .affix-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(103, 80, 164, 0.3);
+        }
+        .affix-top-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            background: white;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            color: #4E5969;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .affix-top-btn:hover {
+            color: #6750A4;
+            border-color: #6750A4;
+            box-shadow: 0 4px 12px rgba(103, 80, 164, 0.2);
+        }
+        .affix-panel {
+            background: white;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            min-width: 200px;
+        }
+        .affix-panel-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .affix-panel-content {
+            font-size: 13px;
+            color: #4E5969;
+            line-height: 1.6;
+        }
+        .scroll-content {
+            padding: 20px;
+            line-height: 2;
+            color: #4E5969;
+        }
+        .scroll-content p {
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Affix 固钉</h1>
+    <p class="component-subtitle">将页面元素固定在特定可视区域</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">向下滚动查看固定效果</div>
+            <div class="scroll-content">
+                <p>向下滚动页面，按钮将固定在顶部位置。</p>
+                <p>这是一些示例文本内容，用于创建滚动效果。</p>
+                <p>Affix 组件可以让元素在滚动时保持在可视区域。</p>
+                <p>继续向下滚动查看效果...</p>
+                <p>更多内容填充...</p>
+                <p>继续滚动...</p>
+                <p>快要看到固定按钮了...</p>
+                <p>再滚动一点点...</p>
+                <p>现在按钮应该固定在顶部了！</p>
+                <p>继续滚动测试...</p>
+                <p>固定效果应该持续保持...</p>
+                <p>这是最后一行文本。</p>
+            </div>
+            <div class="affix-placeholder" id="affix1-placeholder">
+                <button class="affix-btn" id="affix1">
+                    <i class="fa-solid fa-thumbtack"></i>
+                    固定在顶部
+                </button>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="affix-placeholder" id="affix1-placeholder"&gt;
+    &lt;button class="affix-btn" id="affix1"&gt;
+        &lt;i class="fa-solid fa-thumbtack"&gt;&lt;/i&gt;
+        固定在顶部
+    &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+const affix = document.getElementById('affix1');
+const placeholder = document.getElementById('affix1-placeholder');
+const offsetTop = placeholder.getBoundingClientRect().top + window.scrollY;
+
+window.addEventListener('scroll', () => {
+    if (window.scrollY > offsetTop) {
+        affix.classList.add('affix');
+        affix.style.top = '0';
+    } else {
+        affix.classList.remove('affix');
+        affix.style.top = '';
+    }
+});
+&lt;/script&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 固定在底部 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">固定在底部</h2>
+        <div class="demo-box">
+            <div class="demo-title">向下滚动查看底部固定效果</div>
+            <div class="scroll-content">
+                <p>向下滚动页面，按钮将固定在底部位置。</p>
+                <p>这是一些示例文本内容，用于创建滚动效果。</p>
+                <p>继续向下滚动查看效果...</p>
+                <p>更多内容填充...</p>
+                <p>继续滚动...</p>
+                <p>快要看到固定按钮了...</p>
+                <p>现在按钮应该固定在底部了！</p>
+                <p>继续滚动测试...</p>
+            </div>
+            <div class="affix-placeholder" id="affix2-placeholder">
+                <button class="affix-btn" id="affix2" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);">
+                    <i class="fa-solid fa-download"></i>
+                    下载报告
+                </button>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="affix-placeholder" id="affix2-placeholder"&gt;
+    &lt;button class="affix-btn" id="affix2"&gt;
+        &lt;i class="fa-solid fa-download"&gt;&lt;/i&gt;
+        下载报告
+    &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+const affix2 = document.getElementById('affix2');
+affix2.style.position = 'fixed';
+affix2.style.bottom = '20px';
+affix2.style.left = '50%';
+affix2.style.transform = 'translateX(-50%)';
+&lt;/script&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 固定面板 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">固定面板</h2>
+        <div class="demo-box">
+            <div class="demo-title">固定信息面板在侧边</div>
+            <div style="display: flex; gap: 20px;">
+                <div class="scroll-content" style="flex: 1;">
+                    <p>这是一些长篇内容...</p>
+                    <p>Affix 组件常用于侧边栏导航的固定。</p>
+                    <p>当页面内容很长时，固定面板可以提供持续的访问入口。</p>
+                    <p>继续向下滚动查看右侧固定面板的效果...</p>
+                    <p>更多内容填充...</p>
+                    <p>继续滚动...</p>
+                    <p>右侧面板应该固定在可视区域...</p>
+                    <p>继续滚动测试...</p>
+                    <p>固定效果应该持续保持...</p>
+                </div>
+                <div class="affix-placeholder" id="affix3-placeholder">
+                    <div class="affix-panel" id="affix3">
+                        <div class="affix-panel-title">
+                            <i class="fa-solid fa-circle-info" style="margin-right: 8px; color: #6750A4;"></i>
+                            快捷操作
+                        </div>
+                        <div class="affix-panel-content">
+                            <p style="margin-bottom: 8px;">• 查看详情</p>
+                            <p style="margin-bottom: 8px;">• 编辑内容</p>
+                            <p style="margin-bottom: 8px;">• 分享页面</p>
+                            <p>• 联系客服</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="affix-placeholder" id="affix3-placeholder"&gt;
+    &lt;div class="affix-panel" id="affix3"&gt;
+        &lt;div class="affix-panel-title"&gt;
+            &lt;i class="fa-solid fa-circle-info"&gt;&lt;/i&gt;
+            快捷操作
+        &lt;/div&gt;
+        &lt;div class="affix-panel-content"&gt;
+            &lt;p&gt;• 查看详情&lt;/p&gt;
+            &lt;p&gt;• 编辑内容&lt;/p&gt;
+            &lt;p&gt;• 分享页面&lt;/p&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 返回顶部按钮 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">返回顶部按钮</h2>
+        <div class="demo-box">
+            <div class="demo-title">向下滚动后显示返回顶部按钮</div>
+            <div class="scroll-content">
+                <p>向下滚动页面...</p>
+                <p>滚动到一定距离后，返回顶部按钮会出现。</p>
+                <p>继续向下滚动...</p>
+                <p>更多内容...</p>
+                <p>继续滚动...</p>
+                <p>应该看到右下角的返回顶部按钮了...</p>
+                <p>点击它可以快速返回页面顶部。</p>
+                <p>继续滚动测试...</p>
+                <p>更多内容填充...</p>
+            </div>
+            <div class="affix-top-btn" id="backToTop" style="position: fixed; bottom: 20px; right: 20px; display: none;">
+                <i class="fa-solid fa-arrow-up"></i>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="affix-top-btn" id="backToTop"
+     style="position: fixed; bottom: 20px; right: 20px; display: none;"&gt;
+    &lt;i class="fa-solid fa-arrow-up"&gt;&lt;/i&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+const backToTop = document.getElementById('backToTop');
+
+window.addEventListener('scroll', () => {
+    if (window.scrollY > 300) {
+        backToTop.style.display = 'flex';
+    } else {
+        backToTop.style.display = 'none';
+    }
+});
+
+backToTop.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+&lt;/script&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 偏移量设置 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">偏移量设置</h2>
+        <div class="demo-box">
+            <div class="demo-title">设置固定位置的偏移量</div>
+            <div class="scroll-content">
+                <p>向下滚动查看偏移固定效果...</p>
+                <p>按钮将固定在距离顶部100px的位置。</p>
+                <p>继续向下滚动...</p>
+                <p>更多内容填充...</p>
+                <p>继续滚动...</p>
+                <p>快要看到固定按钮了...</p>
+                <p>现在按钮应该固定在距离顶部100px的位置了！</p>
+                <p>继续滚动测试...</p>
+            </div>
+            <div class="affix-placeholder" id="affix4-placeholder">
+                <button class="affix-btn" id="affix4">
+                    <i class="fa-solid fa-arrows-up-down"></i>
+                    距离顶部 100px
+                </button>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="affix-placeholder" id="affix4-placeholder"&gt;
+    &lt;button class="affix-btn" id="affix4"&gt;
+        &lt;i class="fa-solid fa-arrows-up-down"&gt;&lt;/i&gt;
+        距离顶部 100px
+    &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+const offsetTop = 100; // 设置偏移量为100px
+
+window.addEventListener('scroll', () => {
+    if (window.scrollY > offsetTop) {
+        affix4.classList.add('affix');
+        affix4.style.top = offsetTop + 'px';
+    } else {
+        affix4.classList.remove('affix');
+        affix4.style.top = '';
+    }
+});
+&lt;/script&gt;</pre>
+        </div>
+    </div>
+
+    <!-- API 文档 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Affix Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>offsetTop</code></td>
+                    <td>距离窗口顶部达到指定偏移量后触发</td>
+                    <td>number</td>
+                    <td>0</td>
+                </tr>
+                <tr>
+                    <td><code>offsetBottom</code></td>
+                    <td>距离窗口底部达到指定偏移量后触发</td>
+                    <td>number</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>target</code></td>
+                    <td>设置 Affix 需要监听其滚动事件的元素</td>
+                    <code>() => HTMLElement</code> | <code>HTMLElement</code>
+                    <td>() => window</td>
+                </tr>
+                <tr>
+                    <td><code>onChange</code></td>
+                    <td>固定状态改变时的回调</td>
+                    <td>(affixed: boolean) => void</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>onScroll</code></td>
+                    <td>滚动时的回调</td>
+                    <code>() => void</code> | <code>({ affixed: boolean }) => void</code>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">CSS 类名</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>类名</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>affix</code></td>
+                    <td>固定状态的基础样式</td>
+                </tr>
+                <tr>
+                    <td><code>affix-placeholder</code></td>
+                    <td>占位元素，防止内容跳动</td>
+                </tr>
+                <tr>
+                    <td><code>affix-btn</code></td>
+                    <td>固定按钮样式</td>
+                </tr>
+                <tr>
+                    <td><code>affix-top-btn</code></td>
+                    <td>顶部返回按钮样式</td>
+                </tr>
+                <tr>
+                    <td><code>affix-panel</code></td>
+                    <td>固定面板样式</td>
+                </tr>
+                <tr>
+                    <td><code>affix-panel-title</code></td>
+                    <td>面板标题</td>
+                </tr>
+                <tr>
+                    <td><code>affix-panel-content</code></td>
+                    <td>面板内容</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+
+        // Affix 1 - 基础固定
+        const affix1 = document.getElementById('affix1');
+        const placeholder1 = document.getElementById('affix1-placeholder');
+        if (affix1 && placeholder1) {
+            const offsetTop1 = placeholder1.getBoundingClientRect().top + window.scrollY;
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > offsetTop1) {
+                    affix1.classList.add('affix');
+                    affix1.style.top = '0';
+                } else {
+                    affix1.classList.remove('affix');
+                    affix1.style.top = '';
+                }
+            });
+        }
+
+        // Affix 3 - 面板固定
+        const affix3 = document.getElementById('affix3');
+        const placeholder3 = document.getElementById('affix3-placeholder');
+        if (affix3 && placeholder3) {
+            const offsetTop3 = placeholder3.getBoundingClientRect().top + window.scrollY;
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > offsetTop3) {
+                    affix3.classList.add('affix');
+                    affix3.style.top = '20px';
+                } else {
+                    affix3.classList.remove('affix');
+                    affix3.style.top = '';
+                }
+            });
+        }
+
+        // Back to Top
+        const backToTop = document.getElementById('backToTop');
+        if (backToTop) {
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) {
+                    backToTop.style.display = 'flex';
+                } else {
+                    backToTop.style.display = 'none';
+                }
+            });
+            backToTop.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        // Affix 4 - 偏移量
+        const affix4 = document.getElementById('affix4');
+        const placeholder4 = document.getElementById('affix4-placeholder');
+        if (affix4 && placeholder4) {
+            const offsetTop4 = placeholder4.getBoundingClientRect().top + window.scrollY;
+            const targetOffset = 100;
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > offsetTop4) {
+                    affix4.classList.add('affix');
+                    affix4.style.top = targetOffset + 'px';
+                } else {
+                    affix4.classList.remove('affix');
+                    affix4.style.top = '';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

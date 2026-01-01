@@ -12,7 +12,6 @@ import { i18nEditor } from '../EditorToolbar/i18n';
 import { useTranslation } from 'react-i18next';
 import { useMediaQuery } from 'usehooks-ts';
 import { AIExtend, Extend } from '../EditorToolbar/extends';
-import { NoteType, toNoteTypeEnum } from '@shared/lib/types';
 import { api } from '@/lib/trpc';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getluminaEndpoint } from '@/lib/luminaEndpoint';
@@ -311,7 +310,7 @@ export const useEditorInit = (
       store.vditor = null;
     };
 
-  }, [mode, Lumina.config.value?.toolbarVisibility, store.viewMode, isPc, shouldUseVditor]);
+  }, [mode, Lumina.config.value?.toolbarVisibility, store.viewMode, isPc]);
 
   useEffect(() => {
     store.references = originReference
@@ -322,8 +321,6 @@ export const useEditorInit = (
 
   useEffect(() => {
     if (mode == 'create') {
-      // 始终创建闪念类型的笔记
-      store.noteType = NoteType.Lumina
       if (searchParams.get('tagId')) {
         try {
           api.tags.fullTagNameById.query({ id: Number(searchParams.get('tagId')) }).then(res => {
@@ -335,9 +332,6 @@ export const useEditorInit = (
       } else {
         store.currentTagLabel = ''
       }
-    } else {
-      // 编辑模式保持原有类型
-      store.noteType = toNoteTypeEnum(Lumina.curSelectedNote?.type)
     }
   }, [mode, searchParams.get('path'), searchParams.get('tagId')]);
 };
@@ -510,5 +504,5 @@ export const useEditorHeight = (
 ) => {
   useEffect(() => {
     onHeightChange?.();
-  }, [store.noteType, content, store.files?.length, store.viewMode]);
+  }, [content, store.files?.length, store.viewMode]);
 }; 

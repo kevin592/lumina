@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline 时间轴 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .api-table th, .api-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .api-table th {
+            background: #F7F8FA;
+            color: #1C1C1E;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .api-table td {
+            color: #4E5969;
+            font-size: 13px;
+        }
+        .api-table code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #165DFF;
+        }
+
+        /* Timeline Styles */
+        .timeline {
+            position: relative;
+            padding: 8px 0;
+        }
+        .timeline-item {
+            position: relative;
+            padding-bottom: 32px;
+            padding-left: 40px;
+        }
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+        .timeline-tail {
+            position: absolute;
+            left: 7px;
+            top: 24px;
+            bottom: 0;
+            width: 2px;
+            background: #E5E6EB;
+        }
+        .timeline-item:last-child .timeline-tail {
+            display: none;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: 0;
+            top: 4px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #6750A4;
+            z-index: 1;
+        }
+        .timeline-dot-primary {
+            border-color: #6750A4;
+        }
+        .timeline-dot-success {
+            border-color: #00A48A;
+        }
+        .timeline-dot-warning {
+            border-color: #FF7D00;
+        }
+        .timeline-dot-danger {
+            border-color: #FF3B30;
+        }
+        .timeline-dot-info {
+            border-color: #165DFF;
+        }
+        .timeline-content {
+            padding: 4px 0;
+        }
+        .timeline-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 4px;
+        }
+        .timeline-time {
+            font-size: 12px;
+            color: #9CA3AF;
+            margin-bottom: 8px;
+        }
+        .timeline-description {
+            font-size: 14px;
+            color: #4E5969;
+            line-height: 1.6;
+        }
+        .timeline-item-pending .timeline-dot {
+            background: #E5E6EB;
+            border-color: #C9CDD4;
+        }
+        .timeline-alternate {
+            display: flex;
+        }
+        .timeline-alternate .timeline-item {
+            flex: 1;
+        }
+        .timeline-alternate .timeline-item:nth-child(odd) {
+            text-align: left;
+            padding-left: 40px;
+            padding-right: 0;
+        }
+        .timeline-alternate .timeline-item:nth-child(even) {
+            text-align: right;
+            padding-left: 0;
+            padding-right: 40px;
+        }
+        .timeline-alternate .timeline-item:nth-child(even) .timeline-tail {
+            left: auto;
+            right: 7px;
+        }
+        .timeline-alternate .timeline-item:nth-child(even) .timeline-dot {
+            left: auto;
+            right: 0;
+        }
+        .timeline-right {
+            text-align: right;
+        }
+        .timeline-right .timeline-item {
+            padding-left: 0;
+            padding-right: 40px;
+        }
+        .timeline-right .timeline-tail {
+            left: auto;
+            right: 7px;
+        }
+        .timeline-right .timeline-dot {
+            left: auto;
+            right: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Timeline 时间轴</h1>
+    <p class="component-subtitle">用于展示垂直时间序列信息的组件</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">基础时间轴</div>
+            <div style="max-width: 600px;">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-tail"></div>
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">创建项目</div>
+                            <div class="timeline-time">2024-01-01 10:00</div>
+                            <div class="timeline-description">项目初始化完成，开始进行需求分析</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-tail"></div>
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">设计阶段</div>
+                            <div class="timeline-time">2024-01-05 14:30</div>
+                            <div class="timeline-description">UI/UX设计完成，进入开发阶段</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-tail"></div>
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">开发完成</div>
+                            <div class="timeline-time">2024-01-15 09:00</div>
+                            <div class="timeline-description">功能开发完成，准备测试</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="timeline"&gt;
+    &lt;div class="timeline-item"&gt;
+        &lt;div class="timeline-tail"&gt;&lt;/div&gt;
+        &lt;div class="timeline-dot"&gt;&lt;/div&gt;
+        &lt;div class="timeline-content"&gt;
+            &lt;div class="timeline-title"&gt;创建项目&lt;/div&gt;
+            &lt;div class="timeline-time"&gt;2024-01-01 10:00&lt;/div&gt;
+            &lt;div class="timeline-description"&gt;项目初始化完成&lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 不同颜色 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">不同颜色</h2>
+        <div class="demo-box">
+            <div class="demo-title">不同状态的时间节点</div>
+            <div style="max-width: 600px;">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-tail"></div>
+                        <div class="timeline-dot timeline-dot-success"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">已完成</div>
+                            <div class="timeline-time">2024-01-01 10:00</div>
+                            <div class="timeline-description">任务已成功完成</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-tail"></div>
+                        <div class="timeline-dot timeline-dot-warning"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">进行中</div>
+                            <div class="timeline-time">2024-01-05 14:30</div>
+                            <div class="timeline-description">任务正在进行中</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-tail"></div>
+                        <div class="timeline-dot timeline-dot-danger"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">已延期</div>
+                            <div class="timeline-time">2024-01-10 09:00</div>
+                            <div class="timeline-description">任务已延期处理</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-tail"></div>
+                        <div class="timeline-dot timeline-dot-info"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">待处理</div>
+                            <div class="timeline-time">2024-01-15 09:00</div>
+                            <div class="timeline-description">任务等待处理</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="timeline-dot timeline-dot-success"&gt;&lt;/div&gt;
+&lt;div class="timeline-dot timeline-dot-warning"&gt;&lt;/div&gt;
+&lt;div class="timeline-dot timeline-dot-danger"&gt;&lt;/div&gt;
+&lt;div class="timeline-dot timeline-dot-info"&gt;&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 最后一个节点 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">最后一个节点</h2>
+        <div class="demo-box">
+            <div class="demo-title">使用 pending 样式</div>
+            <div style="max-width: 600px;">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-tail"></div>
+                        <div class="timeline-dot timeline-dot-success"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">步骤1</div>
+                            <div class="timeline-description">第一步已完成</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-tail"></div>
+                        <div class="timeline-dot timeline-dot-success"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">步骤2</div>
+                            <div class="timeline-description">第二步已完成</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item timeline-item-pending">
+                        <div class="timeline-tail"></div>
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title" style="color: #9CA3AF;">步骤3</div>
+                            <div class="timeline-description" style="color: #9CA3AF;">等待执行</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="timeline-item timeline-item-pending"&gt;
+    &lt;div class="timeline-dot"&gt;&lt;/div&gt;
+    &lt;div class="timeline-content"&gt;
+        &lt;div class="timeline-title" style="color: #9CA3AF;"&gt;步骤3&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 右侧时间轴 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">右侧时间轴</h2>
+        <div class="demo-box">
+            <div class="demo-title">时间轴在右侧</div>
+            <div style="max-width: 600px; margin-left: auto;">
+                <div class="timeline timeline-right">
+                    <div class="timeline-item">
+                        <div class="timeline-tail"></div>
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">步骤1</div>
+                            <div class="timeline-time">2024-01-01</div>
+                            <div class="timeline-description">第一步说明</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-tail"></div>
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">步骤2</div>
+                            <div class="timeline-time">2024-01-02</div>
+                            <div class="timeline-description">第二步说明</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="timeline timeline-right"&gt;
+    &lt;div class="timeline-item"&gt;...&lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- API 文档 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Timeline Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>mode</code></td>
+                    <td>时间轴模式</td>
+                    <td>'left' | 'alternate' | 'right'</td>
+                    <td>'left'</td>
+                </tr>
+                <tr>
+                    <td><code>items</code></td>
+                    <td>时间轴数据</td>
+                    <td>TimelineItem[]</td>
+                    <td>[]</td>
+                </tr>
+                <tr>
+                    <td><code>reverse</code></td>
+                    <td>是否倒序</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>pending</code></td>
+                    <td>是否显示幽灵节点（最后一个节点）</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">TimelineItem Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>color</code></td>
+                    <td>节点颜色</td>
+                    <td>'primary' | 'success' | 'warning' | 'danger' | 'info'</td>
+                    <td>'primary'</td>
+                </tr>
+                <tr>
+                    <td><code>dot</code></td>
+                    <td>自定义节点</td>
+                    <td>ReactNode</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>label</code></td>
+                    <td>标签（可用于放置时间）</td>
+                    <td>ReactNode</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>title</code></td>
+                    <td>标题</td>
+                    <td>ReactNode</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>description</code></td>
+                    <td>描述</td>
+                    <td>ReactNode</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">CSS 类名</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>类名</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>timeline</code></td>
+                    <td>基础时间轴样式</td>
+                </tr>
+                <tr>
+                    <td><code>timeline-item</code></td>
+                    <td>时间轴项</td>
+                </tr>
+                <tr>
+                    <td><code>timeline-tail</code></td>
+                    <td>时间轴连线</td>
+                </tr>
+                <tr>
+                    <td><code>timeline-dot</code></td>
+                    <td>时间轴节点</td>
+                </tr>
+                <tr>
+                    <td><code>timeline-dot-primary</code></td>
+                    <td>主要节点（紫色）</td>
+                </tr>
+                <tr>
+                    <td><code>timeline-dot-success</code></td>
+                    <td>成功节点（绿色）</td>
+                </tr>
+                <tr>
+                    <td><code>timeline-dot-warning</code></td>
+                    <td>警告节点（黄色）</td>
+                </tr>
+                <tr>
+                    <td><code>timeline-dot-danger</code></td>
+                    <td>危险节点（红色）</td>
+                </tr>
+                <tr>
+                    <td><code>timeline-dot-info</code></td>
+                    <td>信息节点（蓝色）</td>
+                </tr>
+                <tr>
+                    <td><code>timeline-content</code></td>
+                    <td>时间轴内容</td>
+                </tr>
+                <tr>
+                    <td><code>timeline-title</code></td>
+                    <td>时间轴标题</td>
+                </tr>
+                <tr>
+                    <td><code>timeline-time</code></td>
+                    <td>时间轴时间</td>
+                </tr>
+                <tr>
+                    <td><code>timeline-description</code></td>
+                    <td>时间轴描述</td>
+                </tr>
+                <tr>
+                    <td><code>timeline-item-pending</code></td>
+                    <td>未完成状态</td>
+                </tr>
+                <tr>
+                    <td><code>timeline-right</code></td>
+                    <td>右侧时间轴</td>
+                </tr>
+                <tr>
+                    <td><code>timeline-alternate</code></td>
+                    <td>交替时间轴</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

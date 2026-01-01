@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skeleton 骨架屏 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .api-table th, .api-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .api-table th {
+            background: #F7F8FA;
+            color: #1C1C1E;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .api-table td {
+            color: #4E5969;
+            font-size: 13px;
+        }
+        .api-table code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #165DFF;
+        }
+
+        /* Skeleton Styles */
+        .skeleton {
+            background: #F2F3F5;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        .skeleton::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.4) 50%,
+                transparent 100%
+            );
+            animation: skeletonShimmer 1.5s ease-in-out infinite;
+        }
+        @keyframes skeletonShimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+        .skeleton-text {
+            height: 16px;
+            margin-bottom: 12px;
+        }
+        .skeleton-text-lg {
+            height: 24px;
+            margin-bottom: 16px;
+        }
+        .skeleton-title {
+            height: 28px;
+            margin-bottom: 20px;
+            width: 60%;
+        }
+        .skeleton-paragraph {
+            margin-bottom: 24px;
+        }
+        .skeleton-paragraph .skeleton-text:last-child {
+            width: 80%;
+        }
+        .skeleton-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .skeleton-avatar-lg {
+            width: 64px;
+            height: 64px;
+        }
+        .skeleton-avatar-sm {
+            width: 32px;
+            height: 32px;
+        }
+        .skeleton-button {
+            height: 36px;
+            width: 100px;
+            border-radius: 9999px;
+        }
+        .skeleton-input {
+            height: 40px;
+            width: 100%;
+        }
+        .skeleton-image {
+            width: 100%;
+            height: 200px;
+            border-radius: 8px;
+        }
+        .skeleton-card {
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 20px;
+            background: white;
+        }
+        .skeleton-row {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        .skeleton-col {
+            flex: 1;
+        }
+        .skeleton-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .skeleton-list-item {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            padding: 16px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #E5E6EB;
+        }
+        .skeleton-active {
+            animation: skeletonPulse 1.5s ease-in-out infinite;
+        }
+        @keyframes skeletonPulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.6;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Skeleton 骨架屏</h1>
+    <p class="component-subtitle">在内容加载时,展示占位图形</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">文本骨架</div>
+            <div class="skeleton-paragraph">
+                <div class="skeleton skeleton-title"></div>
+                <div class="skeleton skeleton-text"></div>
+                <div class="skeleton skeleton-text"></div>
+                <div class="skeleton skeleton-text"></div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="skeleton-paragraph"&gt;
+    &lt;div class="skeleton skeleton-title"&gt;&lt;/div&gt;
+    &lt;div class="skeleton skeleton-text"&gt;&lt;/div&gt;
+    &lt;div class="skeleton skeleton-text"&gt;&lt;/div&gt;
+    &lt;div class="skeleton skeleton-text"&gt;&lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 组合使用 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">组合使用</h2>
+        <div class="demo-box">
+            <div class="demo-title">头像 + 文本</div>
+            <div class="skeleton-row">
+                <div class="skeleton skeleton-avatar"></div>
+                <div class="skeleton-col">
+                    <div class="skeleton skeleton-text-lg" style="width: 40%;"></div>
+                    <div class="skeleton skeleton-text" style="width: 60%;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="skeleton-row"&gt;
+    &lt;div class="skeleton skeleton-avatar"&gt;&lt;/div&gt;
+    &lt;div class="skeleton-col"&gt;
+        &lt;div class="skeleton skeleton-text-lg" style="width: 40%;"&gt;&lt;/div&gt;
+        &lt;div class="skeleton skeleton-text" style="width: 60%;"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 卡片骨架 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">卡片骨架</h2>
+        <div class="demo-box">
+            <div class="demo-title">卡片加载状态</div>
+            <div style="max-width: 400px;">
+                <div class="skeleton-card">
+                    <div class="skeleton skeleton-image" style="height: 180px; margin-bottom: 16px;"></div>
+                    <div class="skeleton skeleton-title" style="margin-bottom: 12px;"></div>
+                    <div class="skeleton skeleton-text"></div>
+                    <div class="skeleton skeleton-text"></div>
+                    <div class="skeleton skeleton-text" style="width: 70%;"></div>
+                    <div class="skeleton-row" style="margin-top: 16px; margin-bottom: 0;">
+                        <div class="skeleton skeleton-button"></div>
+                        <div class="skeleton skeleton-button"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="skeleton-card"&gt;
+    &lt;div class="skeleton skeleton-image" style="height: 180px; margin-bottom: 16px;"&gt;&lt;/div&gt;
+    &lt;div class="skeleton skeleton-title" style="margin-bottom: 12px;"&gt;&lt;/div&gt;
+    &lt;div class="skeleton skeleton-text"&gt;&lt;/div&gt;
+    &lt;div class="skeleton skeleton-text"&gt;&lt;/div&gt;
+    &lt;div class="skeleton skeleton-text" style="width: 70%;"&gt;&lt;/div&gt;
+    &lt;div class="skeleton-row" style="margin-top: 16px;"&gt;
+        &lt;div class="skeleton skeleton-button"&gt;&lt;/div&gt;
+        &lt;div class="skeleton skeleton-button"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 列表骨架 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">列表骨架</h2>
+        <div class="demo-box">
+            <div class="demo-title">列表加载状态</div>
+            <div class="skeleton-list" style="max-width: 500px;">
+                <div class="skeleton-list-item">
+                    <div class="skeleton skeleton-avatar"></div>
+                    <div class="skeleton-col">
+                        <div class="skeleton skeleton-text" style="width: 50%; margin-bottom: 8px;"></div>
+                        <div class="skeleton skeleton-text" style="width: 80%;"></div>
+                    </div>
+                </div>
+                <div class="skeleton-list-item">
+                    <div class="skeleton skeleton-avatar"></div>
+                    <div class="skeleton-col">
+                        <div class="skeleton skeleton-text" style="width: 50%; margin-bottom: 8px;"></div>
+                        <div class="skeleton skeleton-text" style="width: 80%;"></div>
+                    </div>
+                </div>
+                <div class="skeleton-list-item">
+                    <div class="skeleton skeleton-avatar"></div>
+                    <div class="skeleton-col">
+                        <div class="skeleton skeleton-text" style="width: 50%; margin-bottom: 8px;"></div>
+                        <div class="skeleton skeleton-text" style="width: 80%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="skeleton-list"&gt;
+    &lt;div class="skeleton-list-item"&gt;
+        &lt;div class="skeleton skeleton-avatar"&gt;&lt;/div&gt;
+        &lt;div class="skeleton-col"&gt;
+            &lt;div class="skeleton skeleton-text" style="width: 50%; margin-bottom: 8px;"&gt;&lt;/div&gt;
+            &lt;div class="skeleton skeleton-text" style="width: 80%;"&gt;&lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;!-- 更多列表项 --&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 表单骨架 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">表单骨架</h2>
+        <div class="demo-box">
+            <div class="demo-title">表单加载状态</div>
+            <div style="max-width: 400px;">
+                <div class="skeleton-card">
+                    <div class="skeleton skeleton-title" style="margin-bottom: 24px;"></div>
+                    <div style="margin-bottom: 16px;">
+                        <div class="skeleton skeleton-text" style="width: 30%; margin-bottom: 8px;"></div>
+                        <div class="skeleton skeleton-input"></div>
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <div class="skeleton skeleton-text" style="width: 30%; margin-bottom: 8px;"></div>
+                        <div class="skeleton skeleton-input"></div>
+                    </div>
+                    <div style="margin-bottom: 24px;">
+                        <div class="skeleton skeleton-text" style="width: 30%; margin-bottom: 8px;"></div>
+                        <div class="skeleton skeleton-input" style="height: 80px;"></div>
+                    </div>
+                    <div class="skeleton-row" style="margin-bottom: 0;">
+                        <div class="skeleton skeleton-button"></div>
+                        <div class="skeleton skeleton-button"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="skeleton-card"&gt;
+    &lt;div class="skeleton skeleton-title" style="margin-bottom: 24px;"&gt;&lt;/div&gt;
+    &lt;div style="margin-bottom: 16px;"&gt;
+        &lt;div class="skeleton skeleton-text" style="width: 30%; margin-bottom: 8px;"&gt;&lt;/div&gt;
+        &lt;div class="skeleton skeleton-input"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;!-- 更多表单项 --&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 头像骨架 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">头像骨架</h2>
+        <div class="demo-box">
+            <div class="demo-title">不同尺寸的头像</div>
+            <div style="display: flex; gap: 24px; align-items: center;">
+                <div class="skeleton skeleton-avatar-sm"></div>
+                <div class="skeleton skeleton-avatar"></div>
+                <div class="skeleton skeleton-avatar-lg"></div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="skeleton skeleton-avatar-sm"&gt;&lt;/div&gt;
+&lt;div class="skeleton skeleton-avatar"&gt;&lt;/div&gt;
+&lt;div class="skeleton skeleton-avatar-lg"&gt;&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 动画效果 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">动画效果</h2>
+        <div class="demo-box">
+            <div class="demo-title">默认闪烁效果</div>
+            <div class="skeleton-paragraph">
+                <div class="skeleton skeleton-title"></div>
+                <div class="skeleton skeleton-text"></div>
+                <div class="skeleton skeleton-text"></div>
+                <div class="skeleton skeleton-text"></div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;!-- 默认带闪烁动画 --&gt;
+&lt;div class="skeleton skeleton-title"&gt;&lt;/div&gt;
+
+&lt;!-- 可选:脉冲动画 --&gt;
+&lt;div class="skeleton skeleton-active"&gt;&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 自定义样式 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">自定义样式</h2>
+        <div class="demo-box">
+            <div class="demo-title">自定义宽高和圆角</div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div class="skeleton" style="height: 40px; width: 200px; border-radius: 8px;"></div>
+                <div class="skeleton" style="height: 60px; width: 100%; border-radius: 12px;"></div>
+                <div class="skeleton" style="height: 24px; width: 150px; border-radius: 6px;"></div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="skeleton" style="height: 40px; width: 200px; border-radius: 8px;"&gt;&lt;/div&gt;
+&lt;div class="skeleton" style="height: 60px; width: 100%; border-radius: 12px;"&gt;&lt;/div&gt;
+&lt;div class="skeleton" style="height: 24px; width: 150px; border-radius: 6px;"&gt;&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- API 文档 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Skeleton Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>loading</code></td>
+                    <td>是否显示骨架屏</td>
+                    <td>boolean</td>
+                    <td>true</td>
+                </tr>
+                <tr>
+                    <td><code>active</code></td>
+                    <td>是否展示动画效果</td>
+                    <td>boolean</td>
+                    <td>true</td>
+                </tr>
+                <tr>
+                    <td><code>avatar</code></td>
+                    <td>是否显示头像占位图</td>
+                    <td>boolean | AvatarProps</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>paragraph</code></td>
+                    <td>是否显示段落占位图</td>
+                    <td>boolean | ParagraphProps</td>
+                    <td>true</td>
+                </tr>
+                <tr>
+                    <td><code>title</code></td>
+                    <td>是否显示标题占位图</td>
+                    <td>boolean | TitleProps</td>
+                    <td>true</td>
+                </tr>
+                <tr>
+                    <td><code>round</code></td>
+                    <td>是否为圆角</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>rows</code></td>
+                    <td>段落占位图行数</td>
+                    <td>number</td>
+                    <td>3</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">CSS 类名</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>类名</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>skeleton</code></td>
+                    <td>基础骨架样式</td>
+                </tr>
+                <tr>
+                    <td><code>skeleton-text</code></td>
+                    <td>文本行</td>
+                </tr>
+                <tr>
+                    <td><code>skeleton-text-lg</code></td>
+                    <td>大文本行</td>
+                </tr>
+                <tr>
+                    <td><code>skeleton-title</code></td>
+                    <td>标题行</td>
+                </tr>
+                <tr>
+                    <td><code>skeleton-paragraph</code></td>
+                    <td>段落容器</td>
+                </tr>
+                <tr>
+                    <td><code>skeleton-avatar</code></td>
+                    <td>头像(默认)</td>
+                </tr>
+                <tr>
+                    <td><code>skeleton-avatar-lg</code></td>
+                    <td>大头像</td>
+                </tr>
+                <tr>
+                    <td><code>skeleton-avatar-sm</code></td>
+                    <td>小头像</td>
+                </tr>
+                <tr>
+                    <td><code>skeleton-button</code></td>
+                    <td>按钮</td>
+                </tr>
+                <tr>
+                    <td><code>skeleton-input</code></td>
+                    <td>输入框</td>
+                </tr>
+                <tr>
+                    <td><code>skeleton-image</code></td>
+                    <td>图片</td>
+                </tr>
+                <tr>
+                    <td><code>skeleton-card</code></td>
+                    <td>卡片容器</td>
+                </tr>
+                <tr>
+                    <td><code>skeleton-row</code></td>
+                    <td>行容器</td>
+                </tr>
+                <tr>
+                    <td><code>skeleton-col</code></td>
+                    <td>列容器</td>
+                </tr>
+                <tr>
+                    <td><code>skeleton-list</code></td>
+                    <td>列表容器</td>
+                </tr>
+                <tr>
+                    <td><code>skeleton-list-item</code></td>
+                    <td>列表项</td>
+                </tr>
+                <tr>
+                    <td><code>skeleton-active</code></td>
+                    <td>脉冲动画</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

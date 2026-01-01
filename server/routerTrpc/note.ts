@@ -4,7 +4,6 @@ import { prisma } from '../prisma';
 import { Prisma } from '@prisma/client';
 import { helper, TagTreeNode } from '@shared/lib/helper';
 import { _ } from '@shared/lib/lodash';
-import { NoteType } from '../../shared/lib/types';
 import { attachmentsSchema, historySchema, notesSchema, tagSchema, tagsToNoteSchema, commentsSchema } from '@shared/lib/prismaZodType';
 import { getGlobalConfig } from './config';
 import { FileService } from '../lib/files';
@@ -31,7 +30,6 @@ export const noteRouter = router({
         page: z.number().default(1),
         size: z.number().default(30),
         orderBy: z.enum(['asc', 'desc']).default('desc'),
-        type: z.union([z.nativeEnum(NoteType), z.literal(-1)]).default(-1),
         isArchived: z.union([z.boolean(), z.null()]).default(false).optional(),
         isShare: z.union([z.boolean(), z.null()]).default(null).optional(),
         isRecycle: z.boolean().default(false).optional(),
@@ -42,7 +40,6 @@ export const noteRouter = router({
         isUseAiQuery: z.boolean().default(false).optional(),
         startDate: z.union([z.date(), z.null(), z.string()]).default(null).optional(),
         endDate: z.union([z.date(), z.null(), z.string()]).default(null).optional(),
-        parentId: z.union([z.number(), z.null()]).optional(),
       }),
     )
     .output(
@@ -104,7 +101,7 @@ export const noteRouter = router({
       ),
     )
     .mutation(async function ({ input, ctx }) {
-      const { tagId, type, isArchived, isRecycle, searchText, page, size, orderBy, withFile, withoutTag, withLink, isUseAiQuery, startDate, endDate, isShare, hasTodo, parentId } = input;
+      const { tagId, isArchived, isRecycle, searchText, page, size, orderBy, withFile, withoutTag, withLink, isUseAiQuery, startDate, endDate, isShare } = input;
       if (isUseAiQuery && searchText?.trim() != '') {
         const cleanedQuery = searchText?.replace(/@/g, '').trim();
         if (cleanedQuery && cleanedQuery.length > 0) {
@@ -150,28 +147,6 @@ export const noteRouter = router({
         if (!isRecycle && isArchived != null) {
           where.isArchived = isArchived;
         }
-        if (type != -1) {
-          where.type = type;
-        }
-      } else {
-        where.isRecycle = isRecycle;
-        if (!isRecycle && isArchived != null) {
-          where.isArchived = isArchived;
-        }
-        if (type != -1) {
-          where.type = type;
-        }
-        if (isShare != null) {
-          where.isShare = isShare;
-        }
-      }
-
-      if (tagId) {
-        const tags = await prisma.tagsToNote.findMany({ where: { tagId } });
-        where.id = { in: tags?.map((i) => i.noteId) };
-      }
-      if (parentId !== undefined) {
-        where.parentId = parentId;
       }
       if (withFile) {
         where.attachments = { some: {} };
@@ -184,14 +159,6 @@ export const noteRouter = router({
       }
       if (withLink) {
         where.OR = [{ content: { contains: 'http://', mode: 'insensitive' } }, { content: { contains: 'https://', mode: 'insensitive' } }];
-      }
-      if (hasTodo) {
-        where.OR = [
-          { content: { contains: '- [ ]', mode: 'insensitive' } },
-          { content: { contains: '- [x]', mode: 'insensitive' } },
-          { content: { contains: '* [ ]', mode: 'insensitive' } },
-          { content: { contains: '* [x]', mode: 'insensitive' } },
-        ];
       }
       const config = await getGlobalConfig({ ctx });
       let timeOrderBy = config?.isOrderByCreateTime ? { createdAt: orderBy } : { updatedAt: orderBy };
@@ -690,7 +657,6 @@ export const noteRouter = router({
           isArchived: false,
           isRecycle: false,
           accountId: Number(ctx.id),
-          type: { not: NoteType.TODO },
         },
         orderBy: { id: 'desc' },
         include: { attachments: true },
@@ -721,7 +687,6 @@ export const noteRouter = router({
         WHERE n."isArchived" = false
         AND n."isRecycle" = false
         AND n."accountId" = ${Number(ctx.id)}
-        AND n."type" != ${NoteType.TODO}
         ORDER BY RANDOM()
         LIMIT ${limit}
       `;
@@ -846,7 +811,6 @@ export const noteRouter = router({
     .input(
       z.object({
         content: z.union([z.string(), z.null()]).default(null),
-        type: z.union([z.nativeEnum(NoteType), z.literal(-1)]).default(-1),
         attachments: z
           .array(
             z.object({
@@ -866,12 +830,11 @@ export const noteRouter = router({
         createdAt: z.date().optional(),
         updatedAt: z.date().optional(),
         metadata: z.any().optional(),
-        parentId: z.union([z.number(), z.null()]).optional(),
       }),
     )
     .output(z.any())
     .mutation(async function ({ input, ctx }) {
-      let { id, isArchived, isRecycle, type, attachments, content, isTop, isShare, references, parentId } = input;
+      let { id, isArchived, isRecycle, attachments, content, isTop, isShare, references } = input;
 
       // Check for internal sharing permission if updating an existing note
       let isSharedEditor = false;
@@ -939,7 +902,6 @@ export const noteRouter = router({
       };
 
       const update: Prisma.notesUpdateInput = {
-        ...(type !== -1 && { type }),
         ...(isArchived !== null && { isArchived }),
         ...(isTop !== null && { isTop }),
         ...(isShare !== null && { isShare }),
@@ -962,28 +924,6 @@ export const noteRouter = router({
         };
       } else if (input.metadata) {
         update.metadata = input.metadata;
-      }
-
-      // Handle parentId and auto-maintain path/depth
-      if (parentId !== undefined) {
-        update.parentId = parentId;
-
-        if (parentId === null) {
-          // Move to root level
-          update.path = '';
-          update.depth = 0;
-        } else {
-          // Move to parent folder
-          const parent = await prisma.notes.findFirst({
-            where: { id: parentId, accountId: Number(ctx.id) },
-            select: { path: true, depth: true }
-          });
-
-          if (parent) {
-            update.path = `${parent.path}/${parentId}`;
-            update.depth = parent.depth + 1;
-          }
-        }
       }
 
       if (id) {
@@ -1142,37 +1082,15 @@ export const noteRouter = router({
         return note;
       } else {
         try {
-          // Calculate path and depth for new note
-          let notePath = '';
-          let noteDepth = 0;
-
-          if (parentId) {
-            const parent = await prisma.notes.findFirst({
-              where: { id: parentId, accountId: Number(ctx.id) },
-              select: { path: true, depth: true }
-            });
-
-            if (parent) {
-              notePath = `${parent.path}/${parentId}`;
-              noteDepth = parent.depth + 1;
-            }
-          }
-
           const note = await prisma.notes.create({
             data: {
               content: content ?? '',
-              type,
               accountId: Number(ctx.id),
               isShare: isShare ? true : false,
               isTop: isTop ? true : false,
               ...(input.createdAt && { createdAt: input.createdAt }),
               ...(input.updatedAt && { updatedAt: input.updatedAt }),
               ...(input.metadata && { metadata: input.metadata }),
-              ...(parentId !== undefined && {
-                parentId,
-                path: notePath,
-                depth: noteDepth
-              }),
             },
           });
           await handleAddTags(tagTree, undefined, note.id);
@@ -1325,7 +1243,6 @@ export const noteRouter = router({
     .meta({ openapi: { method: 'POST', path: '/v1/note/batch-update', summary: 'Batch update note', protect: true, tags: ['Note'] } })
     .input(
       z.object({
-        type: z.union([z.nativeEnum(NoteType), z.literal(-1)]).default(-1),
         isArchived: z.union([z.boolean(), z.null()]).default(null),
         isRecycle: z.union([z.boolean(), z.null()]).default(null),
         ids: z.array(z.number()),
@@ -1333,9 +1250,8 @@ export const noteRouter = router({
     )
     .output(z.any())
     .mutation(async function ({ input, ctx }) {
-      const { type, isArchived, isRecycle, ids } = input;
+      const { isArchived, isRecycle, ids } = input;
       const update: Prisma.notesUpdateInput = {
-        ...(type !== -1 && { type }),
         ...(isArchived !== null && { isArchived }),
         ...(isRecycle !== null && { isRecycle }),
       };
@@ -1850,16 +1766,14 @@ export const noteRouter = router({
     .input(z.object({
       cardIds: z.array(z.number()),
       content: z.string(),
-      noteType: z.nativeEnum(NoteType).default(NoteType.LUMINA),
     }))
     .mutation(async function ({ input, ctx }) {
-      const { cardIds, content, noteType } = input;
+      const { cardIds, content } = input;
 
       const cards = await prisma.notes.findMany({
         where: {
           id: { in: cardIds },
           accountId: Number(ctx.id),
-          type: NoteType.LUMINA,
           isRecycle: false,
         },
       });
@@ -1871,7 +1785,6 @@ export const noteRouter = router({
       const newNote = await prisma.notes.create({
         data: {
           content,
-          type: noteType,
           accountId: Number(ctx.id),
           sourceCardIds: cardIds,
           metadata: {
@@ -1993,140 +1906,6 @@ export const noteRouter = router({
       });
 
       return references.map(r => r.toNote);
-    }),
-
-  setRecurrence: authProcedure
-    .input(z.object({
-      noteId: z.number(),
-      rrule: z.string(),
-      endDate: z.date().optional(),
-      maxOccurrences: z.number().optional(),
-    }))
-    .mutation(async function ({ input, ctx }) {
-      const { noteId, rrule, endDate, maxOccurrences } = input;
-
-      const note = await prisma.notes.findFirst({
-        where: {
-          id: noteId,
-          accountId: Number(ctx.id),
-          type: NoteType.TODO,
-        },
-      });
-
-      if (!note) {
-        throw new Error('TODO note not found');
-      }
-
-      const nextDueDate = note.metadata?.expireAt
-        ? new Date(note.metadata.expireAt)
-        : null;
-
-      const recurrence = await prisma.todoRecurrence.upsert({
-        where: { noteId },
-        create: {
-          noteId,
-          rrule,
-          nextDueDate,
-          endDate,
-          maxOccurrences,
-        },
-        update: {
-          rrule,
-          nextDueDate,
-          endDate,
-          maxOccurrences,
-        },
-      });
-
-      return recurrence;
-    }),
-
-  getRecurrence: authProcedure
-    .input(z.object({
-      noteId: z.number(),
-    }))
-    .query(async function ({ input, ctx }) {
-      const { noteId } = input;
-
-      const recurrence = await prisma.todoRecurrence.findUnique({
-        where: { noteId },
-      });
-
-      return recurrence;
-    }),
-
-  createTodoGroup: authProcedure
-    .input(z.object({
-      name: z.string().min(1).max(100),
-      color: z.string().default('#3b82f6'),
-      icon: z.string().default('solar:folder-bold'),
-    }))
-    .mutation(async function ({ input, ctx }) {
-      const { name, color, icon } = input;
-
-      const maxSortOrder = await prisma.todoGroup.findFirst({
-        where: { accountId: Number(ctx.id) },
-        orderBy: { sortOrder: 'desc' },
-      });
-
-      const group = await prisma.todoGroup.create({
-        data: {
-          name,
-          color,
-          icon,
-          sortOrder: (maxSortOrder?.sortOrder ?? 0) + 1,
-          accountId: Number(ctx.id),
-        },
-      });
-
-      return group;
-    }),
-
-  getTodoGroups: authProcedure
-    .query(async function ({ ctx }) {
-      const groups = await prisma.todoGroup.findMany({
-        where: { accountId: Number(ctx.id) },
-        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
-        include: {
-          notes: {
-            select: {
-              id: true,
-            },
-          },
-        },
-      });
-
-      return groups;
-    }),
-
-  updateTodoGroup: authProcedure
-    .input(z.object({
-      id: z.number(),
-      name: z.string().min(1).max(100).optional(),
-      color: z.string().optional(),
-      icon: z.string().optional(),
-      sortOrder: z.number().optional(),
-    }))
-    .mutation(async function ({ input, ctx }) {
-      const { id, ...data } = input;
-
-      const group = await prisma.todoGroup.findFirst({
-        where: {
-          id,
-          accountId: Number(ctx.id),
-        },
-      });
-
-      if (!group) {
-        throw new Error('Group not found');
-      }
-
-      const updated = await prisma.todoGroup.update({
-        where: { id },
-        data,
-      });
-
-      return updated;
     }),
 });
 

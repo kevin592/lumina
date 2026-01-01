@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ColorPicker 选色器 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', 'PingFang SC', sans-serif; background: #F5F5F7; padding: 40px; line-height: 1.6; }
+        .component-title { font-size: 36px; font-weight: 700; color: #1C1C1E; margin-bottom: 8px; }
+        .component-subtitle { font-size: 15px; color: #636366; margin-bottom: 40px; }
+        .doc-section { background: white; border-radius: 12px; padding: 32px; margin-bottom: 24px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06); }
+        .doc-section-title { font-size: 20px; font-weight: 600; color: #1C1C1E; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid #E5E6EB; }
+        .demo-box { background: #F7F8FA; border: 1px solid #E5E6EB; border-radius: 8px; padding: 24px; margin: 16px 0; }
+        .demo-title { font-size: 13px; font-weight: 500; color: #1C1C1E; margin-bottom: 12px; }
+        .code-block { background: #1D2129; border-radius: 8px; padding: 20px; overflow-x: auto; margin: 16px 0; position: relative; }
+        .code-block pre { margin: 0; color: #F7F8FA; font-family: 'Monaco', 'Consolas', monospace; font-size: 13px; line-height: 1.6; }
+        .copy-btn { position: absolute; top: 12px; right: 12px; background: rgba(255, 255, 255, 0.1); color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+        .copy-btn:hover { background: rgba(255, 255, 255, 0.2); }
+        .api-table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+        .api-table th, .api-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #E5E6EB; }
+        .api-table th { background: #F7F8FA; color: #1C1C1E; font-weight: 600; font-size: 13px; }
+        .api-table td { color: #4E5969; font-size: 13px; }
+        .api-table code { background: #F2F3F5; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 12px; color: #165DFF; }
+        .color-picker-wrapper { position: relative; display: inline-block; }
+        .color-picker-trigger { width: 48px; height: 32px; border: 2px solid #E5E6EB; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+        .color-picker-trigger:hover { border-color: #6750A4; transform: scale(1.05); }
+        .color-picker-trigger.with-value { display: flex; align-items: center; gap: 8px; padding: 0 10px; width: auto; }
+        .color-picker-value { font-size: 13px; color: #4E5969; font-family: monospace; }
+        .color-picker-panel { position: absolute; top: 100%; left: 0; margin-top: 8px; background: white; border: 1px solid #E5E6EB; border-radius: 8px; padding: 16px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15); display: none; z-index: 1000; }
+        .color-picker-panel.show { display: block; }
+        .color-palette { display: grid; grid-template-columns: repeat(10, 24px); gap: 4px; margin-bottom: 12px; }
+        .color-swatch { width: 24px; height: 24px; border-radius: 4px; cursor: pointer; transition: transform 0.2s; border: 2px solid transparent; }
+        .color-swatch:hover { transform: scale(1.2); }
+        .color-swatch.active { border-color: #1C1C1E; }
+        .color-presets { display: flex; gap: 6px; margin-bottom: 12px; }
+        .color-preset { width: 20px; height: 20px; border-radius: 50%; cursor: pointer; transition: transform 0.2s; }
+        .color-preset:hover { transform: scale(1.2); }
+        .demo-row { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">ColorPicker 选色器</h1>
+    <p class="component-subtitle">颜色选择器</p>
+
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">点击选择颜色</div>
+            <div class="demo-row">
+                <div class="color-picker-wrapper">
+                    <div class="color-picker-trigger" style="background: #6750A4;"></div>
+                </div>
+                <div class="color-picker-wrapper">
+                    <div class="color-picker-trigger with-value">
+                        <div style="width: 24px; height: 24px; background: #FF3B30; border-radius: 4px;"></div>
+                        <span class="color-picker-value">#FF3B30</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="color-picker-wrapper"&gt;
+    &lt;div class="color-picker-trigger" style="background: #6750A4;"&gt;&lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <table class="api-table">
+            <thead><tr><th>参数</th><th>说明</th><th>类型</th><th>默认值</th></tr></thead>
+            <tbody>
+                <tr><td><code>value</code></td><td>当前颜色值</td><td>string</td><td>'#000000'</td></tr>
+                <tr><td><code>format</code></td><td>颜色格式</td><td>'hex' | 'rgb' | 'hsl'</td><td>'hex'</td></tr>
+                <tr><td><code>disabled</code></td><td>是否禁用</td><td>boolean</td><td>false</td></tr>
+                <tr><td><code>showText</code></td><td>是否显示颜色值</td><td>boolean</td><td>false</td></tr>
+                <tr><td><code>presets</code></td><td>预设颜色</td><td>string[]</td><td>[]</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => { btn.textContent = '复制代码'; }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

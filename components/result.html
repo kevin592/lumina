@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Result 结果页 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .api-table th, .api-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .api-table th {
+            background: #F7F8FA;
+            color: #1C1C1E;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .api-table td {
+            color: #4E5969;
+            font-size: 13px;
+        }
+        .api-table code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #165DFF;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            line-height: 1;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6750A4 0%, #4F7AFF 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(103, 80, 164, 0.3);
+        }
+        .btn-secondary {
+            background: #EADDFF;
+            color: #21005D;
+        }
+        .btn-secondary:hover {
+            background: #D0BCFF;
+        }
+        .btn-ghost {
+            background: transparent;
+            color: #6750A4;
+        }
+        .btn-ghost:hover {
+            background: #F7F8FA;
+        }
+
+        /* Result Styles */
+        .result {
+            text-align: center;
+            padding: 48px 32px;
+        }
+        .result-icon {
+            font-size: 72px;
+            margin-bottom: 24px;
+        }
+        .result-success .result-icon {
+            color: #00A48A;
+        }
+        .result-error .result-icon {
+            color: #FF3B30;
+        }
+        .result-info .result-icon {
+            color: #165DFF;
+        }
+        .result-warning .result-icon {
+            color: #FF7D00;
+        }
+        .result-404 .result-icon {
+            color: #86909C;
+        }
+        .result-500 .result-icon {
+            color: #FF7D00;
+        }
+        .result-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .result-subtitle {
+            font-size: 15px;
+            color: #86909C;
+            margin-bottom: 32px;
+            max-width: 480px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .result-content {
+            margin-bottom: 32px;
+            padding: 24px;
+            background: #F7F8FA;
+            border-radius: 8px;
+            text-align: left;
+            max-width: 480px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .result-content-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .result-content-item:last-child {
+            border-bottom: none;
+        }
+        .result-content-label {
+            color: #86909C;
+            font-size: 14px;
+        }
+        .result-content-value {
+            color: #1C1C1E;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .result-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        .result-sm {
+            padding: 32px 24px;
+        }
+        .result-sm .result-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        .result-sm .result-title {
+            font-size: 20px;
+        }
+        .result-sm .result-subtitle {
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        .result-with-image {
+            position: relative;
+        }
+        .result-image {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            margin-bottom: 24px;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Result 结果页</h1>
+    <p class="component-subtitle">用于反馈一系列操作任务的处理结果</p>
+
+    <!-- 成功 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">成功</h2>
+        <div class="demo-box">
+            <div class="demo-title">操作成功</div>
+            <div class="result result-success">
+                <div class="result-icon">
+                    <i class="fa-regular fa-circle-check"></i>
+                </div>
+                <h3 class="result-title">提交成功</h3>
+                <p class="result-subtitle">您的申请已提交,我们将在2个工作日内完成审核</p>
+                <div class="result-actions">
+                    <button class="btn btn-primary">再次提交</button>
+                    <button class="btn btn-secondary">返回首页</button>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="result result-success"&gt;
+    &lt;div class="result-icon"&gt;
+        &lt;i class="fa-regular fa-circle-check"&gt;&lt;/i&gt;
+    &lt;/div&gt;
+    &lt;h3 class="result-title"&gt;提交成功&lt;/h3&gt;
+    &lt;p class="result-subtitle"&gt;您的申请已提交,我们将在2个工作日内完成审核&lt;/p&gt;
+    &lt;div class="result-actions"&gt;
+        &lt;button class="btn btn-primary"&gt;再次提交&lt;/button&gt;
+        &lt;button class="btn btn-secondary"&gt;返回首页&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 失败 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">失败</h2>
+        <div class="demo-box">
+            <div class="demo-title">操作失败</div>
+            <div class="result result-error">
+                <div class="result-icon">
+                    <i class="fa-regular fa-circle-xmark"></i>
+                </div>
+                <h3 class="result-title">提交失败</h3>
+                <p class="result-subtitle">请检查网络后重试,或者联系客服</p>
+                <div class="result-actions">
+                    <button class="btn btn-primary">重新提交</button>
+                    <button class="btn btn-ghost">查看详情</button>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="result result-error"&gt;
+    &lt;div class="result-icon"&gt;
+        &lt;i class="fa-regular fa-circle-xmark"&gt;&lt;/i&gt;
+    &lt;/div&gt;
+    &lt;h3 class="result-title"&gt;提交失败&lt;/h3&gt;
+    &lt;p class="result-subtitle"&gt;请检查网络后重试,或者联系客服&lt;/p&gt;
+    &lt;div class="result-actions"&gt;
+        &lt;button class="btn btn-primary"&gt;重新提交&lt;/button&gt;
+        &lt;button class="btn btn-ghost"&gt;查看详情&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 信息 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">信息</h2>
+        <div class="demo-box">
+            <div class="demo-title">信息提示</div>
+            <div class="result result-info">
+                <div class="result-icon">
+                    <i class="fa-regular fa-circle-info"></i>
+                </div>
+                <h3 class="result-title">安全提示</h3>
+                <p class="result-subtitle">您的账户存在安全风险,建议您尽快修改密码</p>
+                <div class="result-actions">
+                    <button class="btn btn-primary">立即修改</button>
+                    <button class="btn btn-ghost">稍后处理</button>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="result result-info"&gt;
+    &lt;div class="result-icon"&gt;
+        &lt;i class="fa-regular fa-circle-info"&gt;&lt;/i&gt;
+    &lt;/div&gt;
+    &lt;h3 class="result-title"&gt;安全提示&lt;/h3&gt;
+    &lt;p class="result-subtitle"&gt;您的账户存在安全风险,建议您尽快修改密码&lt;/p&gt;
+    &lt;div class="result-actions"&gt;
+        &lt;button class="btn btn-primary"&gt;立即修改&lt;/button&gt;
+        &lt;button class="btn btn-ghost"&gt;稍后处理&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 警告 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">警告</h2>
+        <div class="demo-box">
+            <div class="demo-title">警告提示</div>
+            <div class="result result-warning">
+                <div class="result-icon">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h3 class="result-title">操作警告</h3>
+                <p class="result-subtitle">此操作可能会影响系统性能,建议在非高峰时段执行</p>
+                <div class="result-actions">
+                    <button class="btn btn-primary" style="background: #FF7D00;">继续操作</button>
+                    <button class="btn btn-ghost">取消</button>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="result result-warning"&gt;
+    &lt;div class="result-icon"&gt;
+        &lt;i class="fa-solid fa-triangle-exclamation"&gt;&lt;/i&gt;
+    &lt;/div&gt;
+    &lt;h3 class="result-title"&gt;操作警告&lt;/h3&gt;
+    &lt;p class="result-subtitle"&gt;此操作可能会影响系统性能,建议在非高峰时段执行&lt;/p&gt;
+    &lt;div class="result-actions"&gt;
+        &lt;button class="btn btn-primary" style="background: #FF7D00;"&gt;继续操作&lt;/button&gt;
+        &lt;button class="btn btn-ghost"&gt;取消&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 404 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">404</h2>
+        <div class="demo-box">
+            <div class="demo-title">页面不存在</div>
+            <div class="result result-404">
+                <div class="result-icon">
+                    <i class="fa-regular fa-file-circle-xmark"></i>
+                </div>
+                <h3 class="result-title">404</h3>
+                <p class="result-subtitle">抱歉,您访问的页面不存在</p>
+                <div class="result-actions">
+                    <button class="btn btn-primary">返回首页</button>
+                    <button class="btn btn-ghost">返回上一页</button>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="result result-404"&gt;
+    &lt;div class="result-icon"&gt;
+        &lt;i class="fa-regular fa-file-circle-xmark"&gt;&lt;/i&gt;
+    &lt;/div&gt;
+    &lt;h3 class="result-title"&gt;404&lt;/h3&gt;
+    &lt;p class="result-subtitle"&gt;抱歉,您访问的页面不存在&lt;/p&gt;
+    &lt;div class="result-actions"&gt;
+        &lt;button class="btn btn-primary"&gt;返回首页&lt;/button&gt;
+        &lt;button class="btn btn-ghost"&gt;返回上一页&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 500 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">500</h2>
+        <div class="demo-box">
+            <div class="demo-title">服务器错误</div>
+            <div class="result result-500">
+                <div class="result-icon">
+                    <i class="fa-solid fa-server"></i>
+                </div>
+                <h3 class="result-title">500</h3>
+                <p class="result-subtitle">抱歉,服务器出现错误,请稍后再试</p>
+                <div class="result-actions">
+                    <button class="btn btn-primary">重新加载</button>
+                    <button class="btn btn-ghost">返回首页</button>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="result result-500"&gt;
+    &lt;div class="result-icon"&gt;
+        &lt;i class="fa-solid fa-server"&gt;&lt;/i&gt;
+    &lt;/div&gt;
+    &lt;h3 class="result-title"&gt;500&lt;/h3&gt;
+    &lt;p class="result-subtitle"&gt;抱歉,服务器出现错误,请稍后再试&lt;/p&gt;
+    &lt;div class="result-actions"&gt;
+        &lt;button class="btn btn-primary"&gt;重新加载&lt;/button&gt;
+        &lt;button class="btn btn-ghost"&gt;返回首页&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 带详情 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">带详情</h2>
+        <div class="demo-box">
+            <div class="demo-title">包含详细信息的成功页面</div>
+            <div class="result result-success">
+                <div class="result-icon">
+                    <i class="fa-regular fa-circle-check"></i>
+                </div>
+                <h3 class="result-title">购买成功</h3>
+                <p class="result-subtitle">您的订单已提交,我们将尽快为您发货</p>
+                <div class="result-content">
+                    <div class="result-content-item">
+                        <span class="result-content-label">订单编号</span>
+                        <span class="result-content-value">202401150001</span>
+                    </div>
+                    <div class="result-content-item">
+                        <span class="result-content-label">商品名称</span>
+                        <span class="result-content-value">高级会员套餐</span>
+                    </div>
+                    <div class="result-content-item">
+                        <span class="result-content-label">支付金额</span>
+                        <span class="result-content-value">¥299.00</span>
+                    </div>
+                    <div class="result-content-item">
+                        <span class="result-content-label">支付时间</span>
+                        <span class="result-content-value">2024-01-15 14:30:25</span>
+                    </div>
+                </div>
+                <div class="result-actions">
+                    <button class="btn btn-primary">查看订单</button>
+                    <button class="btn btn-secondary">返回首页</button>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="result result-success"&gt;
+    &lt;div class="result-icon"&gt;
+        &lt;i class="fa-regular fa-circle-check"&gt;&lt;/i&gt;
+    &lt;/div&gt;
+    &lt;h3 class="result-title"&gt;购买成功&lt;/h3&gt;
+    &lt;p class="result-subtitle"&gt;您的订单已提交,我们将尽快为您发货&lt;/p&gt;
+    &lt;div class="result-content"&gt;
+        &lt;div class="result-content-item"&gt;
+            &lt;span class="result-content-label"&gt;订单编号&lt;/span&gt;
+            &lt;span class="result-content-value"&gt;202401150001&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;!-- 更多详情 --&gt;
+    &lt;/div&gt;
+    &lt;div class="result-actions"&gt;
+        &lt;button class="btn btn-primary"&gt;查看订单&lt;/button&gt;
+        &lt;button class="btn btn-secondary"&gt;返回首页&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 小尺寸 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">小尺寸</h2>
+        <div class="demo-box">
+            <div class="demo-title">紧凑的结果页</div>
+            <div class="result result-success result-sm">
+                <div class="result-icon">
+                    <i class="fa-regular fa-circle-check"></i>
+                </div>
+                <h3 class="result-title">操作成功</h3>
+                <p class="result-subtitle">您的更改已保存</p>
+                <div class="result-actions">
+                    <button class="btn btn-primary">确定</button>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="result result-success result-sm"&gt;
+    &lt;div class="result-icon"&gt;
+        &lt;i class="fa-regular fa-circle-check"&gt;&lt;/i&gt;
+    &lt;/div&gt;
+    &lt;h3 class="result-title"&gt;操作成功&lt;/h3&gt;
+    &lt;p class="result-subtitle"&gt;您的更改已保存&lt;/p&gt;
+    &lt;div class="result-actions"&gt;
+        &lt;button class="btn btn-primary"&gt;确定&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- API 文档 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Result Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>status</code></td>
+                    <td>结果状态</td>
+                    <td>'success' | 'error' | 'info' | 'warning' | '404' | '500'</td>
+                    <td>'info'</td>
+                </tr>
+                <tr>
+                    <td><code>title</code></td>
+                    <td>标题</td>
+                    <td>string</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>subTitle</code></td>
+                    <td>副标题</td>
+                    <td>string</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>icon</code></td>
+                    <td>自定义图标</td>
+                    <td>VNode | string</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>extra</code></td>
+                    <td>额外内容</td>
+                    <td>VNode | string</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>actions</code></td>
+                    <td>操作按钮</td>
+                    <td>VNode[]</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">CSS 类名</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>类名</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>result</code></td>
+                    <td>结果页容器</td>
+                </tr>
+                <tr>
+                    <td><code>result-success</code></td>
+                    <td>成功状态</td>
+                </tr>
+                <tr>
+                    <td><code>result-error</code></td>
+                    <td>错误状态</td>
+                </tr>
+                <tr>
+                    <td><code>result-info</code></td>
+                    <td>信息状态</td>
+                </tr>
+                <tr>
+                    <td><code>result-warning</code></td>
+                    <td>警告状态</td>
+                </tr>
+                <tr>
+                    <td><code>result-404</code></td>
+                    <td>404状态</td>
+                </tr>
+                <tr>
+                    <td><code>result-500</code></td>
+                    <td>500状态</td>
+                </tr>
+                <tr>
+                    <td><code>result-icon</code></td>
+                    <td>图标容器</td>
+                </tr>
+                <tr>
+                    <td><code>result-title</code></td>
+                    <td>标题</td>
+                </tr>
+                <tr>
+                    <td><code>result-subtitle</code></td>
+                    <td>副标题</td>
+                </tr>
+                <tr>
+                    <td><code>result-content</code></td>
+                    <td>详情内容</td>
+                </tr>
+                <tr>
+                    <td><code>result-content-item</code></td>
+                    <td>详情项</td>
+                </tr>
+                <tr>
+                    <td><code>result-content-label</code></td>
+                    <td>详情标签</td>
+                </tr>
+                <tr>
+                    <td><code>result-content-value</code></td>
+                    <td>详情值</td>
+                </tr>
+                <tr>
+                    <td><code>result-actions</code></td>
+                    <td>操作区域</td>
+                </tr>
+                <tr>
+                    <td><code>result-sm</code></td>
+                    <td>小尺寸</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

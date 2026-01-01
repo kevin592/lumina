@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tooltip 文字气泡 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .api-table th, .api-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .api-table th {
+            background: #F7F8FA;
+            color: #1C1C1E;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .api-table td {
+            color: #4E5969;
+            font-size: 13px;
+        }
+        .api-table code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #165DFF;
+        }
+
+        /* Tooltip Styles */
+        .tooltip-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip {
+            position: absolute;
+            background: #1D2129;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            white-space: nowrap;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+            pointer-events: none;
+        }
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            border: 5px solid transparent;
+        }
+        .tooltip-top {
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .tooltip-top::after {
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-top-color: #1D2129;
+        }
+        .tooltip-bottom {
+            top: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .tooltip-bottom::after {
+            bottom: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-bottom-color: #1D2129;
+        }
+        .tooltip-left {
+            right: calc(100% + 8px);
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .tooltip-left::after {
+            left: 100%;
+            top: 50%;
+            margin-top: -5px;
+            border-left-color: #1D2129;
+        }
+        .tooltip-right {
+            left: calc(100% + 8px);
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .tooltip-right::after {
+            right: 100%;
+            top: 50%;
+            margin-top: -5px;
+            border-right-color: #1D2129;
+        }
+        .tooltip-wrapper:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #EADDFF;
+            color: #21005D;
+        }
+        .demo-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Tooltip 文字气泡</h1>
+    <p class="component-subtitle">用于展示鼠标悬浮时的提示信息</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">鼠标悬浮显示提示</div>
+            <div class="demo-row">
+                <div class="tooltip-wrapper">
+                    <button class="btn">鼠标悬浮</button>
+                    <div class="tooltip tooltip-top">这是提示文字</div>
+                </div>
+                <div class="tooltip-wrapper">
+                    <a href="#" style="color: #165DFF; text-decoration: none;">悬浮链接</a>
+                    <div class="tooltip tooltip-top">这是链接提示</div>
+                </div>
+                <div class="tooltip-wrapper">
+                    <i class="fa-solid fa-circle-question" style="color: #9CA3AF; font-size: 18px; cursor: help;"></i>
+                    <div class="tooltip tooltip-top">这是图标提示</div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="tooltip-wrapper"&gt;
+    &lt;button class="btn"&gt;鼠标悬浮&lt;/button&gt;
+    &lt;div class="tooltip tooltip-top"&gt;这是提示文字&lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 不同位置 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">不同位置</h2>
+        <div class="demo-box">
+            <div class="demo-title">上、下、左、右四个方向</div>
+            <div class="demo-row">
+                <div class="tooltip-wrapper">
+                    <button class="btn">上边提示</button>
+                    <div class="tooltip tooltip-top">上边的提示文字</div>
+                </div>
+                <div class="tooltip-wrapper">
+                    <button class="btn">下边提示</button>
+                    <div class="tooltip tooltip-bottom">下边的提示文字</div>
+                </div>
+                <div class="tooltip-wrapper">
+                    <button class="btn">左边提示</button>
+                    <div class="tooltip tooltip-left">左边的提示文字</div>
+                </div>
+                <div class="tooltip-wrapper">
+                    <button class="btn">右边提示</button>
+                    <div class="tooltip tooltip-right">右边的提示文字</div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="tooltip-wrapper"&gt;
+    &lt;button class="btn"&gt;上边提示&lt;/button&gt;
+    &lt;div class="tooltip tooltip-top"&gt;上边的提示文字&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="tooltip-wrapper"&gt;
+    &lt;button class="btn"&gt;下边提示&lt;/button&gt;
+    &lt;div class="tooltip tooltip-bottom"&gt;下边的提示文字&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="tooltip-wrapper"&gt;
+    &lt;button class="btn"&gt;左边提示&lt;/button&gt;
+    &lt;div class="tooltip tooltip-left"&gt;左边的提示文字&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="tooltip-wrapper"&gt;
+    &lt;button class="btn"&gt;右边提示&lt;/button&gt;
+    &lt;div class="tooltip tooltip-right"&gt;右边的提示文字&lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 触发方式 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">触发方式</h2>
+        <div class="demo-box">
+            <div class="demo-title">点击触发（需要JavaScript支持）</div>
+            <div class="demo-row">
+                <div class="tooltip-wrapper" style="cursor: pointer;" onclick="toggleTooltip(this)">
+                    <button class="btn">点击显示</button>
+                    <div class="tooltip tooltip-top" style="opacity: 0; visibility: hidden;">点击触发的提示</div>
+                </div>
+                <div class="tooltip-wrapper" style="cursor: pointer;" onclick="toggleTooltip(this)">
+                    <button class="btn">点击显示2</button>
+                    <div class="tooltip tooltip-top" style="opacity: 0; visibility: hidden;">另一个提示</div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="tooltip-wrapper" onclick="toggleTooltip(this)"&gt;
+    &lt;button class="btn"&gt;点击显示&lt;/button&gt;
+    &lt;div class="tooltip tooltip-top" style="opacity: 0; visibility: hidden;"&gt;提示&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+function toggleTooltip(wrapper) {
+    const tooltip = wrapper.querySelector('.tooltip');
+    tooltip.style.opacity = tooltip.style.opacity === '1' ? '0' : '1';
+    tooltip.style.visibility = tooltip.style.visibility === 'visible' ? 'hidden' : 'visible';
+}
+&lt;/script&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 禁用状态 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">禁用状态</h2>
+        <div class="demo-box">
+            <div class="demo-title">按钮禁用时仍可显示提示</div>
+            <div class="demo-row">
+                <div class="tooltip-wrapper">
+                    <button class="btn" disabled style="opacity: 0.5; cursor: not-allowed;">禁用按钮</button>
+                    <div class="tooltip tooltip-top">按钮已禁用</div>
+                </div>
+                <div class="tooltip-wrapper">
+                    <button class="btn" disabled style="opacity: 0.5; cursor: not-allowed;">无法操作</button>
+                    <div class="tooltip tooltip-bottom">请先完成前面的步骤</div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="tooltip-wrapper"&gt;
+    &lt;button class="btn" disabled&gt;禁用按钮&lt;/button&gt;
+    &lt;div class="tooltip tooltip-top"&gt;按钮已禁用&lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 自定义内容 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">自定义内容</h2>
+        <div class="demo-box">
+            <div class="demo-title">支持自定义内容和样式</div>
+            <div class="demo-row">
+                <div class="tooltip-wrapper">
+                    <button class="btn">多行提示</button>
+                    <div class="tooltip tooltip-top" style="white-space: normal; max-width: 200px;">
+                        这是第一行提示文字<br>
+                        这是第二行提示文字<br>
+                        这是第三行提示文字
+                    </div>
+                </div>
+                <div class="tooltip-wrapper">
+                    <button class="btn">带图标</button>
+                    <div class="tooltip tooltip-top">
+                        <i class="fa-solid fa-circle-info" style="margin-right: 6px;"></i>
+                        带图标的提示信息
+                    </div>
+                </div>
+                <div class="tooltip-wrapper">
+                    <button class="btn">自定义颜色</button>
+                    <div class="tooltip tooltip-top" style="background: #165DFF;">
+                        自定义颜色的提示
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="tooltip-wrapper"&gt;
+    &lt;button class="btn"&gt;多行提示&lt;/button&gt;
+    &lt;div class="tooltip tooltip-top" style="white-space: normal; max-width: 200px;"&gt;
+        这是第一行提示文字&lt;br&gt;
+        这是第二行提示文字
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- API 文档 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Tooltip Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>placement</code></td>
+                    <td>提示位置</td>
+                    <td>'top' | 'left' | 'right' | 'bottom' | 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight'</td>
+                    <td>'top'</td>
+                </tr>
+                <tr>
+                    <td><code>trigger</code></td>
+                    <td>触发方式</td>
+                    <td>'hover' | 'click' | 'focus'</td>
+                    <td>'hover'</td>
+                </tr>
+                <tr>
+                    <td><code>title</code></td>
+                    <td>提示内容</td>
+                    <td>string | ReactNode</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>color</code></td>
+                    <td>背景颜色</td>
+                    <td>string</td>
+                    <td>'#1D2129'</td>
+                </tr>
+                <tr>
+                    <td><code>visible</code></td>
+                    <td>是否显示（受控模式）</td>
+                    <td>boolean</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>onVisibleChange</code></td>
+                    <td>显示/隐藏时的回调</td>
+                    <td>(visible: boolean) => void</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>mouseEnterDelay</code></td>
+                    <td>鼠标移入后延迟显示时间（毫秒）</td>
+                    <td>number</td>
+                    <td>100</td>
+                </tr>
+                <tr>
+                    <td><code>mouseLeaveDelay</code></td>
+                    <td>鼠标移出后延迟隐藏时间（毫秒）</td>
+                    <td>number</td>
+                    <td>100</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">CSS 类名</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>类名</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>tooltip-wrapper</code></td>
+                    <td>Tooltip 容器</td>
+                </tr>
+                <tr>
+                    <td><code>tooltip</code></td>
+                    <td>Tooltip 提示框</td>
+                </tr>
+                <tr>
+                    <td><code>tooltip-top</code></td>
+                    <td>上方提示</td>
+                </tr>
+                <tr>
+                    <td><code>tooltip-bottom</code></td>
+                    <td>下方提示</td>
+                </tr>
+                <tr>
+                    <td><code>tooltip-left</code></td>
+                    <td>左侧提示</td>
+                </tr>
+                <tr>
+                    <td><code>tooltip-right</code></td>
+                    <td>右侧提示</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function toggleTooltip(wrapper) {
+            const tooltip = wrapper.querySelector('.tooltip');
+            tooltip.style.opacity = tooltip.style.opacity === '1' ? '0' : '1';
+            tooltip.style.visibility = tooltip.style.visibility === 'visible' ? 'hidden' : 'visible';
+        }
+
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

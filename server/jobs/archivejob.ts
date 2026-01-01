@@ -1,7 +1,6 @@
 import { ARCHIVE_LUMINA_TASK_NAME } from "@shared/lib/sharedConstant";
 import { prisma } from "../prisma";
 import { adminCaller } from "../routerTrpc/_app";
-import { NoteType } from "../../shared/lib/types";
 import { BaseScheduleJob } from "./baseScheduleJob";
 
 export class ArchiveJob extends BaseScheduleJob {
@@ -14,7 +13,7 @@ export class ArchiveJob extends BaseScheduleJob {
       let autoArchivedDays = config.autoArchivedDays ?? 30
       const notes = await prisma.notes.findMany({
         where: {
-          type: NoteType.LUMINA,
+          type: 0,
           createdAt: {
             lt: new Date(new Date().getTime() - autoArchivedDays * 24 * 60 * 60 * 1000)
           }

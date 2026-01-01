@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConfigProvider 全局配置 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .api-table th, .api-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .api-table th {
+            background: #F7F8FA;
+            color: #1C1C1E;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .api-table td {
+            color: #4E5969;
+            font-size: 13px;
+        }
+        .api-table code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #165DFF;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+            background: linear-gradient(135deg, #6750A4 0%, #4F7AFF 100%);
+            color: white;
+            transition: all 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(103, 80, 164, 0.3);
+        }
+        .config-box {
+            border: 2px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .theme-light {
+            --bg-primary: #ffffff;
+            --bg-secondary: #F7F8FA;
+            --text-primary: #1C1C1E;
+            --text-secondary: #4E5969;
+            --border-color: #E5E6EB;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        .theme-dark {
+            --bg-primary: #1D2129;
+            --bg-secondary: #2A2E39;
+            --text-primary: #E5E6EB;
+            --text-secondary: #86909C;
+            --border-color: #32353E;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        .theme-compact {
+            --spacing-sm: 4px;
+            --spacing-md: 8px;
+            --spacing-lg: 12px;
+        }
+        .theme-compact .config-box {
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+        .config-provider {
+            transition: all 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">ConfigProvider 全局配置</h1>
+    <p class="component-subtitle">为组件提供全局统一的配置，如语言、主题、尺寸等</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">包裹根组件，为所有子组件提供统一配置</div>
+            <div class="config-box config-provider" style="--primary-color: #6750A4; --border-radius: 8px;">
+                <h3 style="margin-bottom: 16px; font-size: 16px;">默认配置</h3>
+                <button class="btn">默认按钮</button>
+                <button class="btn" style="margin-left: 12px;">
+                    <i class="fa-solid fa-download"></i>
+                    下载
+                </button>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="config-provider"
+     style="--primary-color: #6750A4; --border-radius: 8px;"&gt;
+    &lt;button class="btn"&gt;默认按钮&lt;/button&gt;
+    &lt;button class="btn"&gt;
+        &lt;i class="fa-solid fa-download"&gt;&lt;/i&gt;
+        下载
+    &lt;/button&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 主题配置 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">主题配置</h2>
+        <div class="demo-box">
+            <div class="demo-title">通过 CSS 变量配置亮色/暗色主题</div>
+            <div style="display: flex; gap: 20px;">
+                <div class="config-box theme-light" style="flex: 1;">
+                    <h4 style="margin-bottom: 12px;">亮色主题</h4>
+                    <p style="margin-bottom: 8px; color: var(--text-secondary);">这是亮色主题的文本内容。</p>
+                    <button class="btn">亮色按钮</button>
+                </div>
+                <div class="config-box theme-dark" style="flex: 1;">
+                    <h4 style="margin-bottom: 12px;">暗色主题</h4>
+                    <p style="margin-bottom: 8px; color: var(--text-secondary);">这是暗色主题的文本内容。</p>
+                    <button class="btn">暗色按钮</button>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;!-- 亮色主题 --&gt;
+&lt;div class="config-box theme-light"&gt;
+    &lt;h4&gt;亮色主题&lt;/h4&gt;
+    &lt;p style="color: var(--text-secondary);"&gt;这是亮色主题的文本内容。&lt;/p&gt;
+    &lt;button class="btn"&gt;亮色按钮&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;!-- 暗色主题 --&gt;
+&lt;div class="config-box theme-dark"&gt;
+    &lt;h4&gt;暗色主题&lt;/h4&gt;
+    &lt;p style="color: var(--text-secondary);"&gt;这是暗色主题的文本内容。&lt;/p&gt;
+    &lt;button class="btn"&gt;暗色按钮&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;style&gt;
+.theme-light {
+    --bg-primary: #ffffff;
+    --text-primary: #1C1C1E;
+    --text-secondary: #4E5969;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+.theme-dark {
+    --bg-primary: #1D2129;
+    --text-primary: #E5E6EB;
+    --text-secondary: #86909C;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+&lt;/style&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 语言配置 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">语言配置</h2>
+        <div class="demo-box">
+            <div class="demo-title">配置组件的显示语言</div>
+            <div class="config-box" style="flex: 1;">
+                <h4 style="margin-bottom: 12px;">中文配置</h4>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <span>总记录数：</span>
+                    <strong style="color: #6750A4;">1,234</strong>
+                    <button class="btn" style="padding: 6px 14px; font-size: 13px;">确定</button>
+                    <button class="btn" style="padding: 6px 14px; font-size: 13px; background: #E5E6EB; color: #4E5969;">取消</button>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="config-provider" data-locale="zh-CN"&gt;
+    &lt;!-- 组件内容 --&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+const locales = {
+    'zh-CN': {
+        confirm: '确定',
+        cancel: '取消',
+        total: '总记录数'
+    },
+    'en-US': {
+        confirm: 'Confirm',
+        cancel: 'Cancel',
+        total: 'Total Records'
+    }
+};
+
+function getText(key) {
+    const locale = document.documentElement.dataset.locale || 'zh-CN';
+    return locales[locale][key] || key;
+}
+&lt;/script&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 紧凑模式 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">紧凑模式</h2>
+        <div class="demo-box">
+            <div class="demo-title">使用紧凑的间距和尺寸</div>
+            <div style="display: flex; gap: 20px;">
+                <div class="config-box" style="flex: 1;">
+                    <h4 style="margin-bottom: 16px;">默认模式</h4>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; margin-bottom: 8px;">用户名</label>
+                        <input type="text" placeholder="请输入用户名" style="width: 100%; padding: 10px 12px; border: 1px solid #E5E6EB; border-radius: 6px;">
+                    </div>
+                    <button class="btn">提交</button>
+                </div>
+                <div class="config-box theme-compact" style="flex: 1;">
+                    <h4 style="margin-bottom: 12px;">紧凑模式</h4>
+                    <div style="margin-bottom: 8px;">
+                        <label style="display: block; margin-bottom: 6px;">用户名</label>
+                        <input type="text" placeholder="请输入用户名" style="width: 100%; padding: 6px 10px; border: 1px solid #E5E6EB; border-radius: 6px; font-size: 13px;">
+                    </div>
+                    <button class="btn" style="padding: 6px 14px; font-size: 13px;">提交</button>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;style&gt;
+.theme-compact {
+    --spacing-sm: 4px;
+    --spacing-md: 8px;
+    --spacing-lg: 12px;
+}
+.theme-compact .config-box {
+    padding: 12px;
+    margin-bottom: 8px;
+}
+&lt;/style&gt;
+
+&lt;div class="config-provider theme-compact"&gt;
+    &lt;!-- 紧凑的组件 --&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 自定义颜色 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">自定义颜色</h2>
+        <div class="demo-box">
+            <div class="demo-title">通过 CSS 变量自定义组件颜色</div>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div class="config-box" style="--primary-color: #6750A4; flex: 1; min-width: 200px;">
+                    <h4 style="margin-bottom: 12px; color: var(--primary-color);">紫色主题</h4>
+                    <button class="btn" style="background: var(--primary-color);">紫色按钮</button>
+                </div>
+                <div class="config-box" style="--primary-color: #165DFF; flex: 1; min-width: 200px;">
+                    <h4 style="margin-bottom: 12px; color: var(--primary-color);">蓝色主题</h4>
+                    <button class="btn" style="background: var(--primary-color);">蓝色按钮</button>
+                </div>
+                <div class="config-box" style="--primary-color: #00B42A; flex: 1; min-width: 200px;">
+                    <h4 style="margin-bottom: 12px; color: var(--primary-color);">绿色主题</h4>
+                    <button class="btn" style="background: var(--primary-color);">绿色按钮</button>
+                </div>
+                <div class="config-box" style="--primary-color: #FF7D00; flex: 1; min-width: 200px;">
+                    <h4 style="margin-bottom: 12px; color: var(--primary-color);">橙色主题</h4>
+                    <button class="btn" style="background: var(--primary-color);">橙色按钮</button>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="config-box" style="--primary-color: #6750A4;"&gt;
+    &lt;h4 style="color: var(--primary-color);"&gt;紫色主题&lt;/h4&gt;
+    &lt;button class="btn" style="background: var(--primary-color);"&gt;
+        紫色按钮
+    &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div class="config-box" style="--primary-color: #165DFF;"&gt;
+    &lt;h4 style="color: var(--primary-color);"&gt;蓝色主题&lt;/h4&gt;
+    &lt;button class="btn" style="background: var(--primary-color);"&gt;
+        蓝色按钮
+    &lt;/button&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 方向配置 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">方向配置</h2>
+        <div class="demo-box">
+            <div class="demo-title">支持 RTL（从右到左）布局</div>
+            <div style="display: flex; gap: 20px;">
+                <div class="config-box" style="flex: 1;">
+                    <h4 style="margin-bottom: 12px;">LTR（从左到右）</h4>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button class="btn">
+                            <i class="fa-solid fa-arrow-left"></i>
+                            上一步
+                        </button>
+                        <button class="btn">
+                            下一步
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="config-box" style="flex: 1; direction: rtl;">
+                    <h4 style="margin-bottom: 12px;">RTL（从右到左）</h4>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button class="btn">
+                            <i class="fa-solid fa-arrow-right"></i>
+                            上一步
+                        </button>
+                        <button class="btn">
+                            下一步
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;!-- LTR 布局 --&gt;
+&lt;div class="config-provider" dir="ltr"&gt;
+    &lt;button class="btn"&gt;
+        &lt;i class="fa-solid fa-arrow-left"&gt;&lt;/i&gt;
+        上一步
+    &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;!-- RTL 布局 --&gt;
+&lt;div class="config-provider" dir="rtl"&gt;
+    &lt;button class="btn"&gt;
+        &lt;i class="fa-solid fa-arrow-right"&gt;&lt;/i&gt;
+        上一步
+    &lt;/button&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- API 文档 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">ConfigProvider Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>theme</code></td>
+                    <td>主题配置</td>
+                    <td>'light' | 'dark' | object</td>
+                    <td>'light'</td>
+                </tr>
+                <tr>
+                    <td><code>primaryColor</code></td>
+                    <td>主题色</td>
+                    <td>string</td>
+                    <td>'#6750A4'</td>
+                </tr>
+                <tr>
+                    <td><code>locale</code></td>
+                    <td>语言包配置</td>
+                    <td>object</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>componentSize</code></td>
+                    <td>组件尺寸</td>
+                    <td>'small' | 'middle' | 'large'</td>
+                    <td>'middle'</td>
+                </tr>
+                <tr>
+                    <td><code>direction</code></td>
+                    <td>文本方向</td>
+                    <td>'ltr' | 'rtl'</td>
+                    <td>'ltr'</td>
+                </tr>
+                <tr>
+                    <td><code>prefixCls</code></td>
+                    <td>组件类名前缀</td>
+                    <td>string</td>
+                    <td>'blinko'</td>
+                </tr>
+                <tr>
+                    <td><code>getPopupContainer</code></td>
+                    <td>弹出框（如 Select、DatePicker）挂载的容器</td>
+                    <code>() => HTMLElement</code>
+                    <td>() => document.body</td>
+                </tr>
+                <tr>
+                    <td><code>autoInsertSpaceInButton</code></td>
+                    <td>按钮中两个汉字之间自动插入空格</td>
+                    <td>boolean</td>
+                    <td>true</td>
+                </tr>
+                <tr>
+                    <td><code>form</code></td>
+                    <td>统一设置 Form 组件的属性</td>
+                    <td>object</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>renderEmpty</code></td>
+                    <td>自定义空状态</td>
+                    <td>ReactNode</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">CSS 变量</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>变量名</th>
+                    <th>说明</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>--primary-color</code></td>
+                    <td>主题色</td>
+                    <td>#6750A4</td>
+                </tr>
+                <tr>
+                    <td><code>--success-color</code></td>
+                    <td>成功色</td>
+                    <td>#00B42A</td>
+                </tr>
+                <tr>
+                    <td><code>--warning-color</code></td>
+                    <td>警告色</td>
+                    <td>#FF7D00</td>
+                </tr>
+                <tr>
+                    <td><code>--error-color</code></td>
+                    <td>错误色</td>
+                    <td>#F53F3F</td>
+                </tr>
+                <tr>
+                    <td><code>--text-primary</code></td>
+                    <td>主要文本颜色</td>
+                    <td>#1C1C1E</td>
+                </tr>
+                <tr>
+                    <td><code>--text-secondary</code></td>
+                    <td>次要文本颜色</td>
+                    <td>#4E5969</td>
+                </tr>
+                <tr>
+                    <td><code>--border-color</code></td>
+                    <td>边框颜色</td>
+                    <td>#E5E6EB</td>
+                </tr>
+                <tr>
+                    <td><code>--bg-primary</code></td>
+                    <td>主要背景色</td>
+                    <td>#ffffff</td>
+                </tr>
+                <tr>
+                    <td><code>--bg-secondary</code></td>
+                    <td>次要背景色</td>
+                    <td>#F7F8FA</td>
+                </tr>
+                <tr>
+                    <td><code>--border-radius</code></td>
+                    <td>圆角大小</td>
+                    <td>8px</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

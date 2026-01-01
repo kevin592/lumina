@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResizeBox 伸缩框 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .api-table th, .api-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .api-table th {
+            background: #F7F8FA;
+            color: #1C1C1E;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .api-table td {
+            color: #4E5969;
+            font-size: 13px;
+        }
+        .api-table code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #165DFF;
+        }
+
+        /* ResizeBox Styles */
+        .resizebox {
+            display: flex;
+            background: white;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .resizebox-pane {
+            background: #F7F8FA;
+            padding: 16px;
+            overflow: auto;
+            transition: background 0.2s;
+        }
+        .resizebox-pane:hover {
+            background: #F2F3F5;
+        }
+        .resizebox-trigger {
+            background: #E5E6EB;
+            cursor: col-resize;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .resizebox-trigger:hover {
+            background: #6750A4;
+        }
+        .resizebox-trigger::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 4px;
+            height: 24px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 2px;
+        }
+        .resizebox-trigger:hover::before {
+            background: white;
+        }
+        .resizebox-vertical {
+            flex-direction: column;
+        }
+        .resizebox-vertical .resizebox-trigger {
+            cursor: row-resize;
+            height: 8px;
+            width: 100%;
+        }
+        .resizebox-vertical .resizebox-trigger::before {
+            width: 24px;
+            height: 4px;
+        }
+        .resizebox-handle {
+            position: absolute;
+            background: #6750A4;
+            border-radius: 2px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .resizebox-trigger:hover .resizebox-handle {
+            opacity: 1;
+        }
+        .resizebox-split {
+            background: white;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .resizebox-content {
+            padding: 16px;
+            color: #4E5969;
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">ResizeBox 伸缩框</h1>
+    <p class="component-subtitle">可以调整大小的容器组件，支持水平和垂直方向</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">拖动中间的分隔条来调整两侧大小</div>
+            <div class="resizebox" style="height: 200px;">
+                <div class="resizebox-pane" style="width: 50%;">
+                    <div style="font-weight: 600; margin-bottom: 8px; color: #1C1C1E;">左侧面板</div>
+                    <p style="font-size: 13px; color: #4E5969;">拖动分隔条可以调整宽度。</p>
+                </div>
+                <div class="resizebox-trigger" style="width: 8px;"></div>
+                <div class="resizebox-pane" style="flex: 1;">
+                    <div style="font-weight: 600; margin-bottom: 8px; color: #1C1C1E;">右侧面板</div>
+                    <p style="font-size: 13px; color: #4E5969;">这是右侧的内容区域。</p>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="resizebox" style="height: 200px;"&gt;
+    &lt;div class="resizebox-pane" style="width: 50%;"&gt;
+        &lt;div style="font-weight: 600;"&gt;左侧面板&lt;/div&gt;
+        &lt;p&gt;拖动分隔条可以调整宽度。&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class="resizebox-trigger" style="width: 8px;"&gt;&lt;/div&gt;
+    &lt;div class="resizebox-pane" style="flex: 1;"&gt;
+        &lt;div style="font-weight: 600;"&gt;右侧面板&lt;/div&gt;
+        &lt;p&gt;这是右侧的内容区域。&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 垂直方向 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">垂直方向</h2>
+        <div class="demo-box">
+            <div class="demo-title">垂直方向的伸缩框</div>
+            <div class="resizebox resizebox-vertical" style="height: 300px;">
+                <div class="resizebox-pane" style="height: 50%;">
+                    <div style="font-weight: 600; margin-bottom: 8px; color: #1C1C1E;">上面板</div>
+                    <p style="font-size: 13px; color: #4E5969;">拖动分隔条可以调整高度。</p>
+                </div>
+                <div class="resizebox-trigger" style="height: 8px;"></div>
+                <div class="resizebox-pane" style="flex: 1;">
+                    <div style="font-weight: 600; margin-bottom: 8px; color: #1C1C1E;">下面板</div>
+                    <p style="font-size: 13px; color: #4E5969;">这是下方的内容区域。</p>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="resizebox resizebox-vertical" style="height: 300px;"&gt;
+    &lt;div class="resizebox-pane" style="height: 50%;"&gt;
+        &lt;div style="font-weight: 600;"&gt;上面板&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="resizebox-trigger" style="height: 8px;"&gt;&lt;/div&gt;
+    &lt;div class="resizebox-pane" style="flex: 1;"&gt;
+        &lt;div style="font-weight: 600;"&gt;下面板&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 多个面板 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">多个面板</h2>
+        <div class="demo-box">
+            <div class="demo-title">支持多个面板的嵌套</div>
+            <div class="resizebox" style="height: 200px;">
+                <div class="resizebox-pane" style="width: 33.33%;">
+                    <div style="font-weight: 600; margin-bottom: 8px; color: #1C1C1E;">面板 1</div>
+                    <p style="font-size: 13px; color: #4E5969;">第一个面板</p>
+                </div>
+                <div class="resizebox-trigger" style="width: 8px;"></div>
+                <div class="resizebox-pane" style="width: 33.33%;">
+                    <div style="font-weight: 600; margin-bottom: 8px; color: #1C1C1E;">面板 2</div>
+                    <p style="font-size: 13px; color: #4E5969;">第二个面板</p>
+                </div>
+                <div class="resizebox-trigger" style="width: 8px;"></div>
+                <div class="resizebox-pane" style="flex: 1;">
+                    <div style="font-weight: 600; margin-bottom: 8px; color: #1C1C1E;">面板 3</div>
+                    <p style="font-size: 13px; color: #4E5969;">第三个面板</p>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="resizebox" style="height: 200px;"&gt;
+    &lt;div class="resizebox-pane" style="width: 33.33%;"&gt;
+        &lt;div style="font-weight: 600;"&gt;面板 1&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="resizebox-trigger" style="width: 8px;"&gt;&lt;/div&gt;
+    &lt;div class="resizebox-pane" style="width: 33.33%;"&gt;
+        &lt;div style="font-weight: 600;"&gt;面板 2&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="resizebox-trigger" style="width: 8px;"&gt;&lt;/div&gt;
+    &lt;div class="resizebox-pane" style="flex: 1;"&gt;
+        &lt;div style="font-weight: 600;"&gt;面板 3&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 固定和弹性 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">固定和弹性</h2>
+        <div class="demo-box">
+            <div class="demo-title">左侧固定宽度，右侧自适应</div>
+            <div class="resizebox" style="height: 200px;">
+                <div class="resizebox-pane" style="width: 200px; flex-shrink: 0;">
+                    <div style="font-weight: 600; margin-bottom: 8px; color: #1C1C1E;">固定 200px</div>
+                    <p style="font-size: 13px; color: #4E5969;">固定宽度的侧边栏</p>
+                </div>
+                <div class="resizebox-trigger" style="width: 8px;"></div>
+                <div class="resizebox-pane" style="flex: 1;">
+                    <div style="font-weight: 600; margin-bottom: 8px; color: #1C1C1E;">自适应内容</div>
+                    <p style="font-size: 13px; color: #4E5969;">自适应宽度的主内容区域</p>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="resizebox" style="height: 200px;"&gt;
+    &lt;div class="resizebox-pane" style="width: 200px; flex-shrink: 0;"&gt;
+        &lt;div style="font-weight: 600;"&gt;固定 200px&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="resizebox-trigger" style="width: 8px;"&gt;&lt;/div&gt;
+    &lt;div class="resizebox-pane" style="flex: 1;"&gt;
+        &lt;div style="font-weight: 600;"&gt;自适应内容&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 最小和最大限制 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">尺寸限制</h2>
+        <div class="demo-box">
+            <div class="demo-title">设置面板的最小和最大尺寸</div>
+            <div class="resizebox" style="height: 200px;">
+                <div class="resizebox-pane" style="width: 30%; min-width: 150px; max-width: 300px;">
+                    <div style="font-weight: 600; margin-bottom: 8px; color: #1C1C1E;">
+                        左侧面板
+                        <span style="font-size: 12px; font-weight: normal; color: #86909C;">(150px - 300px)</span>
+                    </div>
+                    <p style="font-size: 13px; color: #4E5969;">有最小和最大宽度限制</p>
+                </div>
+                <div class="resizebox-trigger" style="width: 8px;"></div>
+                <div class="resizebox-pane" style="flex: 1; min-width: 200px;">
+                    <div style="font-weight: 600; margin-bottom: 8px; color: #1C1C1E;">
+                        右侧面板
+                        <span style="font-size: 12px; font-weight: normal; color: #86909C;">(最小 200px)</span>
+                    </div>
+                    <p style="font-size: 13px; color: #4E5969;">有最小宽度限制</p>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="resizebox" style="height: 200px;"&gt;
+    &lt;div class="resizebox-pane"
+         style="width: 30%; min-width: 150px; max-width: 300px;"&gt;
+        &lt;div style="font-weight: 600;"&gt;
+            左侧面板
+            &lt;span style="font-size: 12px;"&gt;(150px - 300px)&lt;/span&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="resizebox-trigger" style="width: 8px;"&gt;&lt;/div&gt;
+    &lt;div class="resizebox-pane" style="flex: 1; min-width: 200px;"&gt;
+        &lt;div style="font-weight: 600;"&gt;
+            右侧面板
+            &lt;span style="font-size: 12px;"&gt;(最小 200px)&lt;/span&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- API 文档 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">ResizeBox Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>direction</code></td>
+                    <td>伸缩方向</td>
+                    <td>'horizontal' | 'vertical'</td>
+                    <td>'horizontal'</td>
+                </tr>
+                <tr>
+                    <td><code>split</code></td>
+                    <td>分隔符</td>
+                    <td>ReactNode</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>size</code></td>
+                    <td>面板尺寸数组</td>
+                    <td>number[] | string[]</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>defaultSize</code></td>
+                    <td>面板初始尺寸</td>
+                    <td>number[] | string[]</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>min</code></td>
+                    <td>面板最小尺寸</td>
+                    <td>number[] | string[]</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>max</code></td>
+                    <td>面板最大尺寸</td>
+                    <td>number[] | string[]</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>disabled</code></td>
+                    <td>是否禁用拖拽</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>handle</code></td>
+                    <td>自定义拖拽手柄</td>
+                    <code>(index: number) => ReactNode</code>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>onResize</code></td>
+                    <td>拖拽时触发的回调</td>
+                    <code>(size: ResizeBoxOnResize) => void</code>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>onResizeStart</code></td>
+                    <td>开始拖拽时触发的回调</td>
+                    <code>() => void</code>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>onResizeEnd</code></td>
+                    <td>结束拖拽时触发的回调</td>
+                    <code>() => void</code>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">CSS 类名</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>类名</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>resizebox</code></td>
+                    <td>基础伸缩框样式</td>
+                </tr>
+                <tr>
+                    <td><code>resizebox-vertical</code></td>
+                    <td>垂直方向</td>
+                </tr>
+                <tr>
+                    <td><code>resizebox-pane</code></td>
+                    <td>面板容器</td>
+                </tr>
+                <tr>
+                    <td><code>resizebox-trigger</code></td>
+                    <td>拖拽分隔条</td>
+                </tr>
+                <tr>
+                    <td><code>resizebox-handle</code></td>
+                    <td>拖拽手柄</td>
+                </tr>
+                <tr>
+                    <td><code>resizebox-split</code></td>
+                    <td>带分隔的容器</td>
+                </tr>
+                <tr>
+                    <td><code>resizebox-content</code></td>
+                    <td>内容区域</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

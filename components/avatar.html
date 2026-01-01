@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar 头像 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .api-table th, .api-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .api-table th {
+            background: #F7F8FA;
+            color: #1C1C1E;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .api-table td {
+            color: #4E5969;
+            font-size: 13px;
+        }
+        .api-table code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #165DFF;
+        }
+
+        /* Avatar Styles */
+        .avatar {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            overflow: hidden;
+            background: linear-gradient(135deg, #6750A4 0%, #4F7AFF 100%);
+            color: white;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        .avatar-sm {
+            width: 32px;
+            height: 32px;
+            font-size: 12px;
+        }
+        .avatar-md {
+            width: 40px;
+            height: 40px;
+            font-size: 14px;
+        }
+        .avatar-lg {
+            width: 56px;
+            height: 56px;
+            font-size: 18px;
+        }
+        .avatar-xl {
+            width: 80px;
+            height: 80px;
+            font-size: 24px;
+        }
+        .avatar-square {
+            border-radius: 8px;
+        }
+        .avatar-rect {
+            border-radius: 6px;
+        }
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .avatar-group {
+            display: flex;
+            align-items: center;
+        }
+        .avatar-group .avatar {
+            margin-left: -12px;
+            border: 2px solid white;
+        }
+        .avatar-group .avatar:first-child {
+            margin-left: 0;
+        }
+        .avatar-with-badge {
+            position: relative;
+            display: inline-block;
+        }
+        .avatar-badge {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: #00A48A;
+            border: 2px solid white;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .avatar-badge-offline {
+            background: #C9CDD4;
+        }
+        .avatar-badge-busy {
+            background: #FF3B30;
+        }
+        .avatar-dot {
+            position: relative;
+            display: inline-flex;
+        }
+        .avatar-dot::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 10px;
+            height: 10px;
+            background: #00A48A;
+            border: 2px solid white;
+            border-radius: 50%;
+        }
+        .demo-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Avatar 头像</h1>
+    <p class="component-subtitle">用于展示用户或对象的信息，支持图片、图标或字符</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">使用图片、图标或字符作为头像</div>
+            <div class="demo-row">
+                <div class="avatar avatar-md">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="用户">
+                </div>
+                <div class="avatar avatar-md">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <div class="avatar avatar-md">U</div>
+                <div class="avatar avatar-md">用户</div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="avatar avatar-md"&gt;
+    &lt;img src="avatar.png" alt="用户"&gt;
+&lt;/div&gt;
+&lt;div class="avatar avatar-md"&gt;
+    &lt;i class="fa-solid fa-user"&gt;&lt;/i&gt;
+&lt;/div&gt;
+&lt;div class="avatar avatar-md"&gt;U&lt;/div&gt;
+&lt;div class="avatar avatar-md"&gt;用户&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 尺寸 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">尺寸</h2>
+        <div class="demo-box">
+            <div class="demo-title">四种尺寸：小、中(默认)、大、超大</div>
+            <div class="demo-row" style="align-items: flex-end;">
+                <div class="avatar avatar-sm">小</div>
+                <div class="avatar avatar-md">中</div>
+                <div class="avatar avatar-lg">大</div>
+                <div class="avatar avatar-xl">超大</div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="avatar avatar-sm"&gt;小&lt;/div&gt;
+&lt;div class="avatar avatar-md"&gt;中&lt;/div&gt;
+&lt;div class="avatar avatar-lg"&gt;大&lt;/div&gt;
+&lt;div class="avatar avatar-xl"&gt;超大&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 形状 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">形状</h2>
+        <div class="demo-box">
+            <div class="demo-title">圆形、方形、圆角方形</div>
+            <div class="demo-row">
+                <div class="avatar avatar-lg">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Lucy" alt="圆形">
+                </div>
+                <div class="avatar avatar-lg avatar-square">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Max" alt="方形">
+                </div>
+                <div class="avatar avatar-lg avatar-rect">方</div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="avatar avatar-lg"&gt;...&lt;/div&gt;
+&lt;div class="avatar avatar-lg avatar-square"&gt;...&lt;/div&gt;
+&lt;div class="avatar avatar-lg avatar-rect"&gt;...&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 头像组 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">头像组</h2>
+        <div class="demo-box">
+            <div class="demo-title">头像层叠展示</div>
+            <div class="demo-row">
+                <div class="avatar-group">
+                    <div class="avatar avatar-md">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=1" alt="用户1">
+                    </div>
+                    <div class="avatar avatar-md">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=2" alt="用户2">
+                    </div>
+                    <div class="avatar avatar-md">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=3" alt="用户3">
+                    </div>
+                    <div class="avatar avatar-md">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=4" alt="用户4">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="avatar-group"&gt;
+    &lt;div class="avatar avatar-md"&gt;&lt;img src="..."&gt;&lt;/div&gt;
+    &lt;div class="avatar avatar-md"&gt;&lt;img src="..."&gt;&lt;/div&gt;
+    &lt;div class="avatar avatar-md"&gt;&lt;img src="..."&gt;&lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 带徽标 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">带徽标</h2>
+        <div class="demo-box">
+            <div class="demo-title">在线状态徽标</div>
+            <div class="demo-row">
+                <div class="avatar-with-badge">
+                    <div class="avatar avatar-lg">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Online" alt="在线">
+                    </div>
+                    <span class="avatar-badge"></span>
+                </div>
+                <div class="avatar-with-badge">
+                    <div class="avatar avatar-lg">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Offline" alt="离线">
+                    </div>
+                    <span class="avatar-badge avatar-badge-offline"></span>
+                </div>
+                <div class="avatar-with-badge">
+                    <div class="avatar avatar-lg">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Busy" alt="忙碌">
+                    </div>
+                    <span class="avatar-badge avatar-badge-busy"></span>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="avatar-with-badge"&gt;
+    &lt;div class="avatar avatar-lg"&gt;&lt;img src="..."&gt;&lt;/div&gt;
+    &lt;span class="avatar-badge"&gt;&lt;/span&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- API 文档 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Avatar Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>size</code></td>
+                    <td>头像尺寸</td>
+                    <td>'sm' | 'md' | 'lg' | 'xl'</td>
+                    <td>'md'</td>
+                </tr>
+                <tr>
+                    <td><code>shape</code></td>
+                    <td>头像形状</td>
+                    <td>'circle' | 'square' | 'rect'</td>
+                    <td>'circle'</td>
+                </tr>
+                <tr>
+                    <td><code>src</code></td>
+                    <td>图片地址</td>
+                    <td>string</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>alt</code></td>
+                    <td>替代文本</td>
+                    <td>string</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>icon</code></td>
+                    <td>图标类名</td>
+                    <td>string</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>text</code></td>
+                    <td>文本内容</td>
+                    <td>string</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>gap</code></td>
+                    <td>头像组中的间距（像素）</td>
+                    <td>number</td>
+                    <td>12</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">CSS 类名</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>类名</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>avatar</code></td>
+                    <td>基础头像样式</td>
+                </tr>
+                <tr>
+                    <td><code>avatar-sm</code></td>
+                    <td>小尺寸 (32px)</td>
+                </tr>
+                <tr>
+                    <td><code>avatar-md</code></td>
+                    <td>中尺寸 (40px)</td>
+                </tr>
+                <tr>
+                    <td><code>avatar-lg</code></td>
+                    <td>大尺寸 (56px)</td>
+                </tr>
+                <tr>
+                    <td><code>avatar-xl</code></td>
+                    <td>超大尺寸 (80px)</td>
+                </tr>
+                <tr>
+                    <td><code>avatar-square</code></td>
+                    <td>方形头像</td>
+                </tr>
+                <tr>
+                    <td><code>avatar-rect</code></td>
+                    <td>圆角方形头像</td>
+                </tr>
+                <tr>
+                    <td><code>avatar-group</code></td>
+                    <td>头像组容器</td>
+                </tr>
+                <tr>
+                    <td><code>avatar-with-badge</code></td>
+                    <td>带徽标的头像容器</td>
+                </tr>
+                <tr>
+                    <td><code>avatar-badge</code></td>
+                    <td>在线状态徽标（绿色）</td>
+                </tr>
+                <tr>
+                    <td><code>avatar-badge-offline</code></td>
+                    <td>离线状态徽标（灰色）</td>
+                </tr>
+                <tr>
+                    <td><code>avatar-badge-busy</code></td>
+                    <td>忙碌状态徽标（红色）</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -7,7 +7,7 @@ import { BaseStore } from '../baseStore';
 import { ToastPlugin } from '../module/Toast/Toast';
 import i18n from '@/lib/i18n';
 import { api } from '@/lib/trpc';
-import { NoteType, type Note } from '@shared/lib/types';
+import { type Note } from '@shared/lib/types';
 import { makeAutoObservable } from 'mobx';
 import type { UpsertNoteParams } from './NoteStore';
 
@@ -57,7 +57,6 @@ export class OfflineStore {
     // 创建离线笔记
     createOfflineNote(params: {
         content?: string | null;
-        type?: NoteType;
         isArchived?: boolean;
         isRecycle?: boolean;
         isTop?: boolean;
@@ -69,7 +68,6 @@ export class OfflineStore {
     }): OfflineNote {
         const {
             content = '',
-            type,
             isArchived = false,
             isRecycle = false,
             isTop = false,
@@ -84,7 +82,7 @@ export class OfflineStore {
         const offlineNote: OfflineNote = {
             id: now.getTime(),
             content: content || '',
-            type,
+            type: 0,
             isArchived,
             isRecycle,
             attachments,

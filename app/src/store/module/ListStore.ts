@@ -3,7 +3,7 @@
 
 import { PromisePageState, PromiseState } from '../standard/PromiseState';
 import { api } from '@/lib/trpc';
-import { NoteType, type Note } from '@shared/lib/types';
+import { type Note } from '@shared/lib/types';
 import { helper } from '@/lib/helper';
 import { makeAutoObservable } from 'mobx';
 
@@ -20,7 +20,6 @@ export interface NoteFilterConfig {
     isUseAiQuery: boolean;
     startDate: Date | null;
     endDate: Date | null;
-    hasTodo: boolean;
 }
 
 /**
@@ -48,13 +47,11 @@ export class ListManagementStore {
         withLink: false,
         isUseAiQuery: false,
         startDate: null,
-        endDate: null,
-        hasTodo: false
+        endDate: null
     };
 
     // 各类列表
     LuminaList!: PromisePageState<any, any>;
-    todoList!: PromisePageState<any, any>;
     archivedList!: PromisePageState<any, any>;
     trashList!: PromisePageState<any, any>;
     noteList!: PromisePageState<any, any>;
@@ -66,20 +63,7 @@ export class ListManagementStore {
             function: async ({ page, size }) => {
                 return await api.notes.list.mutate({
                     ...this.noteListFilterConfig,
-                    type: NoteType.Lumina,
-                    searchText: this.searchText,
-                    page,
-                    size
-                });
-            }
-        });
-
-        // Todo列表
-        this.todoList = new PromisePageState({
-            function: async ({ page, size }) => {
-                return await api.notes.list.mutate({
-                    ...this.noteListFilterConfig,
-                    type: NoteType.TODO,
+                    type: 0,
                     searchText: this.searchText,
                     page,
                     size
@@ -117,7 +101,7 @@ export class ListManagementStore {
             function: async ({ page, size }) => {
                 return await api.notes.list.mutate({
                     ...this.noteListFilterConfig,
-                    type: NoteType.Note,
+                    type: 0,
                     searchText: this.searchText,
                     page,
                     size
@@ -190,8 +174,7 @@ export class ListManagementStore {
             withLink: false,
             isUseAiQuery: false,
             startDate: null,
-            endDate: null,
-            hasTodo: false
+            endDate: null
         };
     }
 }

@@ -2,7 +2,6 @@
 // Zod Schema 定义，从 note.ts 提取公共验证逻辑
 
 import { z } from 'zod';
-import { NoteType } from '@shared/lib/types';
 import { notesSchema, attachmentsSchema, tagSchema, tagsToNoteSchema } from '@shared/lib/prismaZodType';
 
 // 附件输入Schema
@@ -19,7 +18,7 @@ export const noteListInputSchema = z.object({
     page: z.number().default(1),
     size: z.number().default(30),
     orderBy: z.enum(['asc', 'desc']).default('desc'),
-    type: z.union([z.nativeEnum(NoteType), z.literal(-1)]).default(-1),
+    type: z.union([z.literal(-1), z.literal(0)]).default(-1),
     isArchived: z.union([z.boolean(), z.null()]).default(false).optional(),
     isShare: z.union([z.boolean(), z.null()]).default(null).optional(),
     isRecycle: z.boolean().default(false).optional(),
@@ -36,7 +35,7 @@ export const noteListInputSchema = z.object({
 // 笔记创建/更新参数
 export const noteUpsertInputSchema = z.object({
     content: z.string().optional().nullable(),
-    type: z.union([z.nativeEnum(NoteType), z.literal(-1)]).default(-1),
+    type: z.union([z.literal(-1), z.literal(0)]).default(-1),
     id: z.number().optional(),
     isArchived: z.boolean().optional().nullable(),
     isTop: z.boolean().optional().nullable(),

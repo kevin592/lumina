@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modal 对话框 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .api-table th, .api-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .api-table th {
+            background: #F7F8FA;
+            color: #1C1C1E;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .api-table td {
+            color: #4E5969;
+            font-size: 13px;
+        }
+        .api-table code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #165DFF;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            line-height: 1;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6750A4 0%, #4F7AFF 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(103, 80, 164, 0.3);
+        }
+        .btn-secondary {
+            background: #EADDFF;
+            color: #21005D;
+        }
+        .btn-secondary:hover {
+            background: #D0BCFF;
+        }
+        .btn-ghost {
+            background: transparent;
+            color: #6750A4;
+        }
+        .btn-ghost:hover {
+            background: #F7F8FA;
+        }
+        .btn-danger {
+            background: #FF3B30;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #FF453A;
+            box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            backdrop-filter: blur(4px);
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 520px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            transform: scale(0.9) translateY(-20px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .modal-overlay.active .modal {
+            transform: scale(1) translateY(0);
+        }
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #E5E6EB;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin: 0;
+        }
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: #86909C;
+            font-size: 20px;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .modal-close:hover {
+            background: #F7F8FA;
+            color: #1C1C1E;
+        }
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .modal-body p {
+            margin: 0 0 16px 0;
+            color: #4E5969;
+            line-height: 1.6;
+        }
+        .modal-body p:last-child {
+            margin-bottom: 0;
+        }
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #E5E6EB;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        .modal-sm {
+            max-width: 400px;
+        }
+        .modal-lg {
+            max-width: 720px;
+        }
+        .modal-xl {
+            max-width: 900px;
+        }
+        .modal-fullscreen {
+            width: 100%;
+            height: 100%;
+            max-width: none;
+            max-height: none;
+            border-radius: 0;
+        }
+        .modal-centered .modal {
+            margin: auto;
+        }
+        .modal-confirm .modal-body {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 24px;
+        }
+        .modal-confirm-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .modal-confirm-icon.warning {
+            color: #FF7D00;
+        }
+        .modal-confirm-icon.info {
+            color: #165DFF;
+        }
+        .modal-confirm-icon.success {
+            color: #00A48A;
+        }
+        .modal-confirm-icon.error {
+            color: #FF3B30;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Modal 对话框</h1>
+    <p class="component-subtitle">模态对话框,在保留当前页面状态的情况下,展示需要用户处理的信息或任务</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">基本的对话框</div>
+            <button class="btn btn-primary" onclick="openModal('basic-modal')">打开对话框</button>
+
+            <div class="modal-overlay" id="basic-modal">
+                <div class="modal">
+                    <div class="modal-header">
+                        <h3 class="modal-title">对话框标题</h3>
+                        <button class="modal-close" onclick="closeModal('basic-modal')">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>这是一个基础的对话框内容。对话框可以包含任何内容,包括文本、表单、图片等。</p>
+                        <p>对话框是模态的,这意味着用户必须与对话框交互后才能继续操作页面。</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-ghost" onclick="closeModal('basic-modal')">取消</button>
+                        <button class="btn btn-primary" onclick="closeModal('basic-modal')">确定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="modal-overlay" id="basic-modal"&gt;
+    &lt;div class="modal"&gt;
+        &lt;div class="modal-header"&gt;
+            &lt;h3 class="modal-title"&gt;对话框标题&lt;/h3&gt;
+            &lt;button class="modal-close" onclick="closeModal('basic-modal')"&gt;
+                &lt;i class="fa-solid fa-xmark"&gt;&lt;/i&gt;
+            &lt;/button&gt;
+        &lt;/div&gt;
+        &lt;div class="modal-body"&gt;
+            &lt;p&gt;对话框内容&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class="modal-footer"&gt;
+            &lt;button class="btn btn-ghost"&gt;取消&lt;/button&gt;
+            &lt;button class="btn btn-primary"&gt;确定&lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 不同尺寸 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">不同尺寸</h2>
+        <div class="demo-box">
+            <div class="demo-title">小、默认、中、大、全屏五种尺寸</div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="openModal('size-sm-modal')">小对话框</button>
+                <button class="btn btn-primary" onclick="openModal('size-md-modal')">默认对话框</button>
+                <button class="btn btn-primary" onclick="openModal('size-lg-modal')">中对话框</button>
+                <button class="btn btn-primary" onclick="openModal('size-xl-modal')">大对话框</button>
+                <button class="btn btn-primary" onclick="openModal('size-full-modal')">全屏对话框</button>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="modal modal-sm"&gt;&lt;!-- 小对话框 --&gt;&lt;/div&gt;
+&lt;div class="modal"&gt;&lt;!-- 默认对话框 --&gt;&lt;/div&gt;
+&lt;div class="modal modal-lg"&gt;&lt;!-- 中对话框 --&gt;&lt;/div&gt;
+&lt;div class="modal modal-xl"&gt;&lt;!-- 大对话框 --&gt;&lt;/div&gt;
+&lt;div class="modal modal-fullscreen"&gt;&lt;!-- 全屏对话框 --&gt;&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 确认框 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">确认框</h2>
+        <div class="demo-box">
+            <div class="demo-title">带有确认图标的对话框</div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="openModal('confirm-info-modal')">信息确认</button>
+                <button class="btn btn-secondary" onclick="openModal('confirm-success-modal')">成功确认</button>
+                <button class="btn btn-primary" style="background: #FF7D00;" onclick="openModal('confirm-warning-modal')">警告确认</button>
+                <button class="btn btn-danger" onclick="openModal('confirm-error-modal')">危险确认</button>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="modal-body"&gt;
+    &lt;i class="fa-solid fa-circle-exclamation modal-confirm-icon info"&gt;&lt;/i&gt;
+    &lt;div&gt;
+        &lt;p&gt;确认要执行此操作吗?&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 自定义页脚 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">自定义页脚</h2>
+        <div class="demo-box">
+            <div class="demo-title">可以自定义底部操作按钮</div>
+            <button class="btn btn-primary" onclick="openModal('custom-footer-modal')">自定义页脚</button>
+
+            <div class="modal-overlay" id="custom-footer-modal">
+                <div class="modal">
+                    <div class="modal-header">
+                        <h3 class="modal-title">自定义页脚</h3>
+                        <button class="modal-close" onclick="closeModal('custom-footer-modal')">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>这是一个带有自定义页脚的对话框。你可以根据需要添加任意数量的按钮。</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-ghost" onclick="closeModal('custom-footer-modal')">取消</button>
+                        <button class="btn btn-secondary">上一步</button>
+                        <button class="btn btn-primary" onclick="closeModal('custom-footer-modal')">下一步</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="modal-footer"&gt;
+    &lt;button class="btn btn-ghost"&gt;取消&lt;/button&gt;
+    &lt;button class="btn btn-secondary"&gt;上一步&lt;/button&gt;
+    &lt;button class="btn btn-primary"&gt;下一步&lt;/button&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 无页脚 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">无页脚</h2>
+        <div class="demo-box">
+            <div class="demo-title">不需要底部操作按钮的对话框</div>
+            <button class="btn btn-primary" onclick="openModal('no-footer-modal')">无页脚对话框</button>
+
+            <div class="modal-overlay" id="no-footer-modal">
+                <div class="modal">
+                    <div class="modal-header">
+                        <h3 class="modal-title">无页脚对话框</h3>
+                        <button class="modal-close" onclick="closeModal('no-footer-modal')">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>这是一个没有页脚的对话框,适用于展示信息或通知类场景。</p>
+                        <p>用户可以通过点击右上角的关闭按钮或遮罩层来关闭对话框。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="modal"&gt;
+    &lt;div class="modal-header"&gt;
+        &lt;h3 class="modal-title"&gt;无页脚对话框&lt;/h3&gt;
+        &lt;button class="modal-close"&gt;
+            &lt;i class="fa-solid fa-xmark"&gt;&lt;/i&gt;
+        &lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="modal-body"&gt;
+        &lt;p&gt;对话框内容&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- API 文档 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Modal Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>visible</code></td>
+                    <td>对话框是否可见</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>title</code></td>
+                    <td>对话框标题</td>
+                    <td>string</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>size</code></td>
+                    <td>对话框尺寸</td>
+                    <td>'sm' | 'md' | 'lg' | 'xl' | 'fullscreen'</td>
+                    <td>'md'</td>
+                </tr>
+                <tr>
+                    <td><code>closable</code></td>
+                    <td>是否显示关闭按钮</td>
+                    <td>boolean</td>
+                    <td>true</td>
+                </tr>
+                <tr>
+                    <td><code>maskClosable</code></td>
+                    <td>点击遮罩层是否关闭</td>
+                    <td>boolean</td>
+                    <td>true</td>
+                </tr>
+                <tr>
+                    <td><code>onOk</code></td>
+                    <td>点击确定回调</td>
+                    <td>() => void</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>onCancel</code></td>
+                    <td>点击取消回调</td>
+                    <td>() => void</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>afterClose</code></td>
+                    <td>对话框关闭后的回调</td>
+                    <td>() => void</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">CSS 类名</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>类名</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>modal-overlay</code></td>
+                    <td>遮罩层</td>
+                </tr>
+                <tr>
+                    <td><code>modal</code></td>
+                    <td>对话框容器</td>
+                </tr>
+                <tr>
+                    <td><code>modal-sm</code></td>
+                    <td>小尺寸对话框</td>
+                </tr>
+                <tr>
+                    <td><code>modal-lg</code></td>
+                    <td>中大尺寸对话框</td>
+                </tr>
+                <tr>
+                    <td><code>modal-xl</code></td>
+                    <td>大尺寸对话框</td>
+                </tr>
+                <tr>
+                    <td><code>modal-fullscreen</code></td>
+                    <td>全屏对话框</td>
+                </tr>
+                <tr>
+                    <td><code>modal-header</code></td>
+                    <td>对话框头部</td>
+                </tr>
+                <tr>
+                    <td><code>modal-title</code></td>
+                    <td>对话框标题</td>
+                </tr>
+                <tr>
+                    <td><code>modal-close</code></td>
+                    <td>关闭按钮</td>
+                </tr>
+                <tr>
+                    <td><code>modal-body</code></td>
+                    <td>对话框内容</td>
+                </tr>
+                <tr>
+                    <td><code>modal-footer</code></td>
+                    <td>对话框底部</td>
+                </tr>
+                <tr>
+                    <td><code>modal-confirm</code></td>
+                    <td>确认框样式</td>
+                </tr>
+                <tr>
+                    <td><code>modal-confirm-icon</code></td>
+                    <td>确认图标</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">方法</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>方法名</th>
+                    <th>说明</th>
+                    <th>参数</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>openModal</code></td>
+                    <td>打开对话框</td>
+                    <td>id: string</td>
+                </tr>
+                <tr>
+                    <td><code>closeModal</code></td>
+                    <td>关闭对话框</td>
+                    <td>id: string</td>
+                </tr>
+                <tr>
+                    <td><code>confirm</code></td>
+                    <td>显示确认框</td>
+                    <td>options: ConfirmOptions</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 隐藏的对话框 -->
+    <div class="modal-overlay" id="size-sm-modal">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h3 class="modal-title">小对话框</h3>
+                <button class="modal-close" onclick="closeModal('size-sm-modal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>这是一个小尺寸的对话框,宽度为 400px。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeModal('size-sm-modal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="size-md-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">默认对话框</h3>
+                <button class="modal-close" onclick="closeModal('size-md-modal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>这是默认尺寸的对话框,宽度为 520px。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeModal('size-md-modal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="size-lg-modal">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h3 class="modal-title">中对话框</h3>
+                <button class="modal-close" onclick="closeModal('size-lg-modal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>这是中大尺寸的对话框,宽度为 720px。</p>
+                <p>适合展示更多内容或复杂的表单。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeModal('size-lg-modal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="size-xl-modal">
+        <div class="modal modal-xl">
+            <div class="modal-header">
+                <h3 class="modal-title">大对话框</h3>
+                <button class="modal-close" onclick="closeModal('size-xl-modal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>这是大尺寸的对话框,宽度为 900px。</p>
+                <p>适合展示大量内容或需要更大空间的场景。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeModal('size-xl-modal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="size-full-modal">
+        <div class="modal modal-fullscreen">
+            <div class="modal-header">
+                <h3 class="modal-title">全屏对话框</h3>
+                <button class="modal-close" onclick="closeModal('size-full-modal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>这是全屏对话框,占据整个视口。</p>
+                <p>适合需要完整展示内容的场景,如图表预览、文档编辑等。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeModal('size-full-modal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="confirm-info-modal">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h3 class="modal-title">信息确认</h3>
+                <button class="modal-close" onclick="closeModal('confirm-info-modal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="display: flex; align-items: flex-start; gap: 16px;">
+                <i class="fa-solid fa-circle-info modal-confirm-icon info"></i>
+                <div>
+                    <p style="font-weight: 600; color: #1C1C1E; margin-bottom: 8px;">是否继续操作?</p>
+                    <p style="margin: 0;">此操作将保存您所做的所有更改。</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeModal('confirm-info-modal')">取消</button>
+                <button class="btn btn-primary" onclick="closeModal('confirm-info-modal')">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="confirm-success-modal">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h3 class="modal-title">成功确认</h3>
+                <button class="modal-close" onclick="closeModal('confirm-success-modal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="display: flex; align-items: flex-start; gap: 16px;">
+                <i class="fa-solid fa-circle-check modal-confirm-icon success"></i>
+                <div>
+                    <p style="font-weight: 600; color: #1C1C1E; margin-bottom: 8px;">操作成功!</p>
+                    <p style="margin: 0;">您的操作已成功完成。</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeModal('confirm-success-modal')">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="confirm-warning-modal">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h3 class="modal-title">警告确认</h3>
+                <button class="modal-close" onclick="closeModal('confirm-warning-modal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="display: flex; align-items: flex-start; gap: 16px;">
+                <i class="fa-solid fa-triangle-exclamation modal-confirm-icon warning"></i>
+                <div>
+                    <p style="font-weight: 600; color: #1C1C1E; margin-bottom: 8px;">注意!</p>
+                    <p style="margin: 0;">此操作可能会影响系统性能,是否继续?</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeModal('confirm-warning-modal')">取消</button>
+                <button class="btn btn-primary" style="background: #FF7D00;" onclick="closeModal('confirm-warning-modal')">继续</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="confirm-error-modal">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h3 class="modal-title">危险确认</h3>
+                <button class="modal-close" onclick="closeModal('confirm-error-modal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="display: flex; align-items: flex-start; gap: 16px;">
+                <i class="fa-solid fa-circle-xmark modal-confirm-icon error"></i>
+                <div>
+                    <p style="font-weight: 600; color: #1C1C1E; margin-bottom: 8px;">危险操作!</p>
+                    <p style="margin: 0;">此操作无法撤销,确定要删除吗?</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeModal('confirm-error-modal')">取消</button>
+                <button class="btn btn-danger" onclick="closeModal('confirm-error-modal')">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.add('active');
+            }
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        // 点击遮罩层关闭
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.classList.remove('active');
+                }
+            });
+        });
+
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

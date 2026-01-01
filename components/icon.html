@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icon 图标 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 16px;
+        }
+        .icon-item {
+            background: white;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .icon-item:hover {
+            border-color: #6750A4;
+            background: #F7F8FA;
+        }
+        .icon-item i {
+            font-size: 24px;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .icon-item span {
+            display: block;
+            font-size: 11px;
+            color: #636366;
+        }
+        .icon-demo-row {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .icon-demo-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .icon-demo-item i {
+            font-size: 32px;
+            color: #1C1C1E;
+        }
+        .icon-demo-item span {
+            font-size: 12px;
+            color: #636366;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Icon 图标</h1>
+    <p class="component-subtitle">语义化的矢量图形，基于 Font Awesome 6.4</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">使用 Font Awesome 图标</div>
+            <div class="icon-demo-row">
+                <div class="icon-demo-item">
+                    <i class="fa-solid fa-house"></i>
+                    <span>fa-house</span>
+                </div>
+                <div class="icon-demo-item">
+                    <i class="fa-solid fa-user"></i>
+                    <span>fa-user</span>
+                </div>
+                <div class="icon-demo-item">
+                    <i class="fa-solid fa-heart"></i>
+                    <span>fa-heart</span>
+                </div>
+                <div class="icon-demo-item">
+                    <i class="fa-solid fa-cog"></i>
+                    <span>fa-cog</span>
+                </div>
+                <div class="icon-demo-item">
+                    <i class="fa-solid fa-search"></i>
+                    <span>fa-search</span>
+                </div>
+                <div class="icon-demo-item">
+                    <i class="fa-solid fa-bell"></i>
+                    <span>fa-bell</span>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;i class="fa-solid fa-house"&gt;&lt;/i&gt;
+&lt;i class="fa-solid fa-user"&gt;&lt;/i&gt;
+&lt;i class="fa-solid fa-heart"&gt;&lt;/i&gt;
+&lt;i class="fa-solid fa-cog"&gt;&lt;/i&gt;
+&lt;i class="fa-solid fa-search"&gt;&lt;/i&gt;
+&lt;i class="fa-solid fa-bell"&gt;&lt;/i&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 图标尺寸 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">图标尺寸</h2>
+        <div class="demo-box">
+            <div class="demo-title">通过 font-size 控制大小</div>
+            <div class="icon-demo-row">
+                <div class="icon-demo-item">
+                    <i class="fa-solid fa-home" style="font-size: 16px;"></i>
+                    <span>16px</span>
+                </div>
+                <div class="icon-demo-item">
+                    <i class="fa-solid fa-home" style="font-size: 20px;"></i>
+                    <span>20px</span>
+                </div>
+                <div class="icon-demo-item">
+                    <i class="fa-solid fa-home" style="font-size: 24px;"></i>
+                    <span>24px</span>
+                </div>
+                <div class="icon-demo-item">
+                    <i class="fa-solid fa-home" style="font-size: 32px;"></i>
+                    <span>32px</span>
+                </div>
+                <div class="icon-demo-item">
+                    <i class="fa-solid fa-home" style="font-size: 48px;"></i>
+                    <span>48px</span>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;i class="fa-solid fa-home" style="font-size: 16px;"&gt;&lt;/i&gt;
+&lt;i class="fa-solid fa-home" style="font-size: 24px;"&gt;&lt;/i&gt;
+&lt;i class="fa-solid fa-home" style="font-size: 32px;"&gt;&lt;/i&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 图标颜色 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">图标颜色</h2>
+        <div class="demo-box">
+            <div class="demo-title">通过 color 控制颜色</div>
+            <div class="icon-demo-row">
+                <div class="icon-demo-item">
+                    <i class="fa-solid fa-circle" style="font-size: 32px; color: #1C1C1E;"></i>
+                    <span>默认</span>
+                </div>
+                <div class="icon-demo-item">
+                    <i class="fa-solid fa-circle" style="font-size: 32px; color: #6750A4;"></i>
+                    <span>主色</span>
+                </div>
+                <div class="icon-demo-item">
+                    <i class="fa-solid fa-circle" style="font-size: 32px; color: #00A48A;"></i>
+                    <span>成功</span>
+                </div>
+                <div class="icon-demo-item">
+                    <i class="fa-solid fa-circle" style="font-size: 32px; color: #FF7D00;"></i>
+                    <span>警告</span>
+                </div>
+                <div class="icon-demo-item">
+                    <i class="fa-solid fa-circle" style="font-size: 32px; color: #FF3B30;"></i>
+                    <span>危险</span>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;i class="fa-solid fa-circle" style="color: #6750A4;"&gt;&lt;/i&gt;
+&lt;i class="fa-solid fa-circle" style="color: #00A48A;"&gt;&lt;/i&gt;
+&lt;i class="fa-solid fa-circle" style="color: #FF3B30;"&gt;&lt;/i&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 旋转与动画 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">旋转与动画</h2>
+        <div class="demo-box">
+            <div class="demo-title">图标旋转和动画效果</div>
+            <div class="icon-demo-row">
+                <div class="icon-demo-item">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 32px; color: #6750A4;"></i>
+                    <span>fa-spin</span>
+                </div>
+                <div class="icon-demo-item">
+                    <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 32px; color: #6750A4;"></i>
+                    <span>加载中</span>
+                </div>
+                <div class="icon-demo-item">
+                    <i class="fa-solid fa-arrows-rotate fa-spin" style="font-size: 32px; color: #6750A4;"></i>
+                    <span>刷新</span>
+                </div>
+                <div class="icon-demo-item">
+                    <i class="fa-solid fa-heart fa-beat" style="font-size: 32px; color: #FF3B30;"></i>
+                    <span>fa-beat</span>
+                </div>
+                <div class="icon-demo-item">
+                    <i class="fa-solid fa-bell fa-shake" style="font-size: 32px; color: #FF7D00;"></i>
+                    <span>fa-shake</span>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;i class="fa-solid fa-spinner fa-spin"&gt;&lt;/i&gt;
+&lt;i class="fa-solid fa-heart fa-beat"&gt;&lt;/i&gt;
+&lt;i class="fa-solid fa-bell fa-shake"&gt;&lt;/i&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 常用图标 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">常用图标</h2>
+        <p style="color: #636366; margin-bottom: 16px;">以下是一些常用的图标，点击复制类名</p>
+        <div class="demo-box">
+            <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #1C1C1E;">导航与操作</h3>
+            <div class="icon-grid">
+                <div class="icon-item" onclick="copyIconName('fa-home')">
+                    <i class="fa-solid fa-home"></i>
+                    <span>fa-home</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-menu')">
+                    <i class="fa-solid fa-bars"></i>
+                    <span>fa-bars</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-arrow-left')">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>arrow-left</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-arrow-right')">
+                    <i class="fa-solid fa-arrow-right"></i>
+                    <span>arrow-right</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-arrow-up')">
+                    <i class="fa-solid fa-arrow-up"></i>
+                    <span>arrow-up</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-chevron-down')">
+                    <i class="fa-solid fa-chevron-down"></i>
+                    <span>chevron-down</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-xmark')">
+                    <i class="fa-solid fa-xmark"></i>
+                    <span>fa-xmark</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-check')">
+                    <i class="fa-solid fa-check"></i>
+                    <span>fa-check</span>
+                </div>
+            </div>
+
+            <h3 style="font-size: 14px; font-weight: 600; margin: 24px 0 12px; color: #1C1C1E;">编辑与操作</h3>
+            <div class="icon-grid">
+                <div class="icon-item" onclick="copyIconName('fa-plus')">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>fa-plus</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-minus')">
+                    <i class="fa-solid fa-minus"></i>
+                    <span>fa-minus</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-pen')">
+                    <i class="fa-solid fa-pen"></i>
+                    <span>fa-pen</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-trash')">
+                    <i class="fa-solid fa-trash"></i>
+                    <span>fa-trash</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-copy')">
+                    <i class="fa-solid fa-copy"></i>
+                    <span>fa-copy</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-paste')">
+                    <i class="fa-solid fa-paste"></i>
+                    <span>fa-paste</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-scissors')">
+                    <i class="fa-solid fa-scissors"></i>
+                    <span>scissors</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-magnifying-glass')">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <span>search</span>
+                </div>
+            </div>
+
+            <h3 style="font-size: 14px; font-weight: 600; margin: 24px 0 12px; color: #1C1C1E;">媒体与文件</h3>
+            <div class="icon-grid">
+                <div class="icon-item" onclick="copyIconName('fa-image')">
+                    <i class="fa-solid fa-image"></i>
+                    <span>fa-image</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-file')">
+                    <i class="fa-solid fa-file"></i>
+                    <span>fa-file</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-folder')">
+                    <i class="fa-solid fa-folder"></i>
+                    <span>fa-folder</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-download')">
+                    <i class="fa-solid fa-download"></i>
+                    <span>download</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-upload')">
+                    <i class="fa-solid fa-upload"></i>
+                    <span>fa-upload</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-link')">
+                    <i class="fa-solid fa-link"></i>
+                    <span>fa-link</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-paperclip')">
+                    <i class="fa-solid fa-paperclip"></i>
+                    <span>paperclip</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-share-nodes')">
+                    <i class="fa-solid fa-share-nodes"></i>
+                    <span>share</span>
+                </div>
+            </div>
+
+            <h3 style="font-size: 14px; font-weight: 600; margin: 24px 0 12px; color: #1C1C1E;">状态与反馈</h3>
+            <div class="icon-grid">
+                <div class="icon-item" onclick="copyIconName('fa-circle-check')">
+                    <i class="fa-solid fa-circle-check" style="color: #00A48A;"></i>
+                    <span>success</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-circle-exclamation')">
+                    <i class="fa-solid fa-circle-exclamation" style="color: #FF7D00;"></i>
+                    <span>warning</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-circle-xmark')">
+                    <i class="fa-solid fa-circle-xmark" style="color: #FF3B30;"></i>
+                    <span>error</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-circle-info')">
+                    <i class="fa-solid fa-circle-info" style="color: #165DFF;"></i>
+                    <span>info</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-spinner')">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    <span>loading</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-question')">
+                    <i class="fa-solid fa-circle-question"></i>
+                    <span>help</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-star')">
+                    <i class="fa-solid fa-star" style="color: #FFB400;"></i>
+                    <span>fa-star</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-heart')">
+                    <i class="fa-solid fa-heart" style="color: #FF3B30;"></i>
+                    <span>fa-heart</span>
+                </div>
+            </div>
+
+            <h3 style="font-size: 14px; font-weight: 600; margin: 24px 0 12px; color: #1C1C1E;">用户与社交</h3>
+            <div class="icon-grid">
+                <div class="icon-item" onclick="copyIconName('fa-user')">
+                    <i class="fa-solid fa-user"></i>
+                    <span>fa-user</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-users')">
+                    <i class="fa-solid fa-users"></i>
+                    <span>fa-users</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-user-plus')">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>add user</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-comment')">
+                    <i class="fa-solid fa-comment"></i>
+                    <span>fa-comment</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-comments')">
+                    <i class="fa-solid fa-comments"></i>
+                    <span>comments</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-envelope')">
+                    <i class="fa-solid fa-envelope"></i>
+                    <span>envelope</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-bell')">
+                    <i class="fa-solid fa-bell"></i>
+                    <span>fa-bell</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-at')">
+                    <i class="fa-solid fa-at"></i>
+                    <span>mention</span>
+                </div>
+            </div>
+
+            <h3 style="font-size: 14px; font-weight: 600; margin: 24px 0 12px; color: #1C1C1E;">设置与工具</h3>
+            <div class="icon-grid">
+                <div class="icon-item" onclick="copyIconName('fa-gear')">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>fa-gear</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-sliders')">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>fa-sliders</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-filter')">
+                    <i class="fa-solid fa-filter"></i>
+                    <span>fa-filter</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-sort')">
+                    <i class="fa-solid fa-sort"></i>
+                    <span>fa-sort</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-calendar')">
+                    <i class="fa-solid fa-calendar"></i>
+                    <span>calendar</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-clock')">
+                    <i class="fa-solid fa-clock"></i>
+                    <span>fa-clock</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-lock')">
+                    <i class="fa-solid fa-lock"></i>
+                    <span>fa-lock</span>
+                </div>
+                <div class="icon-item" onclick="copyIconName('fa-eye')">
+                    <i class="fa-solid fa-eye"></i>
+                    <span>fa-eye</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- API 文档 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">引入方式</h3>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;!-- 在 &lt;head&gt; 中引入 Font Awesome --&gt;
+&lt;link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"&gt;
+
+&lt;!-- 使用图标 --&gt;
+&lt;i class="fa-solid fa-home"&gt;&lt;/i&gt;
+&lt;i class="fa-regular fa-heart"&gt;&lt;/i&gt;
+&lt;i class="fa-brands fa-github"&gt;&lt;/i&gt;</pre>
+        </div>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">常用动画类</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>类名</th>
+                    <th>效果</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>fa-spin</code></td>
+                    <td>持续旋转动画</td>
+                </tr>
+                <tr>
+                    <td><code>fa-pulse</code></td>
+                    <td>8步旋转动画</td>
+                </tr>
+                <tr>
+                    <td><code>fa-beat</code></td>
+                    <td>缩放跳动动画</td>
+                </tr>
+                <tr>
+                    <td><code>fa-shake</code></td>
+                    <td>抖动动画</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p style="color: #636366; margin-top: 16px; font-size: 13px;">
+            更多图标请访问 <a href="https://fontawesome.com/search" target="_blank" style="color: #165DFF;">Font Awesome 官方文档</a>
+        </p>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+
+        function copyIconName(iconName) {
+            const html = `<i class="fa-solid ${iconName}"></i>`;
+            navigator.clipboard.writeText(html).then(() => {
+                alert(`已复制: ${html}`);
+            });
+        }
+    </script>
+</body>
+</html>

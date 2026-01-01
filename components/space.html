@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space 间距 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Space Styles */
+        .space {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .space-vertical {
+            flex-direction: column;
+        }
+        .space-xs { gap: 4px; }
+        .space-sm { gap: 8px; }
+        .space-md { gap: 16px; }
+        .space-lg { gap: 24px; }
+        .space-xl { gap: 32px; }
+        .space-xxl { gap: 40px; }
+
+        .space-item {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #6750A4 0%, #4F7AFF 100%);
+            color: white;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .space-item-secondary {
+            background: #EADDFF;
+            color: #21005D;
+        }
+        .space-block {
+            width: 100px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .space-align-center {
+            align-items: center;
+        }
+        .space-align-start {
+            align-items: flex-start;
+        }
+        .space-align-end {
+            align-items: flex-end;
+        }
+        .space-align-baseline {
+            align-items: baseline;
+        }
+        .space-wrap {
+            flex-wrap: wrap;
+        }
+        .space-nowrap {
+            flex-wrap: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Space 间距</h1>
+    <p class="component-subtitle">设置组件之间的间距</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">水平间距 (默认 16px)</div>
+            <div class="space space-md">
+                <div class="space-item">Item 1</div>
+                <div class="space-item">Item 2</div>
+                <div class="space-item">Item 3</div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="space space-md"&gt;
+    &lt;div class="space-item"&gt;Item 1&lt;/div&gt;
+    &lt;div class="space-item"&gt;Item 2&lt;/div&gt;
+    &lt;div class="space-item"&gt;Item 3&lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 间距大小 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">间距大小</h2>
+        <div class="demo-box">
+            <div class="demo-title">预设的间距尺寸</div>
+            <div class="space" style="flex-direction: column; gap: 16px;">
+                <div>
+                    <span style="font-size: 12px; color: #86909C; margin-right: 12px;">XS 4px:</span>
+                    <div class="space space-xs">
+                        <div class="space-item">A</div>
+                        <div class="space-item">B</div>
+                    </div>
+                </div>
+                <div>
+                    <span style="font-size: 12px; color: #86909C; margin-right: 12px;">SM 8px:</span>
+                    <div class="space space-sm">
+                        <div class="space-item">A</div>
+                        <div class="space-item">B</div>
+                    </div>
+                </div>
+                <div>
+                    <span style="font-size: 12px; color: #86909C; margin-right: 12px;">MD 16px:</span>
+                    <div class="space space-md">
+                        <div class="space-item">A</div>
+                        <div class="space-item">B</div>
+                    </div>
+                </div>
+                <div>
+                    <span style="font-size: 12px; color: #86909C; margin-right: 12px;">LG 24px:</span>
+                    <div class="space space-lg">
+                        <div class="space-item">A</div>
+                        <div class="space-item">B</div>
+                    </div>
+                </div>
+                <div>
+                    <span style="font-size: 12px; color: #86909C; margin-right: 12px;">XL 32px:</span>
+                    <div class="space space-xl">
+                        <div class="space-item">A</div>
+                        <div class="space-item">B</div>
+                    </div>
+                </div>
+                <div>
+                    <span style="font-size: 12px; color: #86909C; margin-right: 12px;">XXL 40px:</span>
+                    <div class="space space-xxl">
+                        <div class="space-item">A</div>
+                        <div class="space-item">B</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="space space-xs"&gt;&lt;!-- 4px --&gt;&lt;/div&gt;
+&lt;div class="space space-sm"&gt;&lt;!-- 8px --&gt;&lt;/div&gt;
+&lt;div class="space space-md"&gt;&lt;!-- 16px --&gt;&lt;/div&gt;
+&lt;div class="space space-lg"&gt;&lt;!-- 24px --&gt;&lt;/div&gt;
+&lt;div class="space space-xl"&gt;&lt;!-- 32px --&gt;&lt;/div&gt;
+&lt;div class="space space-xxl"&gt;&lt;!-- 40px --&gt;&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 垂直间距 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">垂直间距</h2>
+        <div class="demo-box">
+            <div class="demo-title">纵向排列的间距</div>
+            <div class="space space-vertical space-md">
+                <div class="space-item">Item 1</div>
+                <div class="space-item space-item-secondary">Item 2</div>
+                <div class="space-item">Item 3</div>
+                <div class="space-item space-item-secondary">Item 4</div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="space space-vertical space-md"&gt;
+    &lt;div class="space-item"&gt;Item 1&lt;/div&gt;
+    &lt;div class="space-item"&gt;Item 2&lt;/div&gt;
+    &lt;div class="space-item"&gt;Item 3&lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 对齐方式 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">对齐方式</h2>
+        <div class="demo-box">
+            <div class="demo-title">不同的交叉轴对齐方式</div>
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <div>
+                    <span style="font-size: 12px; color: #86909C; margin-right: 12px;">居中对齐:</span>
+                    <div class="space space-md space-align-center">
+                        <div class="space-item" style="height: 40px;">Item 1</div>
+                        <div class="space-item space-item-secondary" style="height: 60px;">Item 2</div>
+                        <div class="space-item" style="height: 50px;">Item 3</div>
+                    </div>
+                </div>
+                <div>
+                    <span style="font-size: 12px; color: #86909C; margin-right: 12px;">顶部对齐:</span>
+                    <div class="space space-md space-align-start">
+                        <div class="space-item" style="height: 40px;">Item 1</div>
+                        <div class="space-item space-item-secondary" style="height: 60px;">Item 2</div>
+                        <div class="space-item" style="height: 50px;">Item 3</div>
+                    </div>
+                </div>
+                <div>
+                    <span style="font-size: 12px; color: #86909C; margin-right: 12px;">底部对齐:</span>
+                    <div class="space space-md space-align-end">
+                        <div class="space-item" style="height: 40px;">Item 1</div>
+                        <div class="space-item space-item-secondary" style="height: 60px;">Item 2</div>
+                        <div class="space-item" style="height: 50px;">Item 3</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="space space-md space-align-center"&gt;&lt;!-- 居中对齐 --&gt;&lt;/div&gt;
+&lt;div class="space space-md space-align-start"&gt;&lt;!-- 顶部对齐 --&gt;&lt;/div&gt;
+&lt;div class="space space-md space-align-end"&gt;&lt;!-- 底部对齐 --&gt;&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 换行 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">换行与不换行</h2>
+        <div class="demo-box">
+            <div class="demo-title">控制子元素的换行行为</div>
+            <div style="margin-bottom: 24px;">
+                <span style="font-size: 12px; color: #86909C; margin-right: 12px;">自动换行:</span>
+                <div class="space space-md space-wrap" style="max-width: 300px;">
+                    <div class="space-item">Item 1</div>
+                    <div class="space-item">Item 2</div>
+                    <div class="space-item">Item 3</div>
+                    <div class="space-item space-item-secondary">Item 4</div>
+                    <div class="space-item">Item 5</div>
+                </div>
+            </div>
+            <div>
+                <span style="font-size: 12px; color: #86909C; margin-right: 12px;">不换行:</span>
+                <div class="space space-md space-nowrap" style="max-width: 300px; overflow: hidden;">
+                    <div class="space-item">Item 1</div>
+                    <div class="space-item">Item 2</div>
+                    <div class="space-item">Item 3</div>
+                    <div class="space-item space-item-secondary">Item 4</div>
+                    <div class="space-item">Item 5</div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="space space-md space-wrap"&gt;&lt;!-- 自动换行 --&gt;&lt;/div&gt;
+&lt;div class="space space-md space-nowrap"&gt;&lt;!-- 不换行 --&gt;&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 实际应用 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">实际应用</h2>
+        <div class="demo-box">
+            <div class="demo-title">按钮组</div>
+            <div class="space space-sm">
+                <button class="space-item" style="border: none; cursor: pointer; background: linear-gradient(135deg, #6750A4 0%, #4F7AFF 100%);">主要操作</button>
+                <div class="space-item space-item-secondary" style="cursor: pointer;">次要操作</div>
+                <div class="space-item" style="background: #F7F8FA; color: #4E5969; cursor: pointer;">取消</div>
+            </div>
+        </div>
+
+        <div class="demo-title" style="margin-top: 24px;">表单项</div>
+        <div class="demo-box">
+            <div class="space space-vertical space-md">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="width: 80px; color: #4E5969;">用户名</span>
+                    <input type="text" placeholder="请输入用户名" style="flex: 1; padding: 8px 12px; border: 1px solid #E5E6EB; border-radius: 6px;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="width: 80px; color: #4E5969;">密码</span>
+                    <input type="password" placeholder="请输入密码" style="flex: 1; padding: 8px 12px; border: 1px solid #E5E6EB; border-radius: 6px;">
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="width: 80px;"></span>
+                    <div class="space space-sm">
+                        <button class="space-item" style="border: none; cursor: pointer;">登录</button>
+                        <div class="space-item space-item-secondary" style="cursor: pointer;">注册</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

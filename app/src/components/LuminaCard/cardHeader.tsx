@@ -2,19 +2,17 @@ import { Button, Tooltip } from '@heroui/react';
 import { Copy } from "../Common/Copy";
 import { LeftCickMenu, ShowEditTimeModel } from "../LuminaRightClickMenu";
 import { LuminaStore } from '@/store/luminaStore';
-import { Note, NoteType } from '@shared/lib/types';
+import { Note } from '@shared/lib/types';
 import { RootStore } from '@/store';
 import dayjs from '@/lib/dayjs';
 import { useTranslation } from 'react-i18next';
 import { _ } from '@/lib/lodash';
 import { useIsIOS } from '@/lib/hooks';
-import { DialogStore } from '@/store/module/Dialog';
-import { LuminaShareDialog } from '../LuminaShareDialog';
 import { observer } from 'mobx-react-lite';
 import { AvatarAccount, CommentButton, UserAvatar } from './commentButton';
-import { HistoryButton } from '../LuminaNoteHistory/HistoryButton';
 import { api } from '@/lib/trpc';
 import { PromiseCall } from '@/store/standard/PromiseState';
+import { ToastPlugin } from '@/store/module/Toast/Toast';
 
 interface CardHeaderProps {
   LuminaItem: Note;
@@ -139,14 +137,6 @@ export const CardHeader = observer(({ LuminaItem, Lumina, isShareMode, isExpande
           <ShareButton LuminaItem={LuminaItem} isIOSDevice={isIOSDevice} />
         )}
 
-        {/* History button for viewing note versions */}
-        {!isShareMode && !!LuminaItem._count?.histories && LuminaItem._count?.histories > 0 && (
-          <HistoryButton
-            noteId={LuminaItem.id!}
-            className={'opacity-0 group-hover/card:opacity-100 group-hover/card:translate-x-0 ml-2 cursor-pointer hover:text-primary text-desc mt-[1px]'}
-          />
-        )}
-
         {LuminaItem.isTop && (
           <i
             className={isIOSDevice ? 'ri-bookmark-3-fill ml-[10px] text-[#EFC646]' : "ri-bookmark-3-fill ml-auto group-hover/card:ml-2 text-[#EFC646]"}
@@ -178,19 +168,17 @@ const ShareButton = observer(({ LuminaItem, isIOSDevice }: { LuminaItem: Note, i
             }`}
           style={{ fontSize: '16px' }}
           onClick={async (e) => {
-            e.stopPropagation()
-            Lumina.curSelectedNote = _.cloneDeep(LuminaItem)
-            RootStore.Get(DialogStore).setData({
-              isOpen: true,
-              size: 'md',
-              title: t('share'),
-              content: <LuminaShareDialog defaultSettings={{
-                shareUrl: LuminaItem.shareEncryptedUrl ? window.location.origin + '/share/' + LuminaItem.shareEncryptedUrl : undefined,
-                expiryDate: LuminaItem.shareExpiryDate ?? undefined,
-                password: LuminaItem.sharePassword ?? '',
-                isShare: LuminaItem.isShare
-              }} />
-            })
+            e.stopPropagation();
+            Lumina.curSelectedNote = _.cloneDeep(LuminaItem);
+            // 简化分享功能：直接切换公开状态
+            await Lumina.upsertNote.call({
+              id: LuminaItem.id,
+              isShare: !LuminaItem.isShare
+            });
+            RootStore.Get(ToastPlugin).show(
+              !LuminaItem.isShare ? '已设为公开' : '已取消公开',
+              'success'
+            );
           }}
         />
       </div>

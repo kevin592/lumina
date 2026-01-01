@@ -1,5 +1,4 @@
 import { userCaller } from '@server/routerTrpc/_app';
-import { NoteType } from '@shared/lib/types';
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod/v3';
 import { verifyToken } from '@server/lib/helper';
@@ -13,7 +12,7 @@ export const searchLuminaTool = createTool({
     page: z.number().default(1),
     size: z.number().default(30),
     orderBy: z.enum(["asc", 'desc']).default('desc'),
-    type: z.union([z.nativeEnum(NoteType), z.literal(-1)]).default(-1),
+    type: z.union([z.literal(-1), z.literal(0)]).default(-1),
     isArchived: z.union([z.boolean(), z.null()]).default(false).optional().describe('is archived if true return archived notes'),
     isRecycle: z.boolean().default(false).optional().describe('is recycle if true return recycle notes'),
     withoutTag: z.boolean().default(false).optional(),
@@ -21,7 +20,6 @@ export const searchLuminaTool = createTool({
     withLink: z.boolean().default(false).optional(),
     isUseAiQuery: z.boolean().default(false).optional().describe('use RAG to search'),
     days: z.number().optional().describe('Number of days to search back from today. If provided, startDate will be set to today minus this many days, and endDate will be set to today.'),
-    hasTodo: z.boolean().default(false).optional().describe('has to do list'),
     token: z.string().optional().describe("internal use, do not pass!")
   }),
   execute: async ({ context, runtimeContext }) => {
@@ -66,8 +64,7 @@ export const searchLuminaTool = createTool({
         withFile: context.withFile,
         withLink: context.withLink,
         startDate: startDate,
-        endDate: endDate,
-        hasTodo: context.hasTodo
+        endDate: endDate
       });
 
       return {

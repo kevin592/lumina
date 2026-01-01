@@ -3,7 +3,7 @@ import { LuminaStore } from '@/store/luminaStore';
 import { Card } from '@heroui/react';
 import { RootStore } from '@/store';
 import { ContextMenuTrigger } from '@/components/Common/ContextMenu';
-import { Note, NoteType, toNoteTypeEnum } from '@shared/lib/types';
+import { Note } from '@shared/lib/types';
 import { ShowEditLuminaModel } from "../LuminaRightClickMenu";
 import { useMediaQuery } from "usehooks-ts";
 import { _ } from '@/lib/lodash';
@@ -18,7 +18,6 @@ import { useHistoryBack } from "@/lib/hooks";
 import { FocusEditorFixMobile } from "../Common/Editor/editorUtils";
 import { AvatarAccount, SimpleCommentList } from "./commentButton";
 import { useLocation } from "react-router-dom";
-import { SubtasksList } from '../SubtasksList';
 
 
 export type LuminaItem = Note & {
@@ -233,11 +232,6 @@ export const LuminaCard = observer(({ LuminaItem, account, isShareMode = false, 
                   ))}
 
                 <CardFooter LuminaItem={LuminaItem} Lumina={Lumina} isShareMode={isShareMode} />
-
-                {/* 子任务列表（?TODO 类型且有 parentId 的笔记） */}
-                {LuminaItem.type === NoteType.TODO && (
-                  <SubtasksList noteId={LuminaItem.id!} parentId={LuminaItem.parentId ?? undefined} />
-                )}
 
                 {!Lumina.config.value?.isHideCommentInCard && LuminaItem.comments && LuminaItem.comments.length > 0 && (
                   <SimpleCommentList LuminaItem={LuminaItem} />

@@ -14,7 +14,6 @@ import copy from "copy-to-clipboard";
 import { ToastPlugin } from "@/store/module/Toast/Toast";
 import i18n from "@/lib/i18n";
 import { LuminaStore } from "@/store/luminaStore";
-import { NoteType } from "@shared/lib/types";
 import { ToolUsageChip, StreamToolRenderer } from "./ToolComponents";
 import { useMediaQuery } from "usehooks-ts";
 import { useState } from "react";
@@ -181,7 +180,6 @@ const AiMessage = ({ content, withoutAnimation = false, withStreamAnimation = fa
                     onClick={() => {
                       RootStore.Get(LuminaStore).upsertNote.call({
                         content: content,
-                        type: NoteType.Lumina,
                       })
                     }}
                     size={20}
@@ -197,7 +195,6 @@ const AiMessage = ({ content, withoutAnimation = false, withStreamAnimation = fa
                     onClick={() => {
                       RootStore.Get(LuminaStore).upsertNote.call({
                         content: content,
-                        type: NoteType.Lumina
                       })
                     }}
                     size={20}

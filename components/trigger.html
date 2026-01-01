@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trigger 触发器 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .api-table th, .api-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .api-table th {
+            background: #F7F8FA;
+            color: #1C1C1E;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .api-table td {
+            color: #4E5969;
+            font-size: 13px;
+        }
+        .api-table code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #165DFF;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 9999px;
+            border: none;
+            cursor: pointer;
+            background: linear-gradient(135deg, #6750A4 0%, #4F7AFF 100%);
+            color: white;
+            transition: all 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(103, 80, 164, 0.3);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #6750A4;
+            color: #6750A4;
+        }
+        .btn-outline:hover {
+            background: #EADDFF;
+        }
+
+        /* Trigger Styles */
+        .trigger {
+            position: relative;
+            display: inline-block;
+        }
+        .trigger-popup {
+            position: absolute;
+            background: white;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            padding: 12px 16px;
+            min-width: 150px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+            font-size: 14px;
+            color: #4E5969;
+        }
+        .trigger.active .trigger-popup {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .trigger-top .trigger-popup {
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-10px);
+            margin-bottom: 8px;
+        }
+        .trigger-top.active .trigger-popup {
+            transform: translateX(-50%) translateY(0);
+        }
+        .trigger-bottom .trigger-popup {
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            margin-top: 8px;
+        }
+        .trigger-bottom.active .trigger-popup {
+            transform: translateX(-50%) translateY(0);
+        }
+        .trigger-left .trigger-popup {
+            right: 100%;
+            top: 50%;
+            transform: translateY(-50%) translateX(-10px);
+            margin-right: 8px;
+        }
+        .trigger-left.active .trigger-popup {
+            transform: translateY(-50%) translateX(0);
+        }
+        .trigger-right .trigger-popup {
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%) translateX(10px);
+            margin-left: 8px;
+        }
+        .trigger-right.active .trigger-popup {
+            transform: translateY(-50%) translateX(0);
+        }
+        .trigger-arrow {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border: 6px solid transparent;
+        }
+        .trigger-bottom .trigger-arrow {
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-bottom-color: white;
+        }
+        .trigger-top .trigger-arrow {
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-top-color: white;
+        }
+        .trigger-left .trigger-arrow {
+            right: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-left-color: white;
+        }
+        .trigger-right .trigger-arrow {
+            left: -12px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-right-color: white;
+        }
+        .trigger-content {
+            position: relative;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Trigger 触发器</h1>
+    <p class="component-subtitle">为任何元素添加弹出层，支持多种触发方式</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">点击按钮显示弹出层</div>
+            <div class="trigger" id="trigger1">
+                <button class="btn" onclick="toggleTrigger('trigger1')">
+                    点击显示
+                </button>
+                <div class="trigger-popup trigger-bottom">
+                    <div class="trigger-arrow"></div>
+                    <div class="trigger-content">
+                        这是一个基础的触发器弹出层
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="trigger" id="trigger1"&gt;
+    &lt;button class="btn" onclick="toggleTrigger('trigger1')"&gt;
+        点击显示
+    &lt;/button&gt;
+    &lt;div class="trigger-popup trigger-bottom"&gt;
+        &lt;div class="trigger-arrow"&gt;&lt;/div&gt;
+        &lt;div class="trigger-content"&gt;
+            这是一个基础的触发器弹出层
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+function toggleTrigger(id) {
+    const trigger = document.getElementById(id);
+    trigger.classList.toggle('active');
+}
+&lt;/script&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 触发方式 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">触发方式</h2>
+        <div class="demo-box">
+            <div class="demo-title">支持点击、悬停、聚焦等多种触发方式</div>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div class="trigger" id="trigger2">
+                    <button class="btn" onclick="toggleTrigger('trigger2')">
+                        点击触发
+                    </button>
+                    <div class="trigger-popup trigger-bottom">
+                        <div class="trigger-arrow"></div>
+                        <div class="trigger-content">点击显示的弹出层</div>
+                    </div>
+                </div>
+                <div class="trigger" id="trigger3" onmouseenter="showTrigger('trigger3')" onmouseleave="hideTrigger('trigger3')">
+                    <button class="btn btn-outline">
+                        悬停触发
+                    </button>
+                    <div class="trigger-popup trigger-bottom">
+                        <div class="trigger-arrow"></div>
+                        <div class="trigger-content">悬停显示的弹出层</div>
+                    </div>
+                </div>
+                <div class="trigger" id="trigger4">
+                    <button class="btn btn-outline" onfocus="showTrigger('trigger4')" onblur="hideTrigger('trigger4')">
+                        聚焦触发
+                    </button>
+                    <div class="trigger-popup trigger-bottom">
+                        <div class="trigger-arrow"></div>
+                        <div class="trigger-content">聚焦显示的弹出层</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;!-- 点击触发 --&gt;
+&lt;div class="trigger" id="trigger2"&gt;
+    &lt;button class="btn" onclick="toggleTrigger('trigger2')"&gt;
+        点击触发
+    &lt;/button&gt;
+    &lt;div class="trigger-popup trigger-bottom"&gt;...&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- 悬停触发 --&gt;
+&lt;div class="trigger" id="trigger3"
+     onmouseenter="showTrigger('trigger3')"
+     onmouseleave="hideTrigger('trigger3')"&gt;
+    &lt;button class="btn btn-outline"&gt;悬停触发&lt;/button&gt;
+    &lt;div class="trigger-popup trigger-bottom"&gt;...&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- 聚焦触发 --&gt;
+&lt;div class="trigger" id="trigger4"&gt;
+    &lt;button class="btn btn-outline"
+            onfocus="showTrigger('trigger4')"
+            onblur="hideTrigger('trigger4')"&gt;
+        聚焦触发
+    &lt;/button&gt;
+    &lt;div class="trigger-popup trigger-bottom"&gt;...&lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 弹出位置 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">弹出位置</h2>
+        <div class="demo-box">
+            <div class="demo-title">支持上、下、左、右四个方向</div>
+            <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+                <div class="trigger trigger-top" id="trigger5">
+                    <button class="btn btn-outline" onclick="toggleTrigger('trigger5')">
+                        上方弹出
+                    </button>
+                    <div class="trigger-popup">
+                        <div class="trigger-arrow"></div>
+                        <div class="trigger-content">上方弹出内容</div>
+                    </div>
+                </div>
+                <div class="trigger trigger-bottom" id="trigger6">
+                    <button class="btn btn-outline" onclick="toggleTrigger('trigger6')">
+                        下方弹出
+                    </button>
+                    <div class="trigger-popup">
+                        <div class="trigger-arrow"></div>
+                        <div class="trigger-content">下方弹出内容</div>
+                    </div>
+                </div>
+                <div class="trigger trigger-left" id="trigger7">
+                    <button class="btn btn-outline" onclick="toggleTrigger('trigger7')">
+                        左侧弹出
+                    </button>
+                    <div class="trigger-popup">
+                        <div class="trigger-arrow"></div>
+                        <div class="trigger-content">左侧弹出内容</div>
+                    </div>
+                </div>
+                <div class="trigger trigger-right" id="trigger8">
+                    <button class="btn btn-outline" onclick="toggleTrigger('trigger8')">
+                        右侧弹出
+                    </button>
+                    <div class="trigger-popup">
+                        <div class="trigger-arrow"></div>
+                        <div class="trigger-content">右侧弹出内容</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;!-- 上方弹出 --&gt;
+&lt;div class="trigger trigger-top"&gt;
+    &lt;button class="btn btn-outline"&gt;上方弹出&lt;/button&gt;
+    &lt;div class="trigger-popup"&gt;
+        &lt;div class="trigger-arrow"&gt;&lt;/div&gt;
+        &lt;div class="trigger-content"&gt;上方弹出内容&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- 下方弹出 --&gt;
+&lt;div class="trigger trigger-bottom"&gt;
+    &lt;button class="btn btn-outline"&gt;下方弹出&lt;/button&gt;
+    &lt;div class="trigger-popup"&gt;
+        &lt;div class="trigger-arrow"&gt;&lt;/div&gt;
+        &lt;div class="trigger-content"&gt;下方弹出内容&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- 左侧弹出 --&gt;
+&lt;div class="trigger trigger-left"&gt;
+    &lt;button class="btn btn-outline"&gt;左侧弹出&lt;/button&gt;
+    &lt;div class="trigger-popup"&gt;
+        &lt;div class="trigger-arrow"&gt;&lt;/div&gt;
+        &lt;div class="trigger-content"&gt;左侧弹出内容&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- 右侧弹出 --&gt;
+&lt;div class="trigger trigger-right"&gt;
+    &lt;button class="btn btn-outline"&gt;右侧弹出&lt;/button&gt;
+    &lt;div class="trigger-popup"&gt;
+        &lt;div class="trigger-arrow"&gt;&lt;/div&gt;
+        &lt;div class="trigger-content"&gt;右侧弹出内容&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 嵌套内容 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">嵌套内容</h2>
+        <div class="demo-box">
+            <div class="demo-title">弹出层可以包含任何内容</div>
+            <div class="trigger" id="trigger9">
+                <button class="btn" onclick="toggleTrigger('trigger9')">
+                    <i class="fa-solid fa-user"></i>
+                    用户信息
+                </button>
+                <div class="trigger-popup trigger-bottom" style="min-width: 200px;">
+                    <div class="trigger-arrow"></div>
+                    <div class="trigger-content">
+                        <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #6750A4 0%, #4F7AFF 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">JD</div>
+                            <div>
+                                <div style="font-weight: 600; color: #1C1C1E;">张三</div>
+                                <div style="font-size: 12px; color: #86909C;">zhangsan@example.com</div>
+                            </div>
+                        </div>
+                        <div style="border-top: 1px solid #E5E6EB; padding-top: 8px;">
+                            <div style="font-size: 13px; color: #4E5969; margin-bottom: 4px;">
+                                <i class="fa-solid fa-envelope" style="margin-right: 8px;"></i>
+                                12 条未读消息
+                            </div>
+                            <div style="font-size: 13px; color: #4E5969;">
+                                <i class="fa-solid fa-cog" style="margin-right: 8px;"></i>
+                                账户设置
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="trigger" id="trigger9"&gt;
+    &lt;button class="btn" onclick="toggleTrigger('trigger9')"&gt;
+        &lt;i class="fa-solid fa-user"&gt;&lt;/i&gt;
+        用户信息
+    &lt;/button&gt;
+    &lt;div class="trigger-popup trigger-bottom" style="min-width: 200px;"&gt;
+        &lt;div class="trigger-arrow"&gt;&lt;/div&gt;
+        &lt;div class="trigger-content"&gt;
+            &lt;!-- 用户信息内容 --&gt;
+            &lt;div style="display: flex; gap: 12px; align-items: center;"&gt;
+                &lt;div style="width: 40px; height: 40px; border-radius: 50%;"&gt;JD&lt;/div&gt;
+                &lt;div&gt;
+                    &lt;div style="font-weight: 600;"&gt;张三&lt;/div&gt;
+                    &lt;div style="font-size: 12px;"&gt;zhangsan@example.com&lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 延迟显示 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">延迟显示</h2>
+        <div class="demo-box">
+            <div class="demo-title">悬停延迟后显示，鼠标移开立即隐藏</div>
+            <div class="trigger" id="trigger10" onmouseenter="delayedShow('trigger10')" onmouseleave="hideTrigger('trigger10')">
+                <button class="btn btn-outline">
+                    <i class="fa-solid fa-circle-info"></i>
+                    悬停查看
+                </button>
+                <div class="trigger-popup trigger-bottom" style="min-width: 250px;">
+                    <div class="trigger-arrow"></div>
+                    <div class="trigger-content">
+                        <strong>提示信息</strong>
+                        <p style="margin-top: 4px; font-size: 13px; color: #4E5969;">
+                            这是延迟显示的提示信息，鼠标悬停 300ms 后才会出现。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="trigger" id="trigger10"
+     onmouseenter="delayedShow('trigger10')"
+     onmouseleave="hideTrigger('trigger10')"&gt;
+    &lt;button class="btn btn-outline"&gt;
+        &lt;i class="fa-solid fa-circle-info"&gt;&lt;/i&gt;
+        悬停查看
+    &lt;/button&gt;
+    &lt;div class="trigger-popup trigger-bottom" style="min-width: 250px;"&gt;
+        &lt;div class="trigger-arrow"&gt;&lt;/div&gt;
+        &lt;div class="trigger-content"&gt;
+            &lt;strong&gt;提示信息&lt;/strong&gt;
+            &lt;p&gt;这是延迟显示的提示信息。&lt;/p&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+let timeoutId;
+function delayedShow(id) {
+    timeoutId = setTimeout(() => {
+        showTrigger(id);
+    }, 300); // 延迟 300ms
+}
+
+function hideTrigger(id) {
+    clearTimeout(timeoutId);
+    const trigger = document.getElementById(id);
+    trigger.classList.remove('active');
+}
+&lt;/script&gt;</pre>
+        </div>
+    </div>
+
+    <!-- API 文档 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Trigger Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>action</code></td>
+                    <td>触发行为</td>
+                    <td>'click' | 'hover' | 'focus' | 'contextMenu'</td>
+                    <td>'hover'</td>
+                </tr>
+                <tr>
+                    <td><code>popup</code></td>
+                    <td>弹出内容</td>
+                    <td>ReactNode | () => ReactNode</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>popupVisible</code></td>
+                    <td>是否显示弹出层（受控）</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>defaultPopupVisible</code></td>
+                    <td>初始是否显示弹出层</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>onVisibleChange</code></td>
+                    <td>显示/隐藏时的回调</td>
+                    <td>(visible: boolean) => void</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>placement</code></td>
+                    <td>弹出位置</td>
+                    <td>'top' | 'left' | 'right' | 'bottom' | 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight'</td>
+                    <td>'bottom'</td>
+                </tr>
+                <tr>
+                    <td><code>mouseEnterDelay</code></td>
+                    <td>鼠标移入后延迟显示的时间</td>
+                    <td>number</td>
+                    <td>100</td>
+                </tr>
+                <tr>
+                    <td><code>mouseLeaveDelay</code></td>
+                    <td>鼠标移出后延迟隐藏的时间</td>
+                    <td>number</td>
+                    <td>100</td>
+                </tr>
+                <tr>
+                    <td><code>focusDelay</code></td>
+                    <td>聚焦后延迟显示的时间</td>
+                    <td>number</td>
+                    <td>0</td>
+                </tr>
+                <tr>
+                    <td><code>blurDelay</code></td>
+                    <td>失焦后延迟隐藏的时间</td>
+                    <td>number</td>
+                    <td>100</td>
+                </tr>
+                <tr>
+                    <td><code>mask</code></td>
+                    <td>是否显示遮罩层</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>maskClosable</code></td>
+                    <td>点击遮罩是否关闭</td>
+                    <td>boolean</td>
+                    <td>true</td>
+                </tr>
+                <tr>
+                    <td><code>getPopupContainer</code></td>
+                    <td>弹出层挂载的容器</td>
+                    <code>() => HTMLElement</code>
+                    <td>() => document.body</td>
+                </tr>
+                <tr>
+                    <td><code>showArrow</code></td>
+                    <td>是否显示箭头</td>
+                    <td>boolean</td>
+                    <td>true</td>
+                </tr>
+                <tr>
+                    <td><code>alignPoint</code></td>
+                    <td>是否跟随鼠标位置</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">CSS 类名</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>类名</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>trigger</code></td>
+                    <td>基础触发器样式</td>
+                </tr>
+                <tr>
+                    <td><code>trigger.active</code></td>
+                    <td>激活状态</td>
+                </tr>
+                <tr>
+                    <td><code>trigger-popup</code></td>
+                    <td>弹出层容器</td>
+                </tr>
+                <tr>
+                    <td><code>trigger-arrow</code></td>
+                    <td>箭头指示器</td>
+                </tr>
+                <tr>
+                    <td><code>trigger-content</code></td>
+                    <td>弹出层内容</td>
+                </tr>
+                <tr>
+                    <td><code>trigger-top</code></td>
+                    <td>上方弹出</td>
+                </tr>
+                <tr>
+                    <td><code>trigger-bottom</code></td>
+                    <td>下方弹出</td>
+                </tr>
+                <tr>
+                    <td><code>trigger-left</code></td>
+                    <td>左侧弹出</td>
+                </tr>
+                <tr>
+                    <td><code>trigger-right</code></td>
+                    <td>右侧弹出</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+
+        function toggleTrigger(id) {
+            const trigger = document.getElementById(id);
+            trigger.classList.toggle('active');
+        }
+
+        function showTrigger(id) {
+            const trigger = document.getElementById(id);
+            trigger.classList.add('active');
+        }
+
+        function hideTrigger(id) {
+            const trigger = document.getElementById(id);
+            trigger.classList.remove('active');
+        }
+
+        let timeoutId;
+        function delayedShow(id) {
+            timeoutId = setTimeout(() => {
+                showTrigger(id);
+            }, 300);
+        }
+
+        // 点击外部关闭所有触发器
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.trigger')) {
+                document.querySelectorAll('.trigger.active').forEach(trigger => {
+                    trigger.classList.remove('active');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

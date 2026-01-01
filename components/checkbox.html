@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkbox 复选框 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .api-table th, .api-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .api-table th {
+            background: #F7F8FA;
+            color: #1C1C1E;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .api-table td {
+            color: #4E5969;
+            font-size: 13px;
+        }
+        .api-table code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #165DFF;
+        }
+
+        /* Checkbox Styles */
+        .checkbox-wrapper {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .checkbox {
+            position: relative;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #C9CDD4;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .checkbox:hover {
+            border-color: #6750A4;
+        }
+        .checkbox-wrapper:hover .checkbox {
+            border-color: #6750A4;
+        }
+        .checkbox-wrapper input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .checkbox input[type="checkbox"]:checked + .checkbox-box {
+            background: #6750A4;
+            border-color: #6750A4;
+        }
+        .checkbox input[type="checkbox"]:checked + .checkbox-box::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 10px;
+        }
+        .checkbox input[type="checkbox"]:indeterminate + .checkbox-box {
+            background: #6750A4;
+            border-color: #6750A4;
+        }
+        .checkbox input[type="checkbox"]:indeterminate + .checkbox-box::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 2px;
+            background: white;
+        }
+        .checkbox-label {
+            font-size: 14px;
+            color: #4E5969;
+        }
+        .checkbox-wrapper.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .checkbox-wrapper.disabled .checkbox {
+            cursor: not-allowed;
+        }
+        .checkbox-sm {
+            width: 14px;
+            height: 14px;
+        }
+        .checkbox-lg {
+            width: 22px;
+            height: 22px;
+        }
+        .demo-row {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .checkbox-horizontal {
+            flex-direction: row;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Checkbox 复选框</h1>
+    <p class="component-subtitle">用于在一组选项中进行多选</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">简单的复选框</div>
+            <div class="demo-row">
+                <label class="checkbox-wrapper">
+                    <input type="checkbox">
+                    <span class="checkbox">
+                        <span class="checkbox-box"></span>
+                    </span>
+                    <span class="checkbox-label">选项 A</span>
+                </label>
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" checked>
+                    <span class="checkbox">
+                        <span class="checkbox-box"></span>
+                    </span>
+                    <span class="checkbox-label">选项 B</span>
+                </label>
+                <label class="checkbox-wrapper">
+                    <input type="checkbox">
+                    <span class="checkbox">
+                        <span class="checkbox-box"></span>
+                    </span>
+                    <span class="checkbox-label">选项 C</span>
+                </label>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;label class="checkbox-wrapper"&gt;
+    &lt;input type="checkbox"&gt;
+    &lt;span class="checkbox"&gt;
+        &lt;span class="checkbox-box"&gt;&lt;/span&gt;
+    &lt;/span&gt;
+    &lt;span class="checkbox-label"&gt;选项 A&lt;/span&gt;
+&lt;/label&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 禁用状态 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">禁用状态</h2>
+        <div class="demo-box">
+            <div class="demo-title">禁用的复选框</div>
+            <div class="demo-row">
+                <label class="checkbox-wrapper disabled">
+                    <input type="checkbox" disabled>
+                    <span class="checkbox">
+                        <span class="checkbox-box"></span>
+                    </span>
+                    <span class="checkbox-label">未选中禁用</span>
+                </label>
+                <label class="checkbox-wrapper disabled">
+                    <input type="checkbox" checked disabled>
+                    <span class="checkbox">
+                        <span class="checkbox-box"></span>
+                    </span>
+                    <span class="checkbox-label">已选中禁用</span>
+                </label>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;label class="checkbox-wrapper disabled"&gt;
+    &lt;input type="checkbox" disabled&gt;
+    &lt;span class="checkbox"&gt;&lt;/span&gt;
+    &lt;span class="checkbox-label"&gt;未选中禁用&lt;/span&gt;
+&lt;/label&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 尺寸 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">尺寸</h2>
+        <div class="demo-box">
+            <div class="demo-title">小、中(默认)、大三种尺寸</div>
+            <div class="demo-row">
+                <label class="checkbox-wrapper">
+                    <input type="checkbox">
+                    <span class="checkbox checkbox-sm">
+                        <span class="checkbox-box"></span>
+                    </span>
+                    <span class="checkbox-label">小尺寸</span>
+                </label>
+                <label class="checkbox-wrapper">
+                    <input type="checkbox">
+                    <span class="checkbox">
+                        <span class="checkbox-box"></span>
+                    </span>
+                    <span class="checkbox-label">默认尺寸</span>
+                </label>
+                <label class="checkbox-wrapper">
+                    <input type="checkbox">
+                    <span class="checkbox checkbox-lg">
+                        <span class="checkbox-box"></span>
+                    </span>
+                    <span class="checkbox-label">大尺寸</span>
+                </label>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;span class="checkbox checkbox-sm"&gt;&lt;/span&gt;
+&lt;span class="checkbox"&gt;&lt;/span&gt;
+&lt;span class="checkbox checkbox-lg"&gt;&lt;/span&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 复选框组 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">复选框组</h2>
+        <div class="demo-box">
+            <div class="demo-title">垂直和水平排列的复选框组</div>
+            <div style="display: flex; gap: 40px;">
+                <div>
+                    <div class="demo-title" style="margin-bottom: 8px;">垂直排列</div>
+                    <div class="checkbox-group">
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" name="fruit" value="apple">
+                            <span class="checkbox">
+                                <span class="checkbox-box"></span>
+                            </span>
+                            <span class="checkbox-label">苹果</span>
+                        </label>
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" name="fruit" value="banana">
+                            <span class="checkbox">
+                                <span class="checkbox-box"></span>
+                            </span>
+                            <span class="checkbox-label">香蕉</span>
+                        </label>
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" name="fruit" value="orange">
+                            <span class="checkbox">
+                                <span class="checkbox-box"></span>
+                            </span>
+                            <span class="checkbox-label">橙子</span>
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <div class="demo-title" style="margin-bottom: 8px;">水平排列</div>
+                    <div class="checkbox-group checkbox-horizontal">
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" name="color" value="red">
+                            <span class="checkbox">
+                                <span class="checkbox-box"></span>
+                            </span>
+                            <span class="checkbox-label">红色</span>
+                        </label>
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" name="color" value="blue">
+                            <span class="checkbox">
+                                <span class="checkbox-box"></span>
+                            </span>
+                            <span class="checkbox-label">蓝色</span>
+                        </label>
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" name="color" value="green">
+                            <span class="checkbox">
+                                <span class="checkbox-box"></span>
+                            </span>
+                            <span class="checkbox-label">绿色</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="checkbox-group"&gt;
+    &lt;label class="checkbox-wrapper"&gt;
+        &lt;input type="checkbox" name="fruit" value="apple"&gt;
+        &lt;span class="checkbox"&gt;&lt;/span&gt;
+        &lt;span class="checkbox-label"&gt;苹果&lt;/span&gt;
+    &lt;/label&gt;
+    &lt;!-- 更多选项 --&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 全选 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">全选</h2>
+        <div class="demo-box">
+            <div class="demo-title">可以实现全选和取消全选功能</div>
+            <div class="checkbox-group">
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" id="checkAll" onclick="toggleAll(this)">
+                    <span class="checkbox">
+                        <span class="checkbox-box"></span>
+                    </span>
+                    <span class="checkbox-label">全选</span>
+                </label>
+                <hr style="border: none; border-top: 1px solid #E5E6EB; margin: 8px 0;">
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" class="check-item" name="item">
+                    <span class="checkbox">
+                        <span class="checkbox-box"></span>
+                    </span>
+                    <span class="checkbox-label">选项 1</span>
+                </label>
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" class="check-item" name="item">
+                    <span class="checkbox">
+                        <span class="checkbox-box"></span>
+                    </span>
+                    <span class="checkbox-label">选项 2</span>
+                </label>
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" class="check-item" name="item">
+                    <span class="checkbox">
+                        <span class="checkbox-box"></span>
+                    </span>
+                    <span class="checkbox-label">选项 3</span>
+                </label>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;label class="checkbox-wrapper"&gt;
+    &lt;input type="checkbox" id="checkAll" onclick="toggleAll(this)"&gt;
+    &lt;span class="checkbox"&gt;&lt;/span&gt;
+    &lt;span class="checkbox-label"&gt;全选&lt;/span&gt;
+&lt;/label&gt;
+
+&lt;script&gt;
+function toggleAll(source) {
+    const checkboxes = document.querySelectorAll('.check-item');
+    checkboxes.forEach(cb =&gt; cb.checked = source.checked);
+}
+&lt;/script&gt;</pre>
+        </div>
+    </div>
+
+    <!-- API 文档 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Checkbox Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>checked</code></td>
+                    <td>是否选中</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>disabled</code></td>
+                    <td>是否禁用</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>indeterminate</code></td>
+                    <td>是否半选状态</td>
+                    <td>boolean</td>
+                    <td>false</td>
+                </tr>
+                <tr>
+                    <td><code>value</code></td>
+                    <td>复选框的值</td>
+                    <td>string</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>name</code></td>
+                    <td>表单项名称</td>
+                    <td>string</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">CSS 类名</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>类名</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>checkbox-wrapper</code></td>
+                    <td>复选框容器</td>
+                </tr>
+                <tr>
+                    <td><code>checkbox</code></td>
+                    <td>基础复选框样式</td>
+                </tr>
+                <tr>
+                    <td><code>checkbox-label</code></td>
+                    <td>复选框标签</td>
+                </tr>
+                <tr>
+                    <td><code>checkbox-sm</code></td>
+                    <td>小尺寸 (14px)</td>
+                </tr>
+                <tr>
+                    <td><code>checkbox-lg</code></td>
+                    <td>大尺寸 (22px)</td>
+                </tr>
+                <tr>
+                    <td><code>checkbox-group</code></td>
+                    <td>复选框组容器</td>
+                </tr>
+                <tr>
+                    <td><code>checkbox-horizontal</code></td>
+                    <td>水平排列的复选框组</td>
+                </tr>
+                <tr>
+                    <td><code>disabled</code></td>
+                    <td>禁用状态</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">事件</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>事件名</th>
+                    <th>说明</th>
+                    <th>回调参数</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>change</code></td>
+                    <td>状态改变时触发</td>
+                    <td>event: Event</td>
+                </tr>
+                <tr>
+                    <td><code>click</code></td>
+                    <td>点击时触发</td>
+                    <td>event: Event</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+
+        function toggleAll(source) {
+            const checkboxes = document.querySelectorAll('.check-item');
+            checkboxes.forEach(cb => cb.checked = source.checked);
+        }
+    </script>
+</body>
+</html>

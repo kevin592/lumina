@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { Context } from '@server/context';
 import AdmZip from 'adm-zip';
-import { NoteType, ProgressResult } from '@shared/lib/types';
+import { ProgressResult } from '@shared/lib/types';
 import { FileService } from '@server/lib/files';
 import { UPLOAD_FILE_PATH } from '@shared/lib/pathConstant';
 import { userCaller } from '@server/routerTrpc/_app';
@@ -19,7 +19,7 @@ export class MarkdownImporter {
             // Create note using userCaller instead of direct prisma access
             const note = await caller.notes.upsert({
                 content: content,
-                type: NoteType.LUMINA,
+                type: 0,
             })
             return { id: note.id, content };
         } catch (error) {

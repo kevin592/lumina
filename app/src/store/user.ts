@@ -66,8 +66,7 @@ export class UserStore implements Store {
       if (this.id) {
         res(this);
       } else {
-        //@ts-ignore
-        this.event.once('user:ready', () => res(this));
+        eventBus.once('user:ready', () => res(this));
       }
     });
   }
@@ -252,30 +251,25 @@ export class UserStore implements Store {
     const darkElement = document.querySelector('.dark')
     const lightElement = document.querySelector('.light')
 
-    if (config?.themeColor && config?.themeForegroundColor) {
+    const themeColor = config?.themeColor as string | undefined;
+    const themeForegroundColor = config?.themeForegroundColor as string | undefined;
+
+    if (themeColor && themeForegroundColor) {
       if (darkElement) {
-        //@ts-ignore
-        darkElement.style.setProperty('--primary', config.themeColor)
-        //@ts-ignore
-        darkElement.style.setProperty('--primary-foreground', config.themeForegroundColor)
+        darkElement.style.setProperty('--primary', themeColor)
+        darkElement.style.setProperty('--primary-foreground', themeForegroundColor)
       }
       if (lightElement) {
-        //@ts-ignore
-        lightElement.style.setProperty('--primary', config.themeColor)
-        //@ts-ignore
-        lightElement.style.setProperty('--primary-foreground', config.themeForegroundColor)
+        lightElement.style.setProperty('--primary', themeColor)
+        lightElement.style.setProperty('--primary-foreground', themeForegroundColor)
       }
     } else {
       if (darkElement) {
-        //@ts-ignore
         darkElement.style.setProperty('--primary', '#f9f9f9')
-        //@ts-ignore
         darkElement.style.setProperty('--primary-foreground', '#000000')
       }
       if (lightElement) {
-        //@ts-ignore
         lightElement.style.setProperty('--primary', '#000000')
-        //@ts-ignore
         lightElement.style.setProperty('--primary-foreground', 'hsl(210 40% 98%)')
       }
     }

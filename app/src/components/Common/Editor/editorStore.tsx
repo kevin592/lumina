@@ -14,7 +14,6 @@ import { DialogStandaloneStore } from '@/store/module/DialogStandalone';
 import { Button } from '@heroui/react';
 import axios from 'axios';
 import { ToastPlugin } from '@/store/module/Toast/Toast';
-import { NoteType } from '@shared/lib/types';
 import { eventBus } from '@/lib/event';
 import { getluminaEndpoint } from '@/lib/luminaEndpoint';
 import axiosInstance from '@/lib/axios';
@@ -55,7 +54,6 @@ export class EditorStore {
   isShowSearch: boolean = false
   onSend!: (args: OnSendContentType) => Promise<any>
   isFullscreen: boolean = false;
-  noteType!: NoteType;
   currentTagLabel: string = ''
   metadata: any = {};
 
@@ -376,7 +374,6 @@ export class EditorStore {
       await this.onSend?.({
         content: this.vditor?.getValue() ?? '',
         files: this.files.map(i => ({ ...i, uploadPath: i.uploadPromise.value })),
-        noteType: this.noteType,
         references: this.references,
         metadata: this.metadata
       });

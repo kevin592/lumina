@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spin 加载中 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        .api-table th, .api-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E6EB;
+        }
+        .api-table th {
+            background: #F7F8FA;
+            color: #1C1C1E;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .api-table td {
+            color: #4E5969;
+            font-size: 13px;
+        }
+        .api-table code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #165DFF;
+        }
+
+        /* Spin Styles */
+        .spin {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .spin-dot {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            position: relative;
+        }
+        .spin-dot i {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid;
+            border-color: #6750A4;
+            border-top-color: transparent;
+            animation: spinRotate 0.8s linear infinite;
+        }
+        @keyframes spinRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .spin-dot-primary i {
+            border-color: #6750A4;
+            border-top-color: transparent;
+        }
+        .spin-dot-success i {
+            border-color: #00A48A;
+            border-top-color: transparent;
+        }
+        .spin-dot-warning i {
+            border-color: #FF7D00;
+            border-top-color: transparent;
+        }
+        .spin-dot-danger i {
+            border-color: #FF3B30;
+            border-top-color: transparent;
+        }
+        .spin-dot-info i {
+            border-color: #165DFF;
+            border-top-color: transparent;
+        }
+        .spin-text {
+            font-size: 14px;
+            color: #4E5969;
+        }
+        .spin-sm .spin-dot {
+            width: 16px;
+            height: 16px;
+        }
+        .spin-lg .spin-dot {
+            width: 28px;
+            height: 28px;
+        }
+        .spin-nested {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            min-height: 100px;
+        }
+        .spin-nested-spin {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(2px);
+            z-index: 10;
+        }
+        .spin-nested-content {
+            width: 100%;
+            height: 100%;
+        }
+        .spin-blur {
+            filter: blur(1px);
+            pointer-events: none;
+        }
+        .spin-dot-list {
+            display: flex;
+            gap: 6px;
+        }
+        .spin-dot-list-item {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #6750A4;
+            animation: dotBounce 1.4s ease-in-out infinite;
+        }
+        .spin-dot-list-item:nth-child(1) {
+            animation-delay: 0s;
+        }
+        .spin-dot-list-item:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .spin-dot-list-item:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes dotBounce {
+            0%, 80%, 100% {
+                transform: scale(0.6);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .spin-pulse {
+            width: 40px;
+            height: 40px;
+            background: #6750A4;
+            border-radius: 50%;
+            animation: pulseScale 1.5s ease-in-out infinite;
+        }
+        @keyframes pulseScale {
+            0%, 100% {
+                transform: scale(0.6);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Spin 加载中</h1>
+    <p class="component-subtitle">用于页面和区块的加载中状态</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">基本加载图标</div>
+            <div class="spin">
+                <span class="spin-dot"><i></i></span>
+                <span class="spin-text">加载中...</span>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="spin"&gt;
+    &lt;span class="spin-dot"&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;
+    &lt;span class="spin-text"&gt;加载中...&lt;/span&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 不同颜色 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">不同颜色</h2>
+        <div class="demo-box">
+            <div class="demo-title">多种语义化颜色</div>
+            <div style="display: flex; gap: 24px; flex-wrap: wrap;">
+                <div class="spin">
+                    <span class="spin-dot spin-dot-primary"><i></i></span>
+                    <span class="spin-text">主要</span>
+                </div>
+                <div class="spin">
+                    <span class="spin-dot spin-dot-success"><i></i></span>
+                    <span class="spin-text">成功</span>
+                </div>
+                <div class="spin">
+                    <span class="spin-dot spin-dot-warning"><i></i></span>
+                    <span class="spin-text">警告</span>
+                </div>
+                <div class="spin">
+                    <span class="spin-dot spin-dot-danger"><i></i></span>
+                    <span class="spin-text">危险</span>
+                </div>
+                <div class="spin">
+                    <span class="spin-dot spin-dot-info"><i></i></span>
+                    <span class="spin-text">信息</span>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="spin"&gt;
+    &lt;span class="spin-dot spin-dot-primary"&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;
+    &lt;span class="spin-text"&gt;主要&lt;/span&gt;
+&lt;/div&gt;
+
+&lt;div class="spin"&gt;
+    &lt;span class="spin-dot spin-dot-success"&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;
+    &lt;span class="spin-text"&gt;成功&lt;/span&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 不同尺寸 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">不同尺寸</h2>
+        <div class="demo-box">
+            <div class="demo-title">小、默认、大三种尺寸</div>
+            <div style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap;">
+                <div class="spin spin-sm">
+                    <span class="spin-dot"><i></i></span>
+                    <span class="spin-text">小尺寸</span>
+                </div>
+                <div class="spin">
+                    <span class="spin-dot"><i></i></span>
+                    <span class="spin-text">默认</span>
+                </div>
+                <div class="spin spin-lg">
+                    <span class="spin-dot"><i></i></span>
+                    <span class="spin-text">大尺寸</span>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="spin spin-sm"&gt;
+    &lt;span class="spin-dot"&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;
+    &lt;span class="spin-text"&gt;小尺寸&lt;/span&gt;
+&lt;/div&gt;
+
+&lt;div class="spin"&gt;
+    &lt;span class="spin-dot"&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;
+    &lt;span class="spin-text"&gt;默认&lt;/span&gt;
+&lt;/div&gt;
+
+&lt;div class="spin spin-lg"&gt;
+    &lt;span class="spin-dot"&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;
+    &lt;span class="spin-text"&gt;大尺寸&lt;/span&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 容器加载 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">容器加载</h2>
+        <div class="demo-box">
+            <div class="demo-title">加载在容器中</div>
+            <div style="display: flex; gap: 24px; flex-wrap: wrap;">
+                <div class="spin-nested" style="width: 200px; height: 120px;">
+                    <div class="spin-nested-content spin-blur">
+                        <div style="background: #E5E6EB; height: 60px; margin-bottom: 12px; border-radius: 6px;"></div>
+                        <div style="background: #E5E6EB; height: 20px; margin-bottom: 8px; border-radius: 6px;"></div>
+                        <div style="background: #E5E6EB; height: 20px; width: 60%; border-radius: 6px;"></div>
+                    </div>
+                    <div class="spin-nested-spin">
+                        <span class="spin-dot"><i></i></span>
+                        <span class="spin-text">加载中...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="spin-nested" style="width: 200px; height: 120px;"&gt;
+    &lt;div class="spin-nested-content spin-blur"&gt;
+        &lt;!-- 你的内容 --&gt;
+    &lt;/div&gt;
+    &lt;div class="spin-nested-spin"&gt;
+        &lt;span class="spin-dot"&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;
+        &lt;span class="spin-text"&gt;加载中...&lt;/span&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 点状加载 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">点状加载</h2>
+        <div class="demo-box">
+            <div class="demo-title">点状跳动动画</div>
+            <div style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap;">
+                <div class="spin">
+                    <span class="spin-dot-list">
+                        <span class="spin-dot-list-item"></span>
+                        <span class="spin-dot-list-item"></span>
+                        <span class="spin-dot-list-item"></span>
+                    </span>
+                    <span class="spin-text">加载中...</span>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="spin"&gt;
+    &lt;span class="spin-dot-list"&gt;
+        &lt;span class="spin-dot-list-item"&gt;&lt;/span&gt;
+        &lt;span class="spin-dot-list-item"&gt;&lt;/span&gt;
+        &lt;span class="spin-dot-list-item"&gt;&lt;/span&gt;
+    &lt;/span&gt;
+    &lt;span class="spin-text"&gt;加载中...&lt;/span&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 脉冲加载 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">脉冲加载</h2>
+        <div class="demo-box">
+            <div class="demo-title">脉冲动画效果</div>
+            <div style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap;">
+                <div class="spin">
+                    <span class="spin-pulse"></span>
+                    <span class="spin-text">加载中...</span>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="spin"&gt;
+    &lt;span class="spin-pulse"&gt;&lt;/span&gt;
+    &lt;span class="spin-text"&gt;加载中...&lt;/span&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 自定义提示文字 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">自定义提示文字</h2>
+        <div class="demo-box">
+            <div class="demo-title">自定义加载提示</div>
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <div class="spin">
+                    <span class="spin-dot"><i></i></span>
+                    <span class="spin-text">正在上传文件...</span>
+                </div>
+                <div class="spin">
+                    <span class="spin-dot spin-dot-success"><i></i></span>
+                    <span class="spin-text">正在保存...</span>
+                </div>
+                <div class="spin">
+                    <span class="spin-dot spin-dot-warning"><i></i></span>
+                    <span class="spin-text">请稍候,正在处理...</span>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="spin"&gt;
+    &lt;span class="spin-dot"&gt;&lt;i&gt;&lt;/i&gt;&lt;/span&gt;
+    &lt;span class="spin-text"&gt;正在上传文件...&lt;/span&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 延迟加载 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">延迟加载</h2>
+        <div class="demo-box">
+            <div class="demo-title">延迟显示加载状态</div>
+            <button class="btn btn-primary" onclick="delayedSpin()">点击测试</button>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>function delayedSpin() {
+    // 延迟 500ms 显示加载状态
+    setTimeout(() => {
+        // 显示 Spin
+    }, 500);
+}</pre>
+        </div>
+    </div>
+
+    <!-- API 文档 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">API</h2>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Spin Props</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>参数</th>
+                    <th>说明</th>
+                    <th>类型</th>
+                    <th>默认值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>spinning</code></td>
+                    <td>是否加载中</td>
+                    <td>boolean</td>
+                    <td>true</td>
+                </tr>
+                <tr>
+                    <td><code>size</code></td>
+                    <td>尺寸</td>
+                    <td>'sm' | 'md' | 'lg'</td>
+                    <td>'md'</td>
+                </tr>
+                <tr>
+                    <td><code>indicator</code></td>
+                    <td>加载指示器</td>
+                    <td>VNode | string</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>tip</code></td>
+                    <td>提示文字</td>
+                    <td>string</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><code>delay</code></td>
+                    <td>延迟显示加载(毫秒)</td>
+                    <td>number</td>
+                    <td>0</td>
+                </tr>
+                <tr>
+                    <td><code>wrapperClassName</code></td>
+                    <td>包装器的类名</td>
+                    <td>string</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin: 24px 0 16px;">CSS 类名</h3>
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>类名</th>
+                    <th>说明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>spin</code></td>
+                    <td>加载容器</td>
+                </tr>
+                <tr>
+                    <td><code>spin-dot</code></td>
+                    <td>旋转圆点</td>
+                </tr>
+                <tr>
+                    <td><code>spin-dot-primary</code></td>
+                    <td>主要颜色</td>
+                </tr>
+                <tr>
+                    <td><code>spin-dot-success</code></td>
+                    <td>成功颜色</td>
+                </tr>
+                <tr>
+                    <td><code>spin-dot-warning</code></td>
+                    <td>警告颜色</td>
+                </tr>
+                <tr>
+                    <td><code>spin-dot-danger</code></td>
+                    <td>危险颜色</td>
+                </tr>
+                <tr>
+                    <td><code>spin-dot-info</code></td>
+                    <td>信息颜色</td>
+                </tr>
+                <tr>
+                    <td><code>spin-text</code></td>
+                    <td>加载文字</td>
+                </tr>
+                <tr>
+                    <td><code>spin-sm</code></td>
+                    <td>小尺寸</td>
+                </tr>
+                <tr>
+                    <td><code>spin-lg</code></td>
+                    <td>大尺寸</td>
+                </tr>
+                <tr>
+                    <td><code>spin-nested</code></td>
+                    <td>嵌套容器</td>
+                </tr>
+                <tr>
+                    <td><code>spin-nested-content</code></td>
+                    <td>嵌套内容</td>
+                </tr>
+                <tr>
+                    <td><code>spin-nested-spin</code></td>
+                    <td>嵌套加载层</td>
+                </tr>
+                <tr>
+                    <td><code>spin-blur</code></td>
+                    <td>模糊效果</td>
+                </tr>
+                <tr>
+                    <td><code>spin-dot-list</code></td>
+                    <td>点状列表</td>
+                </tr>
+                <tr>
+                    <td><code>spin-dot-list-item</code></td>
+                    <td>点状列表项</td>
+                </tr>
+                <tr>
+                    <td><code>spin-pulse</code></td>
+                    <td>脉冲效果</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function delayedSpin() {
+            alert('延迟加载示例:在实际应用中,加载状态会在延迟500ms后显示');
+        }
+
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

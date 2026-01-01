@@ -1,7 +1,6 @@
 import { BasicSetting } from '@/components/LuminaSettings/BasicSetting';
 import AiSetting from '@/components/LuminaSettings/AiSetting/AiSetting';
 import { PerferSetting } from '@/components/LuminaSettings/PerferSetting';
-import { TaskSetting } from '@/components/LuminaSettings/TaskSetting';
 import { ImportSetting } from '@/components/LuminaSettings/ImportSetting';
 import { UserSetting } from '@/components/LuminaSettings/UserSetting';
 import { AboutSetting } from '@/components/LuminaSettings/AboutSetting';
@@ -70,14 +69,6 @@ export const allSettings: SettingItem[] = [
         component: <HttpProxySetting />,
         requireAdmin: true,
         keywords: ['proxy', 'http', 'connection', '代理', 'HTTP代理'],
-    },
-    {
-        key: 'task',
-        title: ('schedule-task'),
-        icon: 'ri-checkbox-multiple-line',
-        component: <TaskSetting />,
-        requireAdmin: true,
-        keywords: ['task', 'schedule', '任务', '定时任务'],
     },
     {
         key: 'storage',

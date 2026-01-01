@@ -51,8 +51,7 @@ export class PromiseState<T extends (...args: any[]) => Promise<any>, U = Return
   sid = "PromiseState";
   key?: string;
   loading = new BooleanState();
-  //@ts-ignore
-  value?: Awaited<U> = null;
+  value?: Awaited<U> | null;
   defaultValue: any = null;
   function!: T;
   autoAlert = true;
@@ -66,28 +65,35 @@ export class PromiseState<T extends (...args: any[]) => Promise<any>, U = Return
   loadingLock = true;
   eventKey?: string;
   currentIndex = new NumberState({ value: 0 });
-  get current() {
-    if (Array.isArray(this.value) && this.value.length > 0 && !this.value[this.currentIndex.value]) {
+
+  get current(): Awaited<U> | undefined {
+    if (Array.isArray(this.value) && this.value.length > 0 && this.currentIndex.value >= this.value.length) {
       this.currentIndex.setValue(0);
     }
-    //@ts-ignore
-    return this.value[this.currentIndex.value];
+    if (Array.isArray(this.value) && this.currentIndex.value < this.value.length) {
+      return (this.value as unknown[])[this.currentIndex.value] as Awaited<U>;
+    }
+    return undefined;
   }
 
-  async wait({ call = false } = {}): Promise<Awaited<U>> {
-    return new Promise<Awaited<U>>((res, rej) => {
-      if (this.value) {
+  async wait({ call = false } = {}): Promise<Awaited<U> | undefined> {
+    return new Promise<Awaited<U>>((res) => {
+      if (this.value !== undefined && this.value !== null) {
         if (Array.isArray(this.value)) {
           if (this.value.length > 0) {
-            res(this.value);
+            res(this.value as Awaited<U>);
+          } else {
+            // Empty array, resolve but don't return undefined
+            res([] as unknown as Awaited<U>);
           }
         } else {
-          res(this.value);
+          res(this.value as Awaited<U>);
         }
       }
 
-      //@ts-ignore
-      if (call && !this.loading.value) this.call();
+      if (call && !this.loading.value) {
+        void this.call();
+      }
     });
   }
 
@@ -173,17 +179,18 @@ export class PromisePageState<T extends (...args: any) => Promise<any>, U = Retu
   loading = new BooleanState();
   isLoadAll: boolean = false;
   autoAuthRedirect: boolean = true;
-  get isEmpty() {
+  get isEmpty(): boolean {
     if (this.loading.value) return false
     if (this.value == null) return true
-    //@ts-ignore
-    return this.value?.length == 0
+    if (Array.isArray(this.value)) {
+      return this.value.length === 0;
+    }
+    return false;
   }
-  get isLoading() {
+  get isLoading(): boolean {
     return this.loading.value
   }
-  //@ts-ignore
-  value?: Awaited<U> = [];
+  value?: Awaited<U> | null;
   defaultValue: any = [];
   function!: T;
 
@@ -244,23 +251,22 @@ export class PromisePageState<T extends (...args: any) => Promise<any>, U = Retu
         if (this.page == 1) {
           this.setValue(null);
         }
-        //@ts-ignore
         return this.value
       }
       if (res.length == Number(this.size.value)) {
         if (this.page == 1) {
           this.setValue(res);
         } else {
-          //@ts-ignore
-          this.setValue(this.value!.concat(res));
+          const currentValue = Array.isArray(this.value) ? this.value : [];
+          this.setValue(currentValue.concat(res));
         }
       } else {
         if (this.page == 1) {
           this.setValue(res);
           this.isLoadAll = true
         } else {
-          //@ts-ignore
-          this.setValue(this.value!.concat(res));
+          const currentValue = Array.isArray(this.value) ? this.value : [];
+          this.setValue(currentValue.concat(res));
           this.isLoadAll = true
         }
       }
@@ -295,13 +301,11 @@ export class PromisePageState<T extends (...args: any) => Promise<any>, U = Retu
   async resetAndCall(...args: Parameters<T>): Promise<Awaited<U> | undefined> {
     this.isLoadAll = false
     this.page = 1
-    //@ts-ignore
     return await this.call(...args)
   }
   async callNextPage(...args: Parameters<T>): Promise<Awaited<U> | undefined> {
     if (this.loading.value) return
     this.page++
-    //@ts-ignore
     return await this.call(...args)
   }
 }

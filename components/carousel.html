@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carousel 轮播图 - Blinko Design System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background: #F5F5F7;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        .component-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1C1C1E;
+            margin-bottom: 8px;
+        }
+        .component-subtitle {
+            font-size: 15px;
+            color: #636366;
+            margin-bottom: 40px;
+        }
+        .doc-section {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        }
+        .doc-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1C1C1E;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #E5E6EB;
+        }
+        .demo-box {
+            background: #F7F8FA;
+            border: 1px solid #E5E6EB;
+            border-radius: 8px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+        .demo-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #1C1C1E;
+            margin-bottom: 12px;
+        }
+        .code-block {
+            background: #1D2129;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+            position: relative;
+        }
+        .code-block pre {
+            margin: 0;
+            color: #F7F8FA;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Carousel Styles */
+        .carousel {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            height: 300px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .carousel-track {
+            display: flex;
+            height: 100%;
+            transition: transform 0.5s ease;
+        }
+        .carousel-slide {
+            min-width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .carousel-slide-1 {
+            background: linear-gradient(135deg, #6750A4 0%, #4F7AFF 100%);
+        }
+        .carousel-slide-2 {
+            background: linear-gradient(135deg, #00A48A 0%, #00D4AA 100%);
+        }
+        .carousel-slide-3 {
+            background: linear-gradient(135deg, #FF7D00 0%, #FF9500 100%);
+        }
+        .carousel-nav {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+        .carousel-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .carousel-dot.active {
+            width: 24px;
+            border-radius: 4px;
+            background: white;
+        }
+        .carousel-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1C1C1E;
+            font-size: 14px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+        .carousel-arrow:hover {
+            background: white;
+            transform: translateY(-50%) scale(1.1);
+        }
+        .carousel-arrow-prev {
+            left: 12px;
+        }
+        .carousel-arrow-next {
+            right: 12px;
+        }
+        .carousel-card {
+            width: 100%;
+            max-width: 700px;
+        }
+        .carousel-card .carousel-slide {
+            flex-direction: column;
+            padding: 40px;
+        }
+        .carousel-card .carousel h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+        .carousel-card .carousel p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Carousel 轮播图</h1>
+    <p class="component-subtitle">旋转木马，一组轮播的区域</p>
+
+    <!-- 基础用法 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">基础用法</h2>
+        <div class="demo-box">
+            <div class="demo-title">基础轮播图</div>
+            <div class="carousel">
+                <div class="carousel-track" id="track1">
+                    <div class="carousel-slide carousel-slide-1">Slide 1</div>
+                    <div class="carousel-slide carousel-slide-2">Slide 2</div>
+                    <div class="carousel-slide carousel-slide-3">Slide 3</div>
+                </div>
+                <button class="carousel-arrow carousel-arrow-prev"><i class="fa-solid fa-chevron-left"></i></button>
+                <button class="carousel-arrow carousel-arrow-next"><i class="fa-solid fa-chevron-right"></i></button>
+                <div class="carousel-nav">
+                    <div class="carousel-dot active"></div>
+                    <div class="carousel-dot"></div>
+                    <div class="carousel-dot"></div>
+                </div>
+            </div>
+        </div>
+        <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">复制代码</button>
+            <pre>&lt;div class="carousel"&gt;
+    &lt;div class="carousel-track"&gt;
+        &lt;div class="carousel-slide"&gt;Slide 1&lt;/div&gt;
+        &lt;div class="carousel-slide"&gt;Slide 2&lt;/div&gt;
+        &lt;div class="carousel-slide"&gt;Slide 3&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;button class="carousel-arrow carousel-arrow-prev"&gt;&lt;/button&gt;
+    &lt;button class="carousel-arrow carousel-arrow-next"&gt;&lt;/button&gt;
+    &lt;div class="carousel-nav"&gt;
+        &lt;div class="carousel-dot active"&gt;&lt;/div&gt;
+        &lt;div class="carousel-dot"&gt;&lt;/div&gt;
+        &lt;div class="carousel-dot"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+        </div>
+    </div>
+
+    <!-- 卡片样式 -->
+    <div class="doc-section">
+        <h2 class="doc-section-title">卡片样式</h2>
+        <div class="demo-box">
+            <div class="demo-title">卡片式轮播</div>
+            <div class="carousel carousel-card" style="height: 200px;">
+                <div class="carousel-track">
+                    <div class="carousel-slide carousel-slide-1">
+                        <h3>卡片标题 1</h3>
+                        <p>这是一段描述文字</p>
+                    </div>
+                    <div class="carousel-slide carousel-slide-2">
+                        <h3>卡片标题 2</h3>
+                        <p>这是另一段描述文字</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyCode(btn) {
+            const codeBlock = btn.parentElement;
+            const code = codeBlock.querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = '已复制!';
+                setTimeout(() => {
+                    btn.textContent = '复制代码';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
