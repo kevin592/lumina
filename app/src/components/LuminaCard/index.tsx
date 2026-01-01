@@ -45,18 +45,8 @@ interface LuminaCardProps {
 
 // 辅助函数：根据笔记类型获取卡片样式类名
 const getCardTypeClassName = (item: LuminaItem): string => {
-  // 将数据库中的数字类型转换为 NoteType 枚举
-  const noteType = toNoteTypeEnum(item.type, NoteType.Lumina);
-  switch (noteType) {
-    case NoteType.Lumina:
-      return 'card-Lumina';
-    case NoteType.NOTE:
-      return 'card-note';
-    case NoteType.TODO:
-      return 'card-todo';
-    default:
-      return 'card-Lumina';
-  }
+  // 只保留 LUMINA 类型
+  return 'card-Lumina';
 };
 
 // Design v2.0 - 获取第一张图片作为封面
@@ -98,7 +88,8 @@ const getCardClassName = (
   const cursorClass = 'cursor-pointer';
   const multiSelectClass = item.isMultiSelected ? 'ring-2 ring-primary' : '';
   const typeClass = '';
-  const completedClass = toNoteTypeEnum(item.type, NoteType.Lumina) === NoteType.TODO && item.isCompleted ? 'completed' : '';
+  // TODO 已删除，不再需要完成状态
+  const completedClass = '';
 
   return [
     baseClasses,

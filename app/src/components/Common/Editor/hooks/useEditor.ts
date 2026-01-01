@@ -31,14 +31,8 @@ export const useEditorInit = (
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
-  // 检查是否应该使用 Vditor（NOTE 和 Lumina 类型使用 BlockNote）
-  const shouldUseVditor = store.noteType !== NoteType.NOTE && store.noteType !== NoteType.Lumina;
-
+  // 所有类型都使用 Vditor（BlockNote 已删除）
   useEffect(() => {
-    // 如果不应该使用 Vditor，直接返回
-    if (!shouldUseVditor) {
-      return;
-    }
     const showToolbar = store.isShowEditorToolbar(isPc);
     if (store.vditor) {
       store.vditor?.destroy();

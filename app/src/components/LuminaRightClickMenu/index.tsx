@@ -13,7 +13,6 @@ import { NoteType } from "@shared/lib/types";
 import { AiStore } from "@/store/aiStore";
 import { parseAbsoluteToLocal } from "@internationalized/date";
 import i18n from "@/lib/i18n";
-import { LuminaShareDialog } from "../LuminaShareDialog";
 import { BaseStore } from "@/store/baseStore";
 import { ToastPlugin } from "@/store/module/Toast/Toast";
 import { Note } from "@shared/lib/types";
@@ -240,23 +239,15 @@ const handleTop = () => {
 
 const handlePublic = () => {
   const Lumina = RootStore.Get(LuminaStore)
-  RootStore.Get(DialogStore).setData({
-    size: 'md' as any,
-    isOpen: true,
-    title: i18n.t('share'),
-    isDismissable: false,
-    content: <LuminaShareDialog defaultSettings={{
-      shareUrl: Lumina.curSelectedNote?.shareEncryptedUrl ? window.location.origin + '/share/' + Lumina.curSelectedNote?.shareEncryptedUrl : undefined,
-      expiryDate: Lumina.curSelectedNote?.shareExpiryDate ?? undefined,
-      password: Lumina.curSelectedNote?.sharePassword ?? '',
-      isShare: Lumina.curSelectedNote?.isShare
-    }} />
+  // 简化分享功能：直接切换公开状态
+  Lumina.upsertNote.call({
+    id: Lumina.curSelectedNote?.id,
+    isShare: !Lumina.curSelectedNote?.isShare
   })
-
-  // Lumina.upsertNote.call({
-  //   id: Lumina.curSelectedNote?.id,
-  //   isShare: !Lumina.curSelectedNote?.isShare
-  // })
+  RootStore.Get(ToastPlugin).show(
+    !Lumina.curSelectedNote?.isShare ? '已设为公开' : '已取消公开',
+    'success'
+  )
 }
 
 const handleArchived = () => {

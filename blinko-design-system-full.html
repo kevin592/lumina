@@ -1,0 +1,1815 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blinko 设计系统 - 完整组件文档</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', 'PingFang SC', sans-serif; background: #F7F8FA; display: flex; height: 100vh; overflow: hidden; }
+
+        .sidebar { width: 280px; background: white; border-right: 1px solid #E5E6EB; overflow-y: auto; flex-shrink: 0; }
+        .sidebar-header { padding: 24px 20px; border-bottom: 1px solid #E5E6EB; background: linear-gradient(135deg, #165DFF 0%, #4F7AFF 100%); color: white; }
+        .sidebar-header h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+        .sidebar-header p { font-size: 12px; opacity: 0.9; }
+        .sidebar-nav { padding: 16px 0; }
+        .nav-category { margin-bottom: 16px; }
+        .nav-category-title { padding: 8px 20px; font-size: 12px; font-weight: 600; color: #86909C; text-transform: uppercase; letter-spacing: 0.5px; }
+        .nav-item { display: block; padding: 10px 20px 10px 32px; color: #4E5969; text-decoration: none; font-size: 14px; transition: all 0.2s; border-left: 3px solid transparent; }
+        .nav-item:hover { background: #F7F8FA; color: #165DFF; }
+        .nav-item.active { background: #F2F3F5; color: #165DFF; border-left-color: #165DFF; font-weight: 500; }
+
+        .main-content { flex: 1; overflow-y: auto; padding: 40px; }
+        .content-wrapper { max-width: 1200px; margin: 0 auto; }
+
+        .component-section { background: white; border-radius: 8px; padding: 40px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); }
+        .component-title { font-size: 32px; font-weight: 600; color: #1D2129; margin-bottom: 8px; }
+        .component-subtitle { font-size: 14px; color: #86909C; margin-bottom: 32px; }
+        .doc-section { margin-bottom: 48px; }
+        .doc-section-title { font-size: 20px; font-weight: 600; color: #1D2129; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #E5E6EB; }
+        .doc-description { color: #4E5969; margin-bottom: 16px; line-height: 1.6; }
+
+        .demo-box { background: #F7F8FA; border: 1px solid #E5E6EB; border-radius: 8px; padding: 24px; margin: 16px 0; }
+        .demo-title { font-size: 14px; font-weight: 500; color: #1D2129; margin-bottom: 12px; }
+
+        .code-block { background: #1D2129; border-radius: 8px; padding: 20px; overflow-x: auto; margin: 16px 0; position: relative; }
+        .code-block pre { margin: 0; color: #F7F8FA; font-family: 'Monaco', 'Consolas', monospace; font-size: 13px; line-height: 1.6; }
+        .copy-btn { position: absolute; top: 12px; right: 12px; background: rgba(255, 255, 255, 0.1); color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+        .copy-btn:hover { background: rgba(255, 255, 255, 0.2); }
+
+        .api-table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+        .api-table th, .api-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #E5E6EB; }
+        .api-table th { background: #F7F8FA; color: #1D2129; font-weight: 600; font-size: 14px; }
+        .api-table td { color: #4E5969; font-size: 14px; }
+        .api-table code { background: #F2F3F5; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 13px; color: #165DFF; }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; height: auto; overflow: auto; }
+            .sidebar { width: 100%; height: auto; max-height: 300px; }
+            .main-content { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h1>Blinko 设计系统</h1>
+            <p>完整组件文档 · Apple + Google 风格</p>
+        </div>
+        <nav class="sidebar-nav">
+            <!-- 布局 -->
+            <div class="nav-category">
+                <div class="nav-category-title">布局</div>
+                <a href="#grid" class="nav-item">Grid 栅格</a>
+            </div>
+
+            <!-- 数据展示 -->
+            <div class="nav-category">
+                <div class="nav-category-title">数据展示</div>
+                <a href="#list" class="nav-item">List 列表</a>
+                <a href="#table" class="nav-item">Table 表格</a>
+                <a href="#tabs" class="nav-item">Tabs 标签页</a>
+                <a href="#tooltip" class="nav-item">Tooltip 文字气泡</a>
+                <a href="#popover" class="nav-item">Popover 气泡卡片</a>
+                <a href="#empty" class="nav-item">Empty 空状态</a>
+                <a href="#comment" class="nav-item">Comment 评论</a>
+                <a href="#descriptions" class="nav-item">Descriptions 描述列表</a>
+            </div>
+
+            <!-- 数据输入 -->
+            <div class="nav-category">
+                <div class="nav-category-title">数据输入</div>
+                <a href="#radio" class="nav-item">Radio 单选框</a>
+                <a href="#select" class="nav-item">Select 选择器</a>
+                <a href="#cascader" class="nav-item">Cascader 级联选择</a>
+                <a href="#upload" class="nav-item">Upload 上传</a>
+                <a href="#transfer" class="nav-item">Transfer 数据穿梭框</a>
+            </div>
+
+            <!-- 反馈 -->
+            <div class="nav-category">
+                <div class="nav-category-title">反馈</div>
+                <a href="#drawer" class="nav-item">Drawer 抽屉</a>
+                <a href="#message" class="nav-item">Message 全局提示</a>
+                <a href="#notification" class="nav-item">Notification 通知提醒框</a>
+                <a href="#popconfirm" class="nav-item">Popconfirm 气泡确认框</a>
+                <a href="#progress" class="nav-item">Progress 进度条</a>
+                <a href="#skeleton" class="nav-item">Skeleton 骨架屏</a>
+            </div>
+
+            <!-- 导航 -->
+            <div class="nav-category">
+                <div class="nav-category-title">导航</div>
+                <a href="#breadcrumb" class="nav-item">Breadcrumb 面包屑</a>
+                <a href="#dropdown" class="nav-item">Dropdown 下拉菜单</a>
+                <a href="#menu" class="nav-item">Menu 菜单</a>
+            </div>
+
+            <!-- 其他 -->
+            <div class="nav-category">
+                <div class="nav-category-title">其他</div>
+                <a href="#config-provider" class="nav-item">ConfigProvider 全局配置</a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <div class="content-wrapper">
+
+            <!-- Grid 栅格 -->
+            <section id="grid" class="component-section">
+                <h2 class="component-title">Grid 栅格</h2>
+                <p class="component-subtitle">栅格可以有效的保证页面的一致性、逻辑性、加强团队协作和统一。</p>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">基本用法</h3>
+                    <p class="doc-description">栅格系统基于 8 原子单位，提供 12 等分和 24 等分两种系统。</p>
+
+                    <div class="demo-box">
+                        <div class="demo-title">24 栅格系统（原型使用）</div>
+                        <div style="display: grid; grid-template-columns: repeat(24, 1fr); gap: 8px;">
+                            <!-- 生成 24 个栅格 -->
+                            <script>
+                                for(let i = 0; i < 24; i++) {
+                                    document.write('<div style="height: 40px; background: #EADDFF; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #21005D;">' + i + '</div>');
+                                }
+                            </script>
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+                        <pre>&lt;!-- 24 栅格系统 --&gt;
+&lt;div class="grid grid-cols-24 gap-2"&gt;
+  &lt;div class="col-span-1"&gt;1&lt;/div&gt;
+  &lt;div class="col-span-2"&gt;2&lt;/div&gt;
+  &lt;div class="col-span-3"&gt;3&lt;/div&gt;
+  ...
+&lt;/div&gt;
+
+/* Tailwind 配置 */
+grid-template-columns: repeat(24, minmax(0, 1fr));</pre>
+                    </div>
+                </div>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">栅格间距（Gutter）</h3>
+                    <p class="doc-description">水槽宽度建议为 24px，视觉效果最佳。</p>
+
+                    <div class="demo-box">
+                        <div style="display: flex; flex-direction: column; gap: 24px;">
+                            <div>
+                                <span style="font-size: 12px; color: #86909C;">gap-2 (8px)</span>
+                                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px;">
+                                    <div style="height: 60px; background: #EADDFF; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #21005D;">Item</div>
+                                    <div style="height: 60px; background: #EADDFF; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #21005D;">Item</div>
+                                    <div style="height: 60px; background: #EADDFF; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #21005D;">Item</div>
+                                    <div style="height: 60px; background: #EADDFF; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #21005D;">Item</div>
+                                </div>
+                            </div>
+                            <div>
+                                <span style="font-size: 12px; color: #86909C;">gap-6 (24px - 推荐)</span>
+                                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 8px;">
+                                    <div style="height: 60px; background: #C4EED0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #0D652D;">Item</div>
+                                    <div style="height: 60px; background: #C4EED0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #0D652D;">Item</div>
+                                    <div style="height: 60px; background: #C4EED0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #0D652D;">Item</div>
+                                    <div style="height: 60px; background: #C4EED0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #0D652D;">Item</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">响应式栅格</h3>
+                    <p class="doc-description">支持响应式布局，原型使用瀑布流 Masonry 布局。</p>
+
+                    <div class="demo-box">
+                        <div class="demo-title">瀑布流布局（原型使用）</div>
+                        <div style="column-count: 3; column-gap: 24px;">
+                            <div style="break-inside: avoid; background: white; padding: 20px; border-radius: 24px; border: 1px solid #E5E6EB; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                                <div style="height: 120px; background: #D2E3FC; border-radius: 16px; margin-bottom: 12px;"></div>
+                                <h4 style="font-size: 16px; font-weight: 600; color: #1C1C1E; margin: 0 0 8px 0;">Card 1</h4>
+                                <p style="font-size: 14px; color: #636366; margin: 0;">短内容卡片</p>
+                            </div>
+                            <div style="break-inside: avoid; background: white; padding: 20px; border-radius: 24px; border: 1px solid #E5E6EB; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                                <h4 style="font-size: 16px; font-weight: 600; color: #1C1C1E; margin: 0 0 8px 0;">Card 2</h4>
+                                <p style="font-size: 14px; color: #636366; margin: 0;">这是较长的内容卡片，用于展示更多信息。</p>
+                            </div>
+                            <div style="break-inside: avoid; background: white; padding: 20px; border-radius: 24px; border: 1px solid #E5E6EB; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                                <h4 style="font-size: 16px; font-weight: 600; color: #1C1C1E; margin: 0 0 8px 0;">Card 3</h4>
+                                <p style="font-size: 14px; color: #636366; margin: 0;">中等长度内容</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+                        <pre>/* 瀀化版瀑布流 */
+.masonry-grid {
+  column-count: 3;
+  column-gap: 24px;
+}
+
+.masonry-item {
+  break-inside: avoid;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 1024px) {
+  .masonry-grid { column-count: 2; }
+}
+
+@media (max-width: 640px) {
+  .masonry-grid { column-count: 1; }
+}</pre>
+                    </div>
+                </div>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">API</h3>
+                    <table class="api-table">
+                        <thead>
+                            <tr>
+                                <th>参数名</th>
+                                <th>描述</th>
+                                <th>类型</th>
+                                <th>默认值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>columns</td>
+                                <td>栅格列数（12 或 24）</td>
+                                <td><code>number</code></td>
+                                <td>24</td>
+                            </tr>
+                            <tr>
+                                <td>gutter</td>
+                                <td>栅格间距</td>
+                                <td><code>number</code></td>
+                                <td>24</td>
+                            </tr>
+                            <tr>
+                                <td>justify</td>
+                                <td>水平排列方式</td>
+                                <td><code>'start' | 'end' | 'center' | 'space-between'</code></td>
+                                <td>'start'</td>
+                            </tr>
+                            <tr>
+                                <td>align</td>
+                                <td>垂直排列方式</td>
+                                <td><code>'start' | 'end' | 'center' | 'stretch'</code></td>
+                                <td>'start'</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- List 列表 -->
+            <section id="list" class="component-section">
+                <h2 class="component-title">List 列表</h2>
+                <p class="component-subtitle">最基础的列表展示，可承载文字、图标、图片等。</p>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">基本用法</h3>
+                    <p class="doc-description">列表的基本使用，支持多种样式。</p>
+
+                    <div class="demo-box">
+                        <div class="demo-title">基础列表</div>
+                        <div style="border: 1px solid #E5E6EB; border-radius: 8px; overflow: hidden; max-width: 400px;">
+                            <div style="padding: 12px 16px; border-bottom: 1px solid #E5E6EB; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#F7F8FA'" onmouseout="this.style.background='transparent'">
+                                <i class="fa-solid fa-file" style="color: #6750A4; font-size: 16px;"></i>
+                                <span style="font-size: 14px; color: #1C1C1E; flex: 1;">列表项 1</span>
+                                <i class="fa-solid fa-chevron-right" style="font-size: 12px; color: #C9CDD4;"></i>
+                            </div>
+                            <div style="padding: 12px 16px; border-bottom: 1px solid #E5E6EB; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#F7F8FA'" onmouseout="this.style.background='transparent'">
+                                <i class="fa-solid fa-file" style="color: #6750A4; font-size: 16px;"></i>
+                                <span style="font-size: 14px; color: #1C1C1E; flex: 1;">列表项 2</span>
+                                <i class="fa-solid fa-chevron-right" style="font-size: 12px; color: #C9CDD4;"></i>
+                            </div>
+                            <div style="padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#F7F8FA'" onmouseout="this.style.background='transparent'">
+                                <i class="fa-solid fa-file" style="color: #6750A4; font-size: 16px;"></i>
+                                <span style="font-size: 14px; color: #1C1C1E; flex: 1;">列表项 3</span>
+                                <i class="fa-solid fa-chevron-right" style="font-size: 12px; color: #C9CDD4;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">列表类型</h3>
+                    <p class="doc-description">提供多种列表样式。</p>
+
+                    <div class="demo-box">
+                        <div style="display: flex; gap: 24px; flex-wrap: wrap;">
+                            <!-- 简洁列表 -->
+                            <div style="flex: 1; min-width: 200px;">
+                                <span style="font-size: 12px; color: #86909C;">简洁列表</span>
+                                <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 0;">
+                                    <div style="padding: 10px 16px; border-bottom: 1px solid #F2F3F5; font-size: 14px; color: #1C1C1E;">列表项 1</div>
+                                    <div style="padding: 10px 16px; border-bottom: 1px solid #F2F3F5; font-size: 14px; color: #1C1C1E;">列表项 2</div>
+                                    <div style="padding: 10px 16px; font-size: 14px; color: #1C1C1E;">列表项 3</div>
+                                </div>
+                            </div>
+
+                            <!-- 带图标的列表 -->
+                            <div style="flex: 1; min-width: 200px;">
+                                <span style="font-size: 12px; color: #86909C;">带图标列表</span>
+                                <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 0;">
+                                    <div style="padding: 10px 16px; border-bottom: 1px solid #F2F3F5; display: flex; align-items: center; gap: 12px;">
+                                        <i class="fa-solid fa-folder" style="color: #6750A4;"></i>
+                                        <span style="font-size: 14px; color: #1C1C1E;">文件夹 1</span>
+                                    </div>
+                                    <div style="padding: 10px 16px; border-bottom: 1px solid #F2F3F5; display: flex; align-items: center; gap: 12px;">
+                                        <i class="fa-solid fa-folder" style="color: #6750A4;"></i>
+                                        <span style="font-size: 14px; color: #1C1C1E;">文件夹 2</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 卡片式列表 -->
+                            <div style="flex: 1; min-width: 200px;">
+                                <span style="font-size: 12px; color: #86909C;">卡片式列表</span>
+                                <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 8px;">
+                                    <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #E5E6EB; font-size: 14px; color: #1C1C1E;">列表项 1</div>
+                                    <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #E5E6EB; font-size: 14px; color: #1C1C1E;">列表项 2</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">API</h3>
+                    <table class="api-table">
+                        <thead>
+                            <tr>
+                                <th>参数名</th>
+                                <th>描述</th>
+                                <th>类型</th>
+                                <th>默认值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>dataSource</td>
+                                <td>数据源</td>
+                                <td><code>Array&lt;ListItemType&gt;</code></td>
+                                <td>[]</td>
+                            </tr>
+                            <tr>
+                                <td>render</td>
+                                <td>自定义渲染项</td>
+                                <td><code>(item, index) => ReactNode</code></td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>bordered</td>
+                                <td>是否显示边框</td>
+                                <td><code>boolean</code></td>
+                                <td>false</td>
+                            </tr>
+                            <tr>
+                                <td>split</td>
+                                <td>是否显示分割线</td>
+                                <td><code>boolean</code></td>
+                                <td>true</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Table 表格 -->
+            <section id="table" class="component-section">
+                <h2 class="component-title">Table 表格</h2>
+                <p class="component-subtitle">用于数据收集、显示、分析和处理。</p>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">基本用法</h3>
+                    <p class="doc-description">表格的基本使用，支持单选、多选、排序等功能。</p>
+
+                    <div class="demo-box" style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden;">
+                            <thead>
+                                <tr style="background: #F7F8FA;">
+                                    <th style="padding: 12px 16px; text-align: left; font-size: 14px; font-weight: 600; color: #1C1C1E; border-bottom: 1px solid #E5E6EB;">
+                                        <input type="checkbox" style="width: 16px; height: 16px; border-radius: 50%; border: 2px solid #C7C7CC;">
+                                    </th>
+                                    <th style="padding: 12px 16px; text-align: left; font-size: 14px; font-weight: 600; color: #1C1C1E; border-bottom: 1px solid #E5E6EB;">名称</th>
+                                    <th style="padding: 12px 16px; text-align: left; font-size: 14px; font-weight: 600; color: #1C1C1E; border-bottom: 1px solid #E5E6EB;">类型</th>
+                                    <th style="padding: 12px 16px; text-align: left; font-size: 14px; font-weight: 600; color: #1C1C1E; border-bottom: 1px solid #E5E6EB;">大小</th>
+                                    <th style="padding: 12px 16px; text-align: left; font-size: 14px; font-weight: 600; color: #1C1C1E; border-bottom: 1px solid #E5E6EB;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="border-bottom: 1px solid #F7F8FA;">
+                                    <td style="padding: 12px 16px;">
+                                        <input type="checkbox" checked style="width: 16px; height: 16px; border-radius: 50%; border: 2px solid #6750A4; accent-color: #6750A4;">
+                                    </td>
+                                    <td style="padding: 12px 16px; font-size: 14px; color: #1C1C1E;">项目 Alpha</td>
+                                    <td style="padding: 12px 16px;"><span style="padding: 2px 8px; border-radius: 4px; background: #EADDFF; color: #21005D; font-size: 12px;">Idea</span></td>
+                                    <td style="padding: 12px 16px; font-size: 14px; color: #636366;">2.4 MB</td>
+                                    <td style="padding: 12px 16px;">
+                                        <i class="fa-regular fa-heart" style="color: #8E8E93; cursor: pointer;"></i>
+                                        <i class="fa-solid fa-share-nodes" style="color: #8E8E93; cursor: pointer; margin-left: 8px;"></i>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #F7F8FA;">
+                                    <td style="padding: 12px 16px;">
+                                        <input type="checkbox" style="width: 16px; height: 16px; border-radius: 50%; border: 2px solid #C7C7CC;">
+                                    </td>
+                                    <td style="padding: 12px 16px; font-size: 14px; color: #1C1C1E;">项目 Beta</td>
+                                    <td style="padding: 12px 16px;"><span style="padding: 2px 8px; border-radius: 4px; background: #E8DEF8; color: #21005D; font-size: 12px;">Todo</span></td>
+                                    <td style="padding: 12px 16px; font-size: 14px; color: #636366;">1.8 MB</td>
+                                    <td style="padding: 12px 16px;">
+                                        <i class="fa-regular fa-heart" style="color: #8E8E93; cursor: pointer;"></i>
+                                        <i class="fa-solid fa-share-nodes" style="color: #8E8E93; cursor: pointer; margin-left: 8px;"></i>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px 16px;">
+                                        <input type="checkbox" style="width: 16px; height: 16px; border-radius: 50%; border: 2px solid #C7C7CC;">
+                                    </td>
+                                    <td style="padding: 12px 16px; font-size: 14px; color: #1C1C1E;">项目 Gamma</td>
+                                    <td style="padding: 12px 16px;"><span style="padding: 2px 8px; border-radius: 4px; background: #C4EED0; color: #0D652D; font-size: 12px;">Done</span></td>
+                                    <td style="padding: 12px 16px; font-size: 14px; color: #636366;">3.1 MB</td>
+                                    <td style="padding: 12px 16px;">
+                                        <i class="fa-regular fa-heart" style="color: #8E8E93; cursor: pointer;"></i>
+                                        <i class="fa-solid fa-share-nodes" style="color: #8E8E93; cursor: pointer; margin-left: 8px;"></i>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">表格状态</h3>
+                    <table class="api-table">
+                        <thead>
+                            <tr>
+                                <th>状态</th>
+                                <th>说明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>loading</td>
+                                <td>加载状态，显示加载动画</td>
+                            </tr>
+                            <tr>
+                                <td>empty</td>
+                                <td>空数据状态，显示空状态插图</td>
+                            </tr>
+                            <tr>
+                                <td>error</td>
+                                <td>错误状态，显示错误提示</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">API</h3>
+                    <table class="api-table">
+                        <thead>
+                            <tr>
+                                <th>参数名</th>
+                                <th>描述</th>
+                                <th>类型</th>
+                                <th>默认值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>columns</td>
+                                <td>列定义</td>
+                                <td><code>Column[]</code></td>
+                                <td>[]</td>
+                            </tr>
+                            <tr>
+                                <td>data</td>
+                                <td>数据源</td>
+                                <td><code>Array&lt;Record&lt;string, any&gt;&gt;</code></td>
+                                <td>[]</td>
+                            </tr>
+                            <tr>
+                                <td>rowSelection</td>
+                                <td>行选择配置</td>
+                                <td><code>object</code></td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>bordered</td>
+                                <td>是否显示边框</td>
+                                <td><code>boolean</code></td>
+                                <td>false</td>
+                            </tr>
+                            <tr>
+                                <td>stripe</td>
+                                <td>是否显示斑马纹</td>
+                                <td><code>boolean</code></td>
+                                <td>false</td>
+                            </tr>
+                            <tr>
+                                <td>pagination</td>
+                                <td>是否显示分页</td>
+                                <td><code>boolean | object</code></td>
+                                <td>false</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Tabs 标签页 -->
+            <section id="tabs" class="component-section">
+                <h2 class="component-title">Tabs 标签页</h2>
+                <p class="component-subtitle">组织内容在同一个视图中，一次只能查看一个视图的内容。</p>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">基本用法</h3>
+                    <p class="doc-description">标签页的基本使用，支持多种类型。</p>
+
+                    <div class="demo-box">
+                        <div style="display: flex; flex-direction: column; gap: 24px;">
+                            <!-- 默认标签页 -->
+                            <div>
+                                <span style="font-size: 12px; color: #86909C;">默认标签页</span>
+                                <div style="margin-top: 8px; border-bottom: 1px solid #E5E6EB; display: flex; gap: 24px;">
+                                    <div style="padding: 12px 16px; border-bottom: 2px solid #165DFF; color: #165DFF; font-size: 14px; font-weight: 500; cursor: pointer;">Tab 1</div>
+                                    <div style="padding: 12px 16px; color: #4E5969; font-size: 14px; cursor: pointer;">Tab 2</div>
+                                    <div style="padding: 12px 16px; color: #4E5969; font-size: 14px; cursor: pointer;">Tab 3</div>
+                                </div>
+                                <div style="padding: 16px 0;">Tab 1 的内容</div>
+                            </div>
+
+                            <!-- 文本型标签页 -->
+                            <div>
+                                <span style="font-size: 12px; color: #86909C;">文本型标签页</span>
+                                <div style="margin-top: 8px; display: flex; gap: 24px;">
+                                    <div style="padding: 12px 16px; color: #165DFF; font-size: 14px; font-weight: 500; cursor: pointer;">Tab 1</div>
+                                    <div style="padding: 12px 16px; color: #4E5969; font-size: 14px; cursor: pointer;">Tab 2</div>
+                                    <div style="padding: 12px 16px; color: #4E5969; font-size: 14px; cursor: pointer;">Tab 3</div>
+                                </div>
+                                <div style="padding: 16px 0;">Tab 1 的内容</div>
+                            </div>
+
+                            <!-- 卡片型标签页 -->
+                            <div>
+                                <span style="font-size: 12px; color: #86909C;">卡片型标签页</span>
+                                <div style="margin-top: 8px; display: flex; gap: 8px;">
+                                    <div style="padding: 12px 20px; background: #EADDFF; border-radius: 8px; color: #21005D; font-size: 14px; font-weight: 500; cursor: pointer;">Tab 1</div>
+                                    <div style="padding: 12px 20px; color: #4E5969; font-size: 14px; cursor: pointer;">Tab 2</div>
+                                    <div style="padding: 12px 20px; color: #4E5969; font-size: 14px; cursor: pointer;">Tab 3</div>
+                                </div>
+                                <div style="padding: 16px 0;">Tab 1 的内容</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+                        <pre>&lt;!-- 默认标签页 --&gt;
+&lt;div class="tabs"&gt;
+  &lt;div class="tab-list"&gt;
+    &lt;div class="tab-item active"&gt;Tab 1&lt;/div&gt;
+    &lt;div class="tab-item"&gt;Tab 2&lt;/div&gt;
+    &lt;div class="tab-item"&gt;Tab 3&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="tab-content"&gt;Tab 1 的内容&lt;/div&gt;
+&lt;/div&gt;</pre>
+                    </div>
+                </div>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">标签页位置</h3>
+                    <p class="doc-description">支持上、下、左、右四种位置。</p>
+
+                    <div class="demo-box">
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+                            <div>
+                                <span style="font-size: 12px; color: #86909C;">顶部位置</span>
+                                <div style="margin-top: 8px;">
+                                    <div style="padding: 12px 16px; border-bottom: 2px solid #165DFF; color: #165DFF; font-size: 14px; font-weight: 500; cursor: pointer;">Tab 1</div>
+                                    <div style="padding: 12px 16px; color: #4E5969; font-size: 14px; cursor: pointer;">Tab 2</div>
+                                    <div style="padding: 16px 0; font-size: 14px; color: #1C1C1E;">内容区域</div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <span style="font-size: 12px; color: #86909C;">左侧位置</span>
+                                <div style="margin-top: 8px; display: flex; gap: 0; border: 1px solid #E5E6EB; border-radius: 8px; overflow: hidden;">
+                                    <div style="padding: 12px 16px; border-right: 1px solid #E5E6EB; border-left: 2px solid #165DFF; color: #165DFF; font-size: 14px; font-weight: 500; cursor: pointer; background: #F7F8FA;">Tab 1</div>
+                                    <div style="padding: 12px 16px; border-right: 1px solid #E5E6EB; color: #4E5969; font-size: 14px; cursor: pointer;">Tab 2</div>
+                                    <div style="padding: 12px 16px; color: #4E5969; font-size: 14px; cursor: pointer;">Tab 3</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">API</h3>
+                    <table class="api-table">
+                        <thead>
+                            <tr>
+                                <th>参数名</th>
+                                <th>描述</th>
+                                <th>类型</th>
+                                <th>默认值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>type</td>
+                                <td>标签页类型</td>
+                                <td><code>'line' | 'card' | 'text-card'</code></td>
+                                <td>'line'</td>
+                            </tr>
+                            <tr>
+                                <td>tabPosition</td>
+                                <td>标签页位置</td>
+                                <td><code>'top' | 'bottom' | 'left' | 'right'</code></td>
+                                <td>'top'</td>
+                            </tr>
+                            <tr>
+                                <td>activeKey</td>
+                                <td>当前激活的标签</td>
+                                <td><code>string | number</code></td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>destroyInactiveTab</td>
+                                <td>是否销毁隐藏的标签</td>
+                                <td><code>boolean</code></td>
+                                <td>false</td>
+                            </tr>
+                            <tr>
+                                <td>onChange</td>
+                                <td>标签切换回调</td>
+                                <td><code>(key) => void</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Tooltip 文字气泡 -->
+            <section id="tooltip" class="component-section">
+                <h2 class="component-title">Tooltip 文字气泡</h2>
+                <p class="component-subtitle">简单的文字气泡提示框，鼠标悬停显示。</p>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">基本用法</h3>
+                    <p class="doc-description">鼠标悬停在元素上时，显示简短的提示信息。</p>
+
+                    <div class="demo-box">
+                        <div class="demo-title">Tooltip 演示（悬停查看）</div>
+                        <div style="display: flex; gap: 24px;">
+                            <div style="position: relative; display: inline-block;">
+                                <button style="padding: 8px 16px; background: #F7F8FA; border: 1px solid #E5E6EB; border-radius: 8px; font-size: 14px; cursor: pointer;">悬停查看</button>
+                                <div style="position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 8px; padding: 8px 12px; background: #1D2129; color: white; font-size: 12px; border-radius: 6px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s;">
+                                    这是提示信息
+                                </div>
+                            </div>
+                            <div style="position: relative; display: inline-block;">
+                                <i class="fa-solid fa-circle-info" style="font-size: 20px; color: #165DFF; cursor: pointer;"></i>
+                                <div style="position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 8px; padding: 8px 12px; background: #1D2129; color: white; font-size: 12px; border-radius: 6px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s;">
+                                    详细说明信息
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">Tooltip 位置</h3>
+                    <p class="doc-description">支持 12 个方向位置。</p>
+
+                    <div class="demo-box">
+                        <div style="display: flex; justify-content: space-around; flex-wrap: wrap;">
+                            <div style="text-align: center;">
+                                <div style="padding: 8px 16px; background: #F7F8FA; border-radius: 4px; font-size: 12px; margin-bottom: 8px;">Top</div>
+                                <div style="display: flex; justify-content: center;">
+                                    <div style="padding: 8px; background: #F2F3F5; border-radius: 4px; font-size: 10px;">TL</div>
+                                    <div style="padding: 8px; background: #F2F3F5; border-radius: 4px; font-size: 10px; margin: 0 4px;">Top</div>
+                                    <div style="padding: 8px; background: #F2F3F5; border-radius: 4px; font-size: 10px;">TR</div>
+                                </div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="display: flex; align-items: center; gap: 16px;">
+                                    <div style="padding: 8px; background: #F2F3F5; border-radius: 4px; font-size: 10px;">LT</div>
+                                    <div style="padding: 8px 16px; background: #EADDFF; border-radius: 4px; font-size: 12px;">Target</div>
+                                    <div style="padding: 8px; background: #F2F3F5; border-radius: 4px; font-size: 10px;">RT</div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 16px;">
+                                    <div style="padding: 8px; background: #F2F3F5; border-radius: 4px; font-size: 10px;">LB</div>
+                                    <div style="padding: 8px 16px; background: #F2F3F5; border-radius: 4px; font-size: 10px;">Bottom</div>
+                                    <div style="padding: 8px; background: #F2F3F5; border-radius: 4px; font-size: 10px;">RB</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">API</h3>
+                    <table class="api-table">
+                        <thead>
+                            <tr>
+                                <th>参数名</th>
+                                <th>描述</th>
+                                <th>类型</th>
+                                <th>默认值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>content</td>
+                                <td>提示内容</td>
+                                <td><code>ReactNode</code></td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>position</td>
+                                <td>提示位置</td>
+                                <td><code>'top' | 'left' | 'right' | 'bottom' | 'topLeft' | 'topRight' | 'leftTop' | 'leftBottom' | 'rightTop' | 'rightBottom' | 'bottomLeft' | 'bottomRight'</code></td>
+                                <td>'top'</td>
+                            </tr>
+                            <tr>
+                                <td>color</td>
+                                <td>背景颜色</td>
+                                <td><code>string</code></td>
+                                <td>'#1D2129'</td>
+                            </tr>
+                            <tr>
+                                <td>mouseEnterDelay</td>
+                                <td>鼠标移入延迟（ms）</td>
+                                <td><code>number</code></td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td>mouseLeaveDelay</td>
+                                <td>鼠标移出延迟（ms）</td>
+                                <td><code>number</code></td>
+                                <td>100</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Popover 气泡卡片 -->
+            <section id="popover" class="component-title">
+                <h2 class="component-title">Popover 气泡卡片</h2>
+                <p class="component-subtitle">点击或鼠标悬停时，在元素周围弹出卡片。</p>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">基本用法</h3>
+                    <p class="doc-description">气泡卡片的基本使用，支持触发方式和位置配置。</p>
+
+                    <div class="demo-box">
+                        <div class="demo-title">气泡卡片演示（点击查看）</div>
+                        <div style="display: inline-block; position: relative;">
+                            <button style="padding: 10px 20px; background: #F7F8FA; border: 1px solid #E5E6EB; border-radius: 8px; font-size: 14px; cursor: pointer;">
+                                点击打开气泡卡片
+                            </button>
+                            <!-- Popover 模拟 -->
+                            <div style="position: absolute; top: 100%; left: 0; margin-top: 8px; background: white; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); padding: 16px; min-width: 200px; z-index: 10; display: none;">
+                                <h4 style="font-size: 14px; font-weight: 600; color: #1C1C1E; margin: 0 0 8px 0;">标题</h4>
+                                <p style="font-size: 12px; color: #636366; margin: 0;">这是气泡卡片的内容区域，可以放置任何内容。</p>
+                                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #E5E6EB; display: flex; justify-content: flex-end;">
+                                    <button style="padding: 6px 12px; background: #F7F8FA; color: #4E5969; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; margin-right: 8px;">取消</button>
+                                    <button style="padding: 6px 12px; background: #165DFF; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">确定</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">API</h3>
+                    <table class="api-table">
+                        <thead>
+                            <tr>
+                                <th>参数名</th>
+                                <th>描述</th>
+                                <th>类型</th>
+                                <th>默认值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>content</td>
+                                <td>卡片内容</td>
+                                <td><code>ReactNode</code></td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>trigger</td>
+                                <td>触发方式</td>
+                                <td><code>'click' | 'hover' | 'focus' | 'manual'</code></td>
+                                <td>'hover'</td>
+                            </tr>
+                            <tr>
+                                <td>position</td>
+                                <td>弹出位置</td>
+                                <td><code>'top' | 'bottom' | 'left' | 'right' | 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight' | 'leftTop' | 'leftBottom' | 'rightTop' | 'rightBottom'</code></td>
+                                <td>'top'</td>
+                            </tr>
+                            <tr>
+                                <td>visible</td>
+                                <td>是否显示</td>
+                                <td><code>boolean</code></td>
+                                <td>false</td>
+                            </tr>
+                            <tr>
+                                <td>onVisibleChange</td>
+                                <td>显示状态改变回调</td>
+                                <td><code>(visible: boolean) => void</code></td>
+                                <td>-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Empty 空状态 -->
+            <section id="empty" class="component-section">
+                <h2 class="component-title">Empty 空状态</h2>
+                <p class="component-subtitle">空状态时的展示占位。</p>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">基本用法</h3>
+                    <div class="demo-box">
+                        <div style="text-align: center; padding: 40px;">
+                            <div style="width: 64px; height: 64px; margin: 0 auto 16px; background: #F7F8FA; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fa-solid fa-inbox" style="font-size: 24px; color: #C9CDD4;"></i>
+                            </div>
+                            <h3 style="font-size: 14px; color: #1C1C1E; margin: 0 0 8px 0;">暂无数据</h3>
+                            <p style="font-size: 12px; color: #86909C; margin: 0;">还没有任何内容，快去创建吧</p>
+                            <button style="margin-top: 16px; padding: 8px 16px; background: #165DFF; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer;">创建</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">API</h3>
+                    <table class="api-table">
+                        <thead>
+                            <tr>
+                                <th>参数名</th>
+                                <th>描述</th>
+                                <th>类型</th>
+                                <th>默认值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>image</td>
+                                <td>空状态图片 URL</td>
+                                <td><code>string</code></td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>description</td>
+                                <td>描述文本</td>
+                                <td><code>ReactNode</code></td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>children</td>
+                                <td>操作按钮</td>
+                                <td><code>ReactNode</code></td>
+                                <td>-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Comment 评论 -->
+            <section id="comment" class="component-section">
+                <h2 class="component-title">Comment 评论</h2>
+                <p class="component-subtitle">用于展示用户的评论、回复等内容。</p>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">基本用法</h3>
+                    <div class="demo-box">
+                        <div style="max-width: 600px;">
+                            <div style="display: flex; gap: 12px;">
+                                <img src="https://ui-avatars.com/api/?name=User&background=6750A4&color=fff" style="width: 32px; height: 32px; border-radius: 50%;">
+                                <div style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                        <span style="font-size: 14px; font-weight: 500; color: #1C1C1E;">用户名</span>
+                                        <span style="font-size: 12px; color: #86909C;">2小时前</span>
+                                    </div>
+                                    <p style="font-size: 14px; color: #636366; line-height: 1.5; margin: 0;">这是评论内容，支持多行文本显示。</p>
+                                    <div style="margin-top: 8px; display: flex; gap: 12px;">
+                                        <button style="padding: 4px 12px; background: transparent; color: #636366; border: none; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                                            <i class="fa-regular fa-heart" style="font-size: 14px;"></i>
+                                            <span>12</span>
+                                        </button>
+                                        <button style="padding: 4px 12px; background: transparent; color: #636366; border: none; font-size: 12px; cursor: pointer;">回复</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Descriptions 描述列表 -->
+            <section id="descriptions" class="component-section">
+                <h2 class="component-title">Descriptions 描述列表</h2>
+                <p class="component-subtitle">成组展示多个只读字段。</p>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">基本用法</h3>
+                    <div class="demo-box">
+                        <div style="background: white; border: 1px solid #E5E6EB; border-radius: 8px; padding: 24px; max-width: 600px;">
+                            <h3 style="font-size: 16px; font-weight: 600; color: #1C1C1E; margin: 0 0 16px 0;">项目信息</h3>
+                            <div style="display: grid; grid-template-columns: 120px 1fr; gap: 12px; row-gap: 16px;">
+                                <div style="font-size: 14px; color: #86909C;">项目名称</div>
+                                <div style="font-size: 14px; color: #1C1C1E;">Blinko 笔记应用</div>
+                                <div style="font-size: 14px; color: #86909C;">版本</div>
+                                <div style="font-size: 14px; color: #1C1C1E;">v1.0.0</div>
+                                <div style="font-size: 14px; color: #86909C;">创建时间</div>
+                                <div style="font-size: 14px; color: #1C1C1E;">2025-01-01</div>
+                                <div style="font-size: 14px; color: #86909C;">状态</div>
+                                <div><span style="padding: 2px 8px; border-radius: 4px; background: #C4EED0; color: #0D652D; font-size: 12px;">进行中</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Radio 单选框 -->
+            <section id="radio" class="component-section">
+                <h2 class="component-title">Radio 单选框</h2>
+                <p class="component-subtitle">在一组选项中进行单选。</p>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">基本用法</h3>
+                    <div class="demo-box">
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 16px; height: 16px; border: 2px solid #C7C7CC; border-radius: 50%; position: relative; cursor: pointer;">
+                                    <div style="width: 8px; height: 8px; background: #6750A4; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: none;"></div>
+                                </div>
+                                <span style="font-size: 14px; color: #1C1C1E;">选项 1</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 16px; height: 16px; border: 2px solid #6750A4; border-radius: 50%; position: relative; cursor: pointer;">
+                                    <div style="width: 8px; height: 8px; background: #6750A4; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+                                </div>
+                                <span style="font-size: 14px; color: #1C1C1E;">选项 2</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 16px; height: 16px; border: 2px solid #C7C7CC; border-radius: 50%; position: relative; cursor: pointer;">
+                                </div>
+                                <span style="font-size: 14px; color: #1C1C1E;">选项 3</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">单选框组</h3>
+                    <table class="api-table">
+                        <thead>
+                            <tr>
+                                <th>参数名</th>
+                                <th>描述</th>
+                                <th>类型</th>
+                                <th>默认值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>options</td>
+                                <td>选项数据源</td>
+                                <td><code>Array&lt;{ label: string, value: string }&gt;</code></td>
+                                <td>[]</td>
+                            </tr>
+                            <tr>
+                                <td>value</td>
+                                <td>当前选中值</td>
+                                <td><code>string | number</code></td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>disabled</td>
+                                <td>是否禁用</td>
+                                <td><code>boolean</code></td>
+                                <td>false</td>
+                            </tr>
+                            <tr>
+                                <td>direction</td>
+                                <td>排列方向</td>
+                                <td><code>'horizontal' | 'vertical'</code></td>
+                                <td>'horizontal'</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Select 选择器 -->
+            <section id="select" class="component-section">
+                <h2 class="component-title">Select 选择器</h2>
+                <p class="component-subtitle">下拉选择器，用于在一组选项中进行选择。</p>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">基本用法</h3>
+                    <div class="demo-box">
+                        <div style="max-width: 300px;">
+                            <div style="position: relative;">
+                                <div style="padding: 10px 16px; background: rgba(229, 229, 234, 0.5); border-radius: 9999px; font-size: 14px; color: #1C1C1E; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+                                    <span>请选择...</span>
+                                    <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: #8E8E93;"></i>
+                                </div>
+                                <!-- 下拉面板模拟 -->
+                                <div style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px; background: white; border-radius: 12px; border: 1px solid #E5E6EB; box-shadow: 0 4px 16px rgba(0,0,0,0.08); z-index: 10; padding: 4px 0;">
+                                    <div style="padding: 8px 16px; font-size: 14px; color: #1C1C1E; cursor: pointer; hover: background: #F7F8FA; border-radius: 4px; margin: 4px;">选项 1</div>
+                                    <div style="padding: 8px 16px; font-size: 14px; color: #1C1C1E; cursor: pointer; hover: background: #F7F8FA; border-radius: 4px; margin: 4px;">选项 2</div>
+                                    <div style="padding: 8px 16px; font-size: 14px; color: #1C1C1E; cursor: pointer; hover: background: #F7F8FA; border-radius: 4px; margin: 4px;">选项 3</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">API</h3>
+                    <table class="api-table">
+                        <thead>
+                            <tr>
+                                <th>参数名</th>
+                                <th>描述</th>
+                                <th>类型</th>
+                                <th>默认值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>options</td>
+                                <td>选项数据源</td>
+                                <td><code>Array&lt;{ label: string, value: string }&gt;</code></td>
+                                <td>[]</td>
+                            </tr>
+                            <tr>
+                                <td>placeholder</td>
+                                <td>占位文本</td>
+                                <td><code>string</code></td>
+                                <td>'请选择'</td>
+                            </tr>
+                            <tr>
+                                <td>disabled</td>
+                                <td>是否禁用</td>
+                                <td><code>boolean</code></td>
+                                <td>false</td>
+                            </tr>
+                            <tr>
+                                <td>loading</td>
+                                <td>是否加载中</td>
+                                <td><code>boolean</code></td>
+                                <td>false</td>
+                            </tr>
+                            <tr>
+                                <td>allowSearch</td>
+                                <td>是否可搜索</td>
+                                <td><code>boolean</code></td>
+                                <td>false</td>
+                            </tr>
+                            <tr>
+                                <td>multiple</td>
+                                <td>是否多选</td>
+                                <td><code>boolean</code></td>
+                                <td>false</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Cascader 级联选择 -->
+            <section id="cascader" class="component-section">
+                <h2 class="component-title">Cascader 级联选择</h2>
+                <p class="component-subtitle">级联选择框，适用于有层级结构的数据选择。</p>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">基本用法</h3>
+                    <div class="demo-box">
+                        <div style="max-width: 300px;">
+                            <div style="position: relative;">
+                                <div style="padding: 10px 16px; background: rgba(229, 229, 234, 0.5); border-radius: 9999px; font-size: 14px; color: #1C1C1E; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+                                    <span>请选择...</span>
+                                    <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: #8E8E93;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Upload 上传 -->
+            <section id="upload" class="component-section">
+                <h2 class="component-title">Upload 上传</h2>
+                <p class="component-subtitle">文件选择上传和拖拽上传。</p>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">基本用法</h3>
+                    <div class="demo-box">
+                        <div style="max-width: 400px;">
+                            <div style="border: 2px dashed #C7C7CC; border-radius: 12px; padding: 32px; text-align: center; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#165DFF'; this.style.background='rgba(22, 93, 255, 0.05)'" onmouseout="this.style.borderColor='#C7C7CC'; this.style.background='transparent'">
+                                <i class="fa-solid fa-cloud-arrow-up" style="font-size: 32px; color: #8E8E93; margin-bottom: 12px;"></i>
+                                <p style="font-size: 14px; color: #1C1C1E; margin: 0;">点击或拖拽文件到此区域上传</p>
+                                <p style="font-size: 12px; color: #86909C; margin: 4px 0 0 0;">支持 JPG、PNG、PDF 等格式</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">上传状态</h3>
+                    <table class="api-table">
+                        <thead>
+                            <tr>
+                                <th>状态</th>
+                                <th>说明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>uploading</td>
+                                <td>上传中，显示进度条</td>
+                            </tr>
+                            <tr>
+                                <td>success</td>
+                                <td>上传成功，显示文件信息和预览</td>
+                            </tr>
+                            <tr>
+                                <td>error</td>
+                                <td>上传失败，显示错误提示</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Transfer 数据穿梭框 -->
+            <section id="transfer" class="component-section">
+                <h2 class="component-title">Transfer 数据穿梭框</h2>
+                <p class="component-subtitle">双栏列表选择，支持数据的左右移动。</p>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">基本用法</h3>
+                    <div class="demo-box">
+                        <div style="display: flex; gap: 24px; align-items: center;">
+                            <!-- 源列表 -->
+                            <div style="flex: 1; border: 1px solid #E5E6EB; border-radius: 8px; overflow: hidden; background: white;">
+                                <div style="padding: 12px 16px; border-bottom: 1px solid #F7F8FA; font-size: 14px; font-weight: 500; color: #1C1C1E;">源列表</div>
+                                <div style="padding: 8px;">
+                                    <div style="padding: 8px 12px; background: #F7F8FA; border-radius: 4px; margin-bottom: 4px; font-size: 14px; color: #1C1C1E;">选项 1</div>
+                                    <div style="padding: 8px 12px; background: #F7F8FA; border-radius: 4px; margin-bottom: 4px; font-size: 14px; color: #1C1C1E;">选项 2</div>
+                                </div>
+                            </div>
+
+                            <!-- 操作按钮 -->
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <button style="padding: 6px 12px; background: #165DFF; color: white; border: none; border-radius: 4px; cursor: pointer; opacity: 0.5;">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                                <button style="padding: 6px 12px; background: #165DFF; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                </button>
+                            </div>
+
+                            <!-- 目标列表 -->
+                            <div style="flex: 1; border: 1px solid #E5E6EB; border-radius: 8px; overflow: hidden; background: white;">
+                                <div style="padding: 12px 16px; border-bottom: 1px solid #F7F8FA; font-size: 14px; font-weight: 500; color: #1C1C1E;">目标列表</div>
+                                <div style="padding: 8px;">
+                                    <div style="padding: 8px 12px; background: #F7F8FA; border-radius: 4px; margin-bottom: 4px; font-size: 14px; color: #1C1C1E;">选项 3</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Drawer 抽屉 -->
+            <section id="drawer" class="component-section">
+                <h2 class="component-title">Drawer 抽屉</h2>
+                <p class="component-subtitle">点击或鼠标悬停时，从页面边缘滑出的浮层面板。</p>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">基本用法</h3>
+                    <div class="demo-box">
+                        <div style="display: flex; gap: 12px;">
+                            <button onclick="alert('右侧抽屉')" style="padding: 8px 16px; background: #165DFF; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer;">右侧抽屉</button>
+                            <button onclick="alert('左侧抽屉')" style="padding: 8px 16px; background: #165DFF; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer;">左侧抽屉</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">抽屉位置</h3>
+                    <table class="api-table">
+                        <thead>
+                            <tr>
+                                <th>位置</th>
+                                <th>说明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>right</td>
+                                <td>从右侧滑出（默认）</td>
+                            </tr>
+                            <tr>
+                                <td>left</td>
+                                <td>从左侧滑出</td>
+                            </tr>
+                            <tr>
+                                <td>top</td>
+                                <td>从顶部滑出</td>
+                            </tr>
+                            <tr>
+                                <td>bottom</td>
+                                <td>从底部滑出</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">API</h3>
+                    <table class="api-table">
+                        <thead>
+                            <tr>
+                                <th>参数名</th>
+                                <th>描述</th>
+                                <th>类型</th>
+                                <th>默认值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>visible</td>
+                                <td>是否显示</td>
+                                <td><code>boolean</code></td>
+                                <td>false</td>
+                            </tr>
+                            <tr>
+                                <td>placement</td>
+                                <td>弹出位置</td>
+                                <td><code>'top' | 'right' | 'bottom' | 'left'</code></td>
+                                <td>'right'</td>
+                            </tr>
+                            <tr>
+                                <td>width</td>
+                                <td>宽度</td>
+                                <td><code>number | string</code></td>
+                                <td>400</td>
+                            </tr>
+                                <tr>
+                                <td>mask</td>
+                                <td>是否显示遮罩</td>
+                                <td><code>boolean</code></td>
+                                <td>true</td>
+                            </tr>
+                            <tr>
+                                <td>maskClosable</td>
+                                <td>点击遮罩是否关闭</td>
+                                <td><code>boolean</code></td>
+                                <td>false</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Message 全局提示 -->
+            <section id="message" class="component-section">
+                <h2 class="component-title">Message 全局提示</h2>
+                <p class="component-subtitle">用于显示操作反馈或信息提示。</p>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">基本用法</h3>
+                    <div class="demo-box">
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                            <button onclick="alert('success message')" style="padding: 8px 16px; background: #00B42A; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer;">成功提示</button>
+                            <button onclick="alert('info message')" style="padding: 8px 16px; background: #165DFF; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer;">信息提示</button>
+                            <button onclick="alert('warning message')" style="padding: 8px 16px; background: #FF7D00; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer;">警告提示</button>
+                            <button onclick="alert('error message')" style="padding: 8px 16px; background: #F53F3F; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer;">错误提示</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">API</h3>
+                    <table class="api-table">
+                        <thead>
+                            <tr>
+                                <th>参数名</th>
+                                <th>描述</th>
+                                <th>类型</th>
+                                <th>默认值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>type</td>
+                                <td>提示类型</td>
+                                <td><code>'success' | 'info' | 'warning' | 'error'</code></td>
+                                <td>'info'</td>
+                            </tr>
+                            <tr>
+                                <td>content</td>
+                                <td>提示内容</td>
+                                <td><code>ReactNode</code></td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>closable</td>
+                                <td>是否可关闭</td>
+                                <td><code>boolean</code></td>
+                                <td>false</td>
+                            </tr>
+                            <tr>
+                                <td>duration</td>
+                                <td>持续时间（ms）</td>
+                                <td><code>number</code></td>
+                            <td>3000</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Notification 通知提醒框 -->
+            <section id="notification" class="component-section">
+                <h2 class="component-title">Notification 通知提醒框</h2>
+                <p class="component-subtitle">悬浮显示在页面角落，用于显示全局的通知提醒消息。</p>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">基本用法</h3>
+                    <div class="demo-box">
+                        <div style="position: relative; display: inline-block;">
+                            <button style="padding: 8px 16px; background: #165DFF; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer;">打开通知</button>
+                            <!-- 通知模拟 -->
+                            <div style="position: absolute; top: 0; right: 260px; width: 300px; background: white; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); padding: 16px; z-index: 10;">
+                                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                                    <div style="width: 32px; height: 32px; background: #EADDFF; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                        <i class="fa-solid fa-bell" style="color: #21005D;"></i>
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <div style="font-size: 14px; font-weight: 500; color: #1C1C1E; margin-bottom: 4px;">通知标题</div>
+                                        <p style="font-size: 12px; color: #636366; margin: 0;">这是一条通知消息的内容描述。</p>
+                                    </div>
+                                    <i class="fa-solid fa-xmark" style="color: #C9CDD4; cursor: pointer; flex-shrink: 0;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Popconfirm 气泡确认框 -->
+            <section id="popconfirm" class="component-section">
+                <h2 class="component-title">Popconfirm 气泡确认框</h2>
+                <p class="component-subtitle">目标元素的操作需要用户二次确认时使用。</p>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">基本用法</h3>
+                    <div class="demo-box">
+                        <div style="position: relative; display: inline-block;">
+                            <button style="padding: 8px 16px; background: #F53F3F; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer;">删除操作</button>
+                            <!-- Popconfirm 模拟 -->
+                            <div style="position: absolute; top: 100%; left: 0; margin-top: 8px; background: white; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); padding: 16px; min-width: 200px; z-index: 10;">
+                                <p style="font-size: 14px; color: #1D2129; margin: 0 0 12px 0;">确定要删除吗？删除后无法恢复。</p>
+                                <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                                    <button style="padding: 6px 12px; background: #F7F8FA; color: #4E5969; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">取消</button>
+                                    <button style="padding: 6px 12px; background: #F53F3F; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">确定</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Progress 进度条 -->
+            <section id="progress" class="component-section">
+                <h2 class="component-title">Progress 进度条</h2>
+                <p class="component-subtitle">展示操作的当前进度。</p>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">基本用法</h3>
+                    <div class="demo-box">
+                        <div style="display: flex; flex-direction: column; gap: 24px;">
+                            <div>
+                                <span style="font-size: 12px; color: #86909C;">默认进度条</span>
+                                <div style="margin-top: 8px;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #636366; margin-bottom: 4px;">
+                                        <span>进度: 30%</span>
+                                    </div>
+                                    <div style="height: 8px; background: #F2F3F5; border-radius: 9999px; overflow: hidden;">
+                                        <div style="height: 100%; width: 30%; background: #165DFF; border-radius: 9999px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <span style="font-size: 12px; color: #86909C;">成功进度条</span>
+                                <div style="margin-top: 8px;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #636366; margin-bottom: 4px;">
+                                        <span>已完成 100%</span>
+                                        <i class="fa-solid fa-circle-check" style="color: #00B42A;"></i>
+                                    </div>
+                                    <div style="height: 8px; background: #F2F3F5; border-radius: 9999px; overflow: hidden;">
+                                        <div style="height: 100%; width: 100%; background: #00B42A; border-radius: 9999px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <span style="font-size: 12px; color: #86909C;">带文字的进度条</span>
+                                <div style="margin-top: 8px;">
+                                    <div style="height: 8px; background: #F2F3F5; border-radius: 9999px; overflow: hidden;">
+                                        <div style="height: 100%; width: 60%; background: #165DFF; border-radius: 9999px; position: relative;">
+                                            <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 10px; color: white;">60%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Skeleton 骨架屏 -->
+            <section id="skeleton" class="component-section">
+                <h2 class="component-title">Skeleton 骨架屏</h2>
+                <p class="component-subtitle">在加载内容时，提供占位图形。</p>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">基本用法</h3>
+                    <div class="demo-box">
+                        <div style="display: grid; grid-template-columns: 120px 1fr; gap: 16px; margin-bottom: 16px;">
+                            <!-- 头像骨架 -->
+                            <div style="width: 48px; height: 48px; background: #F2F3F5; border-radius: 50%; animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;"></div>
+                            <!-- 文本骨架 -->
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <div style="height: 14px; width: 60%; background: #F2F3F5; border-radius: 4px; animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;"></div>
+                                <div style="height: 14px; width: 80%; background: #F2F3F5; border-radius: 4px; animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; animation-delay: 0.2s;"></div>
+                                <div style="height: 14px; width: 40%; background: #F2F3F5; border-radius: 4px; animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; animation-delay: 0.4s;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <style>
+                        @keyframes pulse {
+                            0%, 100% { opacity: 1; }
+                            50% { opacity: 0.5; }
+                        }
+                    </style>
+                </div>
+            </section>
+
+            <!-- Breadcrumb 面包屑 -->
+            <section id="breadcrumb" class="component-section">
+                <h2 class="component-title">Breadcrumb 面包屑</h2>
+                <p class="component-subtitle">显示当前页面在系统层级结构中的位置。</p>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">基本用法</h3>
+                    <div class="demo-box">
+                        <div style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
+                            <span style="color: #86909C;">首页 /</span>
+                            <span style="color: #86909C;">分类 /</span>
+                            <span style="color: #1C1C1E;">当前页</span>
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+                        <pre>&lt;nav class="breadcrumb"&gt;
+  &lt;a href="#"&gt;首页&lt;/a&gt;
+  &lt;span class="separator"&gt;/&lt;/span&gt;
+  &lt;a href="#"&gt;分类&lt;/a&gt;
+  &lt;span class="separator"&gt;/&lt;/span&gt;
+  &lt;span class="current"&gt;当前页&lt;/span&gt;
+&lt;/nav&gt;</pre>
+                    </div>
+                </div>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">API</h3>
+                    <table class="api-table">
+                        <thead>
+                            <tr>
+                                <th>参数名</th>
+                                <th>描述</th>
+                                <th>类型</th>
+                                <th>默认值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>routes</td>
+                                <td>路由信息</td>
+                                <td><code>Array&lt;BreadcrumbItem&gt;</code></td>
+                                <td>[]</td>
+                            </tr>
+                            <tr>
+                                <td>separator</td>
+                                <td>分隔符</td>
+                                <td><code>ReactNode</code></td>
+                                <td>/</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Dropdown 下拉菜单 -->
+            <section id="dropdown" class="component-section">
+                <h2 class="component-title">Dropdown 下拉菜单</h2>
+                <p class="component-subtitle">向下弹出的列表菜单。</p>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">基本用法</h3>
+                    <div class="demo-box">
+                        <div style="position: relative; display: inline-block;">
+                            <button style="padding: 10px 20px; background: #F7F8FA; border: 1px solid #E5E6EB; border-radius: 8px; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                操作菜单
+                                <i class="fa-solid fa-chevron-down" style="font-size: 12px; color: #8E8E93;"></i>
+                            </button>
+                            <!-- 下拉菜单模拟 -->
+                            <div style="position: absolute; top: 100%; left: 0; margin-top: 4px; background: white; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); padding: 4px 0; z-index: 10; min-width: 150px;">
+                                <div style="padding: 8px 12px; font-size: 14px; color: #1C1C1E; cursor: pointer; hover: background: #F7F8FA;">编辑</div>
+                                <div style="padding: 8px 12px; font-size: 14px; color: #1C1C1E; cursor: pointer; hover: background: #F7F8FA;">删除</div>
+                                <div style="height: 1px; background: #E5E6EB; margin: 4px 0;"></div>
+                                <div style="padding: 8px 12px; font-size: 14px; color: #1C1C1E; cursor: pointer; hover: background: #F7F8FA;">导出</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">API</h3>
+                    <table class="api-table">
+                        <thead>
+                            <tr>
+                                <th>参数名</th>
+                                <th>描述</th>
+                                <th>类型</th>
+                                <th>默认值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>trigger</td>
+                                <td>触发方式</td>
+                                <td><code>'click' | 'hover' | 'focus' | 'manual'</code></td>
+                                <td>'click'</td>
+                            </tr>
+                            <tr>
+                                <td>popupVisible</td>
+                                <td>是否显示弹出层</td>
+                                <td><code>boolean</code></td>
+                                <td>false</td>
+                            </tr>
+                            <tr>
+                                <td>triggerProps</td>
+                                <td>触发器属性</td>
+                                <td><code>object</code></td>
+                                <td>-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Menu 菜单 -->
+            <section id="menu" class="component-section">
+                <h2 class="component-title">Menu 菜单</h2>
+                <p class="component-subtitle">为页面和功能提供导航的菜单列表。</p>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">基本用法</h3>
+                    <div class="demo-box">
+                        <div style="background: white; border: 1px solid #E5E6EB; border-radius: 8px; width: 200px;">
+                            <!-- 菜单项 -->
+                            <div style="padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; background: #EADDFF; color: #21005D;">
+                                <i class="fa-solid fa-house" style="font-size: 14px;"></i>
+                                <span style="font-size: 14px;">首页</span>
+                            </div>
+                            <div style="padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; color: #4E5969;">
+                                <i class="fa-solid fa-layer-group" style="font-size: 14px;"></i>
+                                <span style="font-size: 14px;">中心</span>
+                            </div>
+                            <div style="padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; color: #4E5969;">
+                                <i class="fa-solid fa-wand-magic-sparkles" style="font-size: 14px;"></i>
+                                <span style="font-size: 14px;">AI Palette</span>
+                            </div>
+                            <div style="padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; color: #4E5969;">
+                                <i class="fa-regular fa-folder" style="font-size: 14px;"></i>
+                                <span style="font-size: 14px;">资源</span>
+                            </div>
+                            <!-- 分割线 -->
+                            <div style="height: 1px; background: #E5E6EB; margin: 8px 16px;"></div>
+                            <div style="padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; color: #4E5969;">
+                                <i class="fa-solid fa-gear" style="font-size: 14px;"></i>
+                                <span style="font-size: 14px;">设置</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">菜单类型</h3>
+                    <table class="api-table">
+                        <thead>
+                            <tr>
+                                <th>类型</th>
+                                <th>说明</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>水平菜单</td>
+                                <td>水平排列的菜单，用于顶部导航</td>
+                            </tr>
+                            <tr>
+                                <td>垂直菜单</td>
+                                <td>垂直排列的菜单，用于侧边导航（原型使用）</td>
+                            </tr>
+                            <tr>
+                                <td>内嵌菜单</td>
+                                <td>支持菜单项包含子菜单</td>
+                            </tr>
+                            <tr>
+                                <td>分组菜单</td>
+                                <td>支持菜单项分组</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">API</h3>
+                    <table class="api-table">
+                        <thead>
+                            <tr>
+                                <th>参数名</th>
+                                <th>描述</th>
+                                <th>类型</th>
+                                <th>默认值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>mode</td>
+                                <td>菜单类型</td>
+                                <td><code>'vertical' | 'horizontal' | 'inline'</code></td>
+                                <td>'vertical'</td>
+                            </tr>
+                            <tr>
+                                <td>selectedKeys</td>
+                                <td>当前选中项</td>
+                                <td><code>string[]</code></td>
+                                <td>[]</td>
+                            </tr>
+                            <tr>
+                                <td>onClick</td>
+                                <td>菜单项点击回调</td>
+                                <td><code>(key: string) => void</code></td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>style</td>
+                                <td>菜单样式</td>
+                                <td><code>'light' | 'dark'</code></td>
+                                <td>'light'</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- ConfigProvider 全局配置 -->
+            <section id="config-provider" class="component-section">
+                <h2 class="component-title">ConfigProvider 全局配置</h2>
+                <p class="component-subtitle">为包裹的组件提供全局配置。</p>
+
+                <div class="doc-section">
+                    <h3 class="doc-section-title">基本用法</h3>
+                    <p class="doc-description">ConfigProvider 提供全局的组件前缀、语言等配置。</p>
+
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">复制</button>
+                        <pre>&lt;ConfigProvider
+  prefixCls="blinko"
+  componentSize="default"
+  locale="zh-CN"
+&gt;
+  &lt;App /&gt;
+&lt;/ConfigProvider&gt;
+
+/* 可配置项 */
+interface ConfigProviderProps {
+  prefixCls?: string;          // 组件类名前缀
+  componentSize?: string;     // 组件大小
+  locale?: string;            // 语言
+  autoInsertSpaceInButton?: boolean;  // 自动插入空格
+  focusing?: boolean;         // 是否自动聚焦
+  empty?: {                  // 空状态配置
+    description?: ReactNode;
+    img?: string;
+    simple?: boolean;
+  };
+}</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 页脚 -->
+            <div style="text-align: center; padding: 40px 0; color: #86909C;">
+                <p>Blinko 设计系统 - 完整组件文档</p>
+                <p style="font-size: 12px; margin-top: 8px;">基于 Arco Design 原子化设计 · Apple + Google 美学风格</p>
+                <p style="font-size: 12px; margin-top: 8px;">Generated with Claude Code · 2025</p>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // 复制代码功能
+        function copyCode(button) {
+            const codeBlock = button.parentElement.querySelector('pre');
+            const text = codeBlock.textContent;
+
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = button.textContent;
+                button.textContent = '已复制';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                }, 2000);
+            });
+        }
+
+        // 侧边栏导航高亮
+        function updateActiveNav() {
+            const sections = document.querySelectorAll('.component-section');
+            const navItems = document.querySelectorAll('.nav-item');
+
+            let currentSection = '';
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (window.scrollY >= sectionTop - 100) {
+                    currentSection = section.getAttribute('id');
+                }
+            });
+
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('href') === '#' + currentSection) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        // 监听滚动事件
+        const mainContent = document.querySelector('.main-content');
+        mainContent.addEventListener('scroll', updateActiveNav);
+
+        // 平滑滚动到锚点
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetSection = document.getElementById(targetId);
+
+                if (targetSection) {
+                    targetSection.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

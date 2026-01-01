@@ -94,20 +94,6 @@ export const CardHeader = observer(({ LuminaItem, Lumina, isShareMode, isExpande
           <UserAvatar account={account} LuminaItem={LuminaItem} />
         )}
 
-        {LuminaItem.type === NoteType.TODO && (
-          <Tooltip content={LuminaItem.isArchived ? t('restore') : t('complete')} delay={1000}>
-            <div
-              className="flex items-center cursor-pointer"
-              onClick={handleTodoToggle}
-            >
-              <i
-                className={`${LuminaItem.isArchived ? 'ri-refresh-line text-blue-500' : 'ri-checkbox-blank-circle-line text-green-500'} hover:opacity-80`}
-                style={{ fontSize: '16px' }}
-              />
-            </div>
-          </Tooltip>
-        )}
-
         <Tooltip content={t('edit-time')} delay={1000}>
           <div 
             className={`${isExpanded ? 'text-sm' : 'text-xs'} text-desc cursor-pointer transition-colors`}
