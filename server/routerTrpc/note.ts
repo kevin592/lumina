@@ -14,7 +14,6 @@ import { Context } from '../context';
 import { cache } from '@shared/lib/cache';
 import { AiModelFactory } from '@server/aiServer/aiModelFactory';
 import { authProcedure, demoAuthMiddleware, publicProcedure, router } from '@server/middleware';
-import { validateNoCircularDependency } from '../lib/validateTodoDependency';
 
 const extractHashtags = (input: string): string[] => {
   const withoutCodeBlocks = input.replace(/```[\s\S]*?```/g, '');
@@ -43,7 +42,6 @@ export const noteRouter = router({
         isUseAiQuery: z.boolean().default(false).optional(),
         startDate: z.union([z.date(), z.null(), z.string()]).default(null).optional(),
         endDate: z.union([z.date(), z.null(), z.string()]).default(null).optional(),
-        hasTodo: z.boolean().default(false).optional(),
         parentId: z.union([z.number(), z.null()]).optional(),
       }),
     )

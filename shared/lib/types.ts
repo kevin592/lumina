@@ -13,18 +13,12 @@ export type Conversation = NonNullable<RouterOutput['conversation']['list']>[0]
 export type Message = NonNullable<RouterOutput['message']['list']>[0]
 export enum NoteType {
   'LUMINA',
-  'NOTE',
-  'TODO'
 }
 export type PublicUser = NonNullable<RouterOutput['users']['publicUserList']>[0]
 export function toNoteTypeEnum(v?: number, fallback: NoteType = NoteType.LUMINA): NoteType {
   switch (v) {
     case 0:
       return NoteType.LUMINA;
-    case 1:
-      return NoteType.NOTE;
-    case 2:
-      return NoteType.TODO;
     default:
       return fallback;
   }
@@ -338,38 +332,3 @@ export interface TrayMenuItem {
   accelerator?: string;
   enabled?: boolean;
 }
-
-// Todo Task Metadata Types
-export interface TodoSubtask {
-  id: number;
-  content: string;
-  completed: boolean;
-  expireAt?: string;
-  priority?: number;
-}
-
-export interface TodoMetadata {
-  todoStatus?: 'pending' | 'completed';
-  todoPriority?: 0 | 1 | 2 | 3 | 4;  // 0: 无优先级, 1-4: 优先级递增
-  expireAt?: string;
-  completedAt?: string;
-  groupId?: number;
-  subtasks?: TodoSubtask[];
-}
-
-export const ZTodoSubtaskSchema = z.object({
-  id: z.number(),
-  content: z.string(),
-  completed: z.boolean(),
-  expireAt: z.string().optional(),
-  priority: z.number().min(0).max(4).optional(),
-});
-
-export const ZTodoMetadataSchema = z.object({
-  todoStatus: z.enum(['pending', 'completed']).optional(),
-  todoPriority: z.number().int().min(0).max(4).optional(),
-  expireAt: z.string().optional(),
-  completedAt: z.string().optional(),
-  groupId: z.number().int().optional(),
-  subtasks: z.array(ZTodoSubtaskSchema).optional(),
-});

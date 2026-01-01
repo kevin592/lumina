@@ -30,7 +30,6 @@ export const noteListInputSchema = z.object({
     isUseAiQuery: z.boolean().default(false).optional(),
     startDate: z.union([z.date(), z.null(), z.string()]).default(null).optional(),
     endDate: z.union([z.date(), z.null(), z.string()]).default(null).optional(),
-    hasTodo: z.boolean().default(false).optional(),
     parentId: z.union([z.number(), z.null()]).optional(),
 });
 
