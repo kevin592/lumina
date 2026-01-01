@@ -219,10 +219,8 @@ export class LuminaStore implements Store {
   fullNoteList: Note[] = []
 
   LuminaList!: PromisePageState<any, any>;
-  todoList!: PromisePageState<any, any>;
   archivedList!: PromisePageState<any, any>;
   trashList!: PromisePageState<any, any>;
-  noteList!: PromisePageState<any, any>;
 
   // For global search
 
@@ -805,33 +803,16 @@ export class LuminaStore implements Store {
 
 
   async onBottom() {
-
     const currentPath = new URLSearchParams(window.location.search).get('path');
 
-
-
-    if (currentPath === 'todo') {
-
-      await this.todoList.callNextPage({});
-
-    } else if (currentPath === 'archived') {
-
+    if (currentPath === 'archived') {
       await this.archivedList.callNextPage({});
-
     } else if (currentPath === 'trash') {
-
       await this.trashList.callNextPage({});
-
-    } else if (currentPath === 'all') {
-
-      this.noteList.resetAndCall({});
-
     } else {
-
+      // 对于 all 和默认视图，都使用 LuminaList
       await this.LuminaList.callNextPage({});
-
     }
-
   }
 
 
@@ -900,41 +881,18 @@ export class LuminaStore implements Store {
 
 
 
-    // 检查当前应该刷新哪个列表表?    // 优先级：路由路径 > 查询参数 > 默认主页列表表
+    // 检查当前应该刷新哪个列表
+    // 优先级：路由路径 > 查询参数 > 默认主页列表
 
-    if (pathname === '/todo' || currentPath === 'todo') {
-
-      this.todoList.resetAndCall({});
-
-    } else if (currentPath === 'archived') {
-
+    if (currentPath === 'archived') {
       this.archivedList.resetAndCall({});
-
     } else if (currentPath === 'trash') {
-
       this.trashList.resetAndCall({});
-
-    } else if (currentPath === 'all') {
-
-      this.noteList.resetAndCall({});
-
     } else if (pathname === '/') {
-
-      // 主页：根据当前筛选配置刷新对应列表
-      if (this.noteListFilterConfig.type === NoteType.TODO) {
-
-        this.todoList.resetAndCall({});
-
-      } else {
-
-        this.LuminaList.resetAndCall({});
-
-      }
-
-    } else {
-
+      // 主页：使用 LuminaList（闪念）
       this.LuminaList.resetAndCall({});
-
+    } else {
+      this.LuminaList.resetAndCall({});
     }
 
 
@@ -1013,8 +971,6 @@ export class LuminaStore implements Store {
 
       const searchText = searchParams.get('searchText') || this.searchText;
 
-      const hasTodo = searchParams.get('hasTodo');
-
       const path = searchParams.get('path');
 
 
@@ -1041,32 +997,16 @@ export class LuminaStore implements Store {
 
       this.noteListFilterConfig.isShare = null
 
-      this.noteListFilterConfig.hasTodo = false
-
 
 
       // Update all filter configurations before making the API call
-
-      if (path == 'todo') {
-
-        this.noteListFilterConfig.type = NoteType.TODO
-
-      } else if (path == 'all') {
-
+      // 删除了 todo 和 all 视图，只保留 archived 和 trash
+      if (path == 'archived') {
         this.noteListFilterConfig.type = -1
-
-      } else if (path == 'archived') {
-
-        this.noteListFilterConfig.type = -1
-
         this.noteListFilterConfig.isArchived = true
-
       } else if (path == 'trash') {
-
         this.noteListFilterConfig.type = -1
-
         this.noteListFilterConfig.isRecycle = true
-
       }
 
 
@@ -1090,15 +1030,7 @@ export class LuminaStore implements Store {
       }
 
       if (withFile) {
-
         this.noteListFilterConfig.withFile = true
-
-      }
-
-      if (hasTodo) {
-
-        this.noteListFilterConfig.hasTodo = true
-
       }
 
       if (searchText) {
@@ -1114,27 +1046,14 @@ export class LuminaStore implements Store {
 
 
       // Make API call after all configurations are set
-
-      if (path == 'todo') {
-
-        this.todoList.resetAndCall({});
-
-      } else if (path == 'all') {
-
-        this.noteList.resetAndCall({});
-
-      } else if (path == 'archived') {
-
+      // 删除了 todo 和 all 视图，只保留 archived 和 trash
+      if (path == 'archived') {
         this.archivedList.resetAndCall({});
-
       } else if (path == 'trash') {
-
         this.trashList.resetAndCall({});
-
       } else {
-
+        // 默认使用 LuminaList（闪念）
         this.LuminaList.resetAndCall({});
-
       }
 
     }, [this.forceQuery, location.pathname, searchParams])
@@ -1177,23 +1096,6 @@ export class LuminaStore implements Store {
       }
     });
 
-    this.todoList = new PromisePageState({
-      function: async ({ page, size }) => {
-        return this.getFilteredNotes({
-          page,
-          size,
-          filterConfig: {
-            type: NoteType.TODO,
-            isArchived: false,
-            isRecycle: false
-          },
-          offlineFilter: (note: OfflineNote) => {
-            return Boolean(note.type === NoteType.TODO && !note.isArchived && !note.isRecycle);
-          }
-        });
-      }
-    });
-
     this.archivedList = new PromisePageState({
       function: async ({ page, size }) => {
         return this.getFilteredNotes({
@@ -1228,23 +1130,6 @@ export class LuminaStore implements Store {
       }
     });
 
-    this.noteList = new PromisePageState({
-      function: async ({ page, size }) => {
-        return this.getFilteredNotes({
-          page,
-          size,
-          filterConfig: {
-            type: -1,
-            isArchived: false,
-            isRecycle: false
-          },
-          offlineFilter: (note: OfflineNote) => {
-            return Boolean(!note.isArchived && !note.isRecycle);
-          }
-        });
-      }
-    });
-
     makeAutoObservable(this)
 
     eventBus.on('user:signout', () => {
@@ -1269,13 +1154,10 @@ export class LuminaStore implements Store {
 
 
   updateTagFilter(tagId: number) {
-
     this.noteListFilterConfig.tagId = tagId;
-
     this.noteListFilterConfig.type = -1
-
-    this.noteList.resetAndCall({});
-
+    // 使用 LuminaList 替代已删除的 noteList
+    this.LuminaList.resetAndCall({});
   }
 
 }

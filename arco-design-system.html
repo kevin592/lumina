@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arco Design 设计系统完整文档</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+            line-height: 1.6;
+            color: #1D2129;
+            background: #F7F8FA;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #165DFF 0%, #4F7AFF 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 12px rgba(22, 93, 255, 0.15);
+        }
+
+        header h1 {
+            font-size: 48px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        header p {
+            font-size: 18px;
+            opacity: 0.95;
+        }
+
+        .nav {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+        }
+
+        .nav h3 {
+            margin-bottom: 15px;
+            color: #165DFF;
+            font-size: 16px;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .nav-links a {
+            padding: 8px 16px;
+            background: #F2F3F5;
+            color: #4E5969;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .nav-links a:hover {
+            background: #165DFF;
+            color: white;
+        }
+
+        .section {
+            background: white;
+            padding: 40px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .section h2 {
+            font-size: 32px;
+            color: #1D2129;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #165DFF;
+        }
+
+        .section h3 {
+            font-size: 24px;
+            color: #1D2129;
+            margin: 30px 0 16px 0;
+        }
+
+        .section h4 {
+            font-size: 18px;
+            color: #4E5969;
+            margin: 20px 0 12px 0;
+        }
+
+        .component-card {
+            background: #F7F8FA;
+            padding: 24px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #165DFF;
+        }
+
+        .component-card h4 {
+            color: #165DFF;
+            margin-top: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        table th,
+        table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E6EB;
+        }
+
+        table th {
+            background: #F2F3F5;
+            color: #1D2129;
+            font-weight: 600;
+        }
+
+        table tr:hover {
+            background: #F7F8FA;
+        }
+
+        ul,
+        ol {
+            margin: 12px 0;
+            padding-left: 24px;
+        }
+
+        li {
+            margin: 8px 0;
+        }
+
+        code {
+            background: #F2F3F5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Nunito', 'Monaco', 'Consolas', monospace;
+            font-size: 14px;
+            color: #165DFF;
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .color-item {
+            text-align: center;
+        }
+
+        .color-box {
+            height: 80px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .color-label {
+            font-size: 12px;
+            color: #4E5969;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            margin: 0 4px;
+        }
+
+        .badge-required {
+            background: #F53F3F;
+            color: white;
+        }
+
+        .badge-optional {
+            background: #E5E6EB;
+            color: #4E5969;
+        }
+
+        .status-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .status-item {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+            border: 1px solid #E5E6EB;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .nav {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Arco Design 设计系统完整文档</h1>
+        <p>企业级产品的完整设计和开发解决方案 · 原子化设计规范</p>
+    </header>
+
+    <div class="container">
+        <!-- 导航 -->
+        <div class="nav">
+            <h3>快速导航</h3>
+            <div class="nav-links">
+                <a href="#style-guide">样式指南</a>
+                <a href="#typography">排版 Typography</a>
+                <a href="#grid">栅格 Grid</a>
+                <a href="#layout">布局 Layout</a>
+                <a href="#input">输入框 Input</a>
+                <a href="#button">按钮 Button</a>
+                <a href="#modal">模态框 Modal</a>
+                <a href="#checkbox">复选框 Checkbox</a>
+                <a href="#select">选择器 Select</a>
+                <a href="#tabs">标签页 Tabs</a>
+                <a href="#table">表格 Table</a>
+                <a href="#color-system">色彩系统</a>
+                <a href="#text-system">文字系统</a>
+            </div>
+        </div>
+
+        <!-- 样式指南 -->
+        <div id="style-guide" class="section">
+            <h2>样式指南 Style Guideline</h2>
+
+            <h3>色彩系统</h3>
+            <div class="component-card">
+                <h4>主色</h4>
+                <p>主色是一个产品的代表颜色，一般与品牌色相关联。Arco 的默认主色为 <code>#165DFF</code>，同时提供了 13 种通用主色。</p>
+                <div class="color-grid">
+                    <div class="color-item">
+                        <div class="color-box" style="background: #165DFF;"></div>
+                        <div class="color-label">主色<br>#165DFF</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="component-card">
+                <h4>功能色</h4>
+                <p>功能色的主要作用是向用户明确的传达成功、警告、错误、链接等信息和状态。</p>
+                <div class="color-grid">
+                    <div class="color-item">
+                        <div class="color-box" style="background: #00B42A;"></div>
+                        <div class="color-label">成功<br>#00B42A</div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-box" style="background: #FF7D00;"></div>
+                        <div class="color-label">警告<br>#FF7D00</div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-box" style="background: #F53F3F;"></div>
+                        <div class="color-label">错误<br>#F53F3F</div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-box" style="background: #165DFF;"></div>
+                        <div class="color-label">链接<br>#165DFF</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="component-card">
+                <h4>中性色</h4>
+                <p>中性色又称为无彩色系，能在产品界面中调和色彩搭配，衬托主色及其他色彩。</p>
+                <div class="color-grid">
+                    <div class="color-item">
+                        <div class="color-box" style="background: #1D2129;"></div>
+                        <div class="color-label">标题文字<br>#1D2129</div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-box" style="background: #4E5969;"></div>
+                        <div class="color-label">正文文字<br>#4E5969</div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-box" style="background: #86909C;"></div>
+                        <div class="color-label">次要文字<br>#86909C</div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-box" style="background: #C9CDD4;"></div>
+                        <div class="color-label">边框<br>#C9CDD4</div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-box" style="background: #E5E6EB;"></div>
+                        <div class="color-label">分割线<br>#E5E6EB</div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-box" style="background: #F7F8FA;"></div>
+                        <div class="color-label">背景<br>#F7F8FA</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="component-card">
+                <h4>遮罩色</h4>
+                <p>遮罩色常用于作为底色突出模态窗口，一般以黑色为基色，配合透明度使用。Arco 默认的遮罩色为 <code>#1D2129</code>，透明度为 60%。</p>
+            </div>
+
+            <h3>文字系统</h3>
+            <div class="component-card">
+                <h4>字体配置</h4>
+                <table>
+                    <tr>
+                        <th>平台</th>
+                        <th>中文字体</th>
+                        <th>英文字体</th>
+                    </tr>
+                    <tr>
+                        <td>Mac OS</td>
+                        <td>PingFang SC</td>
+                        <td>Nunito</td>
+                    </tr>
+                    <tr>
+                        <td>Windows</td>
+                        <td>Microsoft Yahei</td>
+                        <td>Nunito</td>
+                    </tr>
+                </table>
+                <p><strong>字体栈：</strong></p>
+                <code>'nunito_for_arco', 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif</code>
+            </div>
+
+            <div class="component-card">
+                <h4>字号系统</h4>
+                <ul>
+                    <li><strong>主字号：</strong>14px</li>
+                    <li><strong>最小可识别：</strong>12px</li>
+                    <li><strong>字号层级差距：</strong>2-4px</li>
+                    <li><strong>建议层级数量：</strong>3-5种</li>
+                </ul>
+            </div>
+
+            <div class="component-card">
+                <h4>行高</h4>
+                <ul>
+                    <li><strong>默认：</strong>1.4倍</li>
+                    <li><strong>西文：</strong>1.2倍左右</li>
+                    <li><strong>中文：</strong>1.5-2倍</li>
+                </ul>
+            </div>
+
+            <div class="component-card">
+                <h4>字重</h4>
+                <ul>
+                    <li><strong>Regular：</strong>400（常规）</li>
+                    <li><strong>Medium：</strong>500（中等）</li>
+                    <li><strong>Semibold：</strong>600（半粗）</li>
+                    <li><strong>Light：</strong>300（细体，特殊场景）</li>
+                </ul>
+            </div>
+
+            <div class="component-card">
+                <h4>段落间距</h4>
+                <p>段落间距至少为字体大小的 1.5 倍。正文 14px 字号对应段间距为 21px。</p>
+            </div>
+
+            <h3>阴影系统</h3>
+            <div class="component-card">
+                <p>清晰自然的阴影能帮助用户快速理解界面中元素的空间关系。</p>
+                <ul>
+                    <li><strong>一级阴影：</strong>低层级元素（卡片）</li>
+                    <li><strong>二级阴影：</strong>hover态等常规交互</li>
+                    <li><strong>三级/四级阴影：</strong>下拉菜单、模态框等</li>
+                </ul>
+            </div>
+
+            <h3>文案样式规范</h3>
+            <div class="component-card">
+                <h4>日期与时间</h4>
+                <p>建议使用 24 小时制，最大程度避免因格式不统一而带来的困惑与误解。</p>
+            </div>
+
+            <div class="component-card">
+                <h4>标点符号</h4>
+                <ul>
+                    <li>使用「…」作为省略号</li>
+                    <li>破折号应占两个汉字空间</li>
+                    <li>使用"≤"表示"小于等于"</li>
+                </ul>
+            </div>
+
+            <div class="component-card">
+                <h4>中英文排版</h4>
+                <ul>
+                    <li>中英文之间需要加空格</li>
+                    <li>中文与链接之间增加空格</li>
+                    <li>全角标点与英文或数字之间不加空格</li>
+                </ul>
+            </div>
+
+            <div class="component-card">
+                <h4>数字规范</h4>
+                <ul>
+                    <li>四位以上使用千分撇分节</li>
+                    <li>数值范围使用"~"或"—"</li>
+                    <li>中文与数字之间需要加空格（但不表达数量信息的数字无需补加空格）</li>
+                </ul>
+            </div>
+
+            <h3>用语原则</h3>
+            <div class="component-card">
+                <ol>
+                    <li><strong>词汇统一：</strong>不同场景描述同一事物的词汇需要统一</li>
+                    <li><strong>语法正确：</strong>
+                        <ul>
+                            <li>统计文案格式：数字+单位+动词/名词</li>
+                            <li>操作文案格式：动词+名词</li>
+                        </ul>
+                    </li>
+                    <li><strong>文案精炼：</strong>精简语句，减轻用户理解负担</li>
+                    <li><strong>通俗易懂：</strong>使用用户熟悉的语言，避免看不懂的术语</li>
+                    <li><strong>语言友好：</strong>
+                        <ul>
+                            <li>不使用敬称「您」</li>
+                            <li>避免使用「不要」、「不能」、「请勿」</li>
+                            <li>避免使用过于绝对的表述</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- 排版 Typography -->
+        <div id="typography" class="section">
+            <h2>排版 Typography</h2>
+
+            <div class="component-card">
+                <h4>组件定义</h4>
+                <p>用于展示标题、段落、文本内容的基本格式，表达层次结构和品牌形象。</p>
+            </div>
+
+            <h3>组件构成</h3>
+            <table>
+                <tr>
+                    <th>构成元素</th>
+                    <th>说明</th>
+                    <th>是否必需</th>
+                </tr>
+                <tr>
+                    <td>标题</td>
+                    <td>显示内容层次结构，对于改善用户的阅读体验很重要</td>
+                    <td><span class="badge badge-optional">可选</span></td>
+                </tr>
+                <tr>
+                    <td>文本</td>
+                    <td>有不同样式的文本以及超链接组件</td>
+                    <td><span class="badge badge-required">必选</span></td>
+                </tr>
+                <tr>
+                    <td>段落</td>
+                    <td>可形成文本段落样式</td>
+                    <td><span class="badge badge-optional">可选</span></td>
+                </tr>
+                <tr>
+                    <td>操作按钮</td>
+                    <td>提供复制、编辑文本等功能</td>
+                    <td><span class="badge badge-optional">可选</span></td>
+                </tr>
+            </table>
+
+            <h3>组件尺寸</h3>
+            <div class="component-card">
+                <h4>文本分类</h4>
+                <ul>
+                    <li><strong>标题：</strong>大字号</li>
+                    <li><strong>正文：</strong>标准字号（14px）</li>
+                    <li><strong>辅助文案：</strong>小字号</li>
+                </ul>
+            </div>
+
+            <div class="component-card">
+                <h4>行高</h4>
+                <p>行高可用作在排版布局中创建密度的一种方式。文本的行高与其字体大小成正比。</p>
+                <ul>
+                    <li><strong>较大行高：</strong>44px, 40px</li>
+                    <li><strong>较小行高：</strong>36px, 32px, 20px</li>
+                </ul>
+            </div>
+
+            <div class="component-card">
+                <h4>段落间距</h4>
+                <p>一致的间距使界面更加清晰和易于浏览。</p>
+            </div>
+
+            <h3>布局</h3>
+            <div class="component-card">
+                <h4>对齐方式</h4>
+                <ul>
+                    <li><strong>左对齐：</strong>适合长文案，当文本与左边距对齐时</li>
+                    <li><strong>右对齐：</strong>仅用于短文案，从左到右的语言可以使用右对齐文本，但不建议用于长文案</li>
+                    <li><strong>居中：</strong>用于区分布局中的短排版元素（例如引号内文案），不推荐用于长文案</li>
+                </ul>
+            </div>
+
+            <h3>何时使用</h3>
+            <ul>
+                <li>当需要展示标题、段落、列表内容时使用，如文章/博客/日志的文本样式</li>
+                <li>当需要一列基于文本的基础操作时使用，如拷贝/省略/可编辑</li>
+            </ul>
+
+            <h3>关联组件</h3>
+            <p>栅格 Grid</p>
+        </div>
+
+        <!-- 栅格 Grid -->
+        <div id="grid" class="section">
+            <h2>栅格 Grid</h2>
+
+            <div class="component-card">
+                <h4>组件定义</h4>
+                <p>栅格可以有效的保证页面的一致性、逻辑性、加强团队协作和统一。</p>
+            </div>
+
+            <h3>组件构成</h3>
+            <table>
+                <tr>
+                    <th>元素</th>
+                    <th>说明</th>
+                </tr>
+                <tr>
+                    <td>页面宽度 W</td>
+                    <td>指页面的的整体宽度，由 W 代表</td>
+                </tr>
+                <tr>
+                    <td>栅格个数 A</td>
+                    <td>指整体页面有多少个栅格</td>
+                </tr>
+                <tr>
+                    <td>水槽个数 B</td>
+                    <td>指栅格之间的间距有多少个</td>
+                </tr>
+                <tr>
+                    <td>栅格宽度 C</td>
+                    <td>指每一个栅格的宽度（Column）</td>
+                </tr>
+                <tr>
+                    <td>水槽宽度 G</td>
+                    <td>指每个水槽的宽度（Gutter）</td>
+                </tr>
+                <tr>
+                    <td>边距</td>
+                    <td>指第一个栅格距离页面边框的距离（Margin）</td>
+                </tr>
+            </table>
+
+            <h3>组件类型</h3>
+            <table>
+                <tr>
+                    <th>类型</th>
+                    <th>说明</th>
+                </tr>
+                <tr>
+                    <td>12等分栅格系统</td>
+                    <td>整体页面由12个栅格等分，适用于业务信息分组较少的中后台页面设计</td>
+                </tr>
+                <tr>
+                    <td>24等分栅格系统</td>
+                    <td>整体页面由24个栅格等分，适用于业务信息量大，场景复杂的页面设计</td>
+                </tr>
+            </table>
+
+            <h3>组件尺寸</h3>
+            <div class="component-card">
+                <h4>栅格宽度</h4>
+                <p>建议栅格系统的网格大小选定 <strong>8</strong> 作为栅格系统的原子单位，目前主流设计屏幕分辨率在水平以及垂直方向都可以被 8 整除，使用 8 作为最小原子足够适配。</p>
+            </div>
+
+            <div class="component-card">
+                <h4>水槽宽度</h4>
+                <p>根据业务可自定义水槽的值。比如 8、16、24、32、40 等，经过实践经验，正常情况下，水槽宽度为 <strong>24</strong> 时，视觉效果最佳。</p>
+            </div>
+
+            <h3>何时使用</h3>
+            <ul>
+                <li><strong>板式设计与内容布局时：</strong>栅格系统可以辅助设计师调整内容的位置以及对齐方式，可以使内容变得规律、有序</li>
+            </ul>
+
+            <h3>布局原则</h3>
+            <div class="component-card">
+                <ul>
+                    <li>✓ 内容元素应对齐栅格而非水槽</li>
+                    <li>✗ 非常规设计时不需要死板坚持传统栅格系统</li>
+                </ul>
+            </div>
+
+            <h3>盒子模型</h3>
+            <div class="component-card">
+                <ul>
+                    <li><strong>Padding：</strong>主体内容距离盒子外侧的距离</li>
+                    <li><strong>Margin：</strong>相邻两个盒子的距离，对应在栅格系统中就是水槽的大小</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 布局 Layout -->
+        <div id="layout" class="section">
+            <h2>布局 Layout</h2>
+
+            <div class="component-card">
+                <h4>组件定义</h4>
+                <p>页面的基础布局框架，常与组件嵌套使用，构成页面整体布局。</p>
+            </div>
+
+            <h3>组件构成</h3>
+            <table>
+                <tr>
+                    <th>构成元素</th>
+                    <th>说明</th>
+                    <th>是否必需</th>
+                </tr>
+                <tr>
+                    <td>顶部导航</td>
+                    <td>可嵌套组件和元素，常与搭配使用的有 logo/标签/输入框/按钮/头像等</td>
+                    <td><span class="badge badge-optional">可选</span></td>
+                </tr>
+                <tr>
+                    <td>侧边栏</td>
+                    <td>可嵌套组件和元素，常与搭配使用的有树选择器/输入框等</td>
+                    <td><span class="badge badge-optional">可选</span></td>
+                </tr>
+                <tr>
+                    <td>内容部分</td>
+                    <td>可嵌套组件和元素，常与搭配使用有卡片/折叠面板/空状态/列表/数值显示/标签页等</td>
+                    <td><span class="badge badge-required">必选</span></td>
+                </tr>
+                <tr>
+                    <td>页面底部</td>
+                    <td>可嵌套组件和元素，常与搭配使用有分割线等</td>
+                    <td><span class="badge badge-optional">可选</span></td>
+                </tr>
+            </table>
+
+            <h3>组件类型</h3>
+            <table>
+                <tr>
+                    <th>类型</th>
+                    <th>说明</th>
+                </tr>
+                <tr>
+                    <td>上下布局</td>
+                    <td>一般为顶部主导航和下部通栏内容展示区域，上下级的结构符合用户上下浏览的习惯，主工作区域的信息展示效率更高</td>
+                </tr>
+                <tr>
+                    <td>"T"型布局</td>
+                    <td>上部为顶部导航，下部为侧边导航及内容展示区，是在火山引擎中常见的页面布局形式</td>
+                </tr>
+                <tr>
+                    <td>上中下布局</td>
+                    <td>一般为顶部主导航和页面标题栏区、内容展示区，常用于二级子页面的内容展示</td>
+                </tr>
+                <tr>
+                    <td>综合布局</td>
+                    <td>适用于较复杂的业务产品布局，提供更多展示模块区域，用不同形式的结构内容展示，除顶部导航、固定侧边导航、中间内容区域外，右侧增加了固定的拓展内容展示区</td>
+                </tr>
+            </table>
+
+            <h3>侧边栏类型</h3>
+            <ul>
+                <li><strong>自定义侧边栏：</strong>布局灵活，可操控性强（多用于功能性页面，操作按钮可放置在侧导航或顶部导航）</li>
+                <li><strong>可伸缩侧边栏：</strong>可用鼠标控制侧边栏大小，布局灵活，用户可自己定制（多用于文字较长和层级较多的侧边栏）</li>
+            </ul>
+
+            <h3>布局建议</h3>
+            <div class="component-card">
+                <ul>
+                    <li>顶部导航不宜过高，侧边栏不宜过宽</li>
+                    <li>系统层级简单且功能数量少 → 使用顶部导航菜单进行"上下布局"</li>
+                    <li>系统层级简单但功能数量多 → 使用侧边导航菜单进行"左右布局"</li>
+                </ul>
+            </div>
+
+            <h3>文案建议</h3>
+            <ul>
+                <li>导航需提供清晰的目标位置指引，一般使用色块底色强调、字体加粗、高亮的方式凸显目前位置</li>
+                <li>建议在使用全局深色主题时使用深色导航</li>
+            </ul>
+
+            <h3>相关组件</h3>
+            <p>菜单 Menu</p>
+        </div>
+
+        <!-- 输入框 Input -->
+        <div id="input" class="section">
+            <h2>输入框 Input</h2>
+
+            <div class="component-card">
+                <h4>组件定义</h4>
+                <p>当光标位于输入框时，允许用户输入或编辑文本内容的基本表单组件。可与输入框，搜索框，下拉框，日期选择器等灵活组合使用。</p>
+            </div>
+
+            <h3>组件构成</h3>
+            <table>
+                <tr>
+                    <th>构成元素</th>
+                    <th>说明</th>
+                    <th>是否必需</th>
+                </tr>
+                <tr>
+                    <td>容器</td>
+                    <td>承载文本内容的容器，通过包裹文本并与文本在颜色上形成对比来提高输入区域的可发现性。容器边缘的颜色和粗细变化用于指示当前输入框的状态（如：激活、报错、成功）</td>
+                    <td><span class="badge badge-required">必有</span></td>
+                </tr>
+                <tr>
+                    <td>标签文字</td>
+                    <td>容器顶部或左侧的简短说明文字，用于说明需要输入的内容，尽量不超过 6 个汉字。建议标签文字始终展示，仅当页面空间不足时可省去</td>
+                    <td><span class="badge badge-optional">建议有</span></td>
+                </tr>
+                <tr>
+                    <td>辅助文字</td>
+                    <td>容器底部的帮助性文字，动态展示能够帮助用户完成输入的相关信息（如：内容推荐、字符数限制、错误提示），一般为不带标点符号的陈述句，建议最多一行</td>
+                    <td><span class="badge badge-optional">建议有</span></td>
+                </tr>
+                <tr>
+                    <td>占位文字</td>
+                    <td>容器中的次级提示文字，提供与输入内容相关的提示或例子，一般为不带标点符号的陈述句，不应包含完成任务所需的重要信息。当用户开始在输入框中输入内容时，占位文字消失。占位符颜色应与实际输入文字有明显区别</td>
+                    <td><span class="badge badge-optional">建议有</span></td>
+                </tr>
+                <tr>
+                    <td>前缀图标</td>
+                    <td>用于描述输入框中可输入的内容及格式（如：电话、日期图标）</td>
+                    <td><span class="badge badge-optional">可选</span></td>
+                </tr>
+                <tr>
+                    <td>后缀图标</td>
+                    <td>根据不同场景具有多样的功能，常用场景如下：1、错误提示，可与辅助文字中的错误提示结合出现；2、内容清除按钮，可点击一键清除输入框中已输入的内容；3、语音输入按钮，点击触发语音输入功能；4、密码隐藏按钮</td>
+                    <td><span class="badge badge-optional">可选</span></td>
+                </tr>
+                <tr>
+                    <td>前置/后置标签</td>
+                    <td>在输入框前后添加的预置内容，常见标签有网址前后信息和计数单位</td>
+                    <td><span class="badge badge-optional">可选</span></td>
+                </tr>
+            </table>
+
+            <h3>组件类型</h3>
+            <table>
+                <tr>
+                    <th>类型</th>
+                    <th>说明</th>
+                </tr>
+                <tr>
+                    <td>单行输入框</td>
+                    <td>仅可输入一行文本，需当输入内容超出输入框时，内容截断</td>
+                </tr>
+                <tr>
+                    <td>多行输入框</td>
+                    <td>高度自适应的输入框，支持输入多行文本，当输入多行文本时，输入框容器随内容向下扩展</td>
+                </tr>
+                <tr>
+                    <td>文本域</td>
+                    <td>可拉动右下角调节标来调节宽高尺寸的多行文本输入框</td>
+                </tr>
+            </table>
+
+            <h3>组件尺寸</h3>
+            <div class="component-card">
+                <ul>
+                    <li><strong>容器高度：</strong>24px（迷你）/ 28px（小）/ 32px（中）/ 36px（大），同一业务内建议采用统一的高度</li>
+                    <li><strong>容器长度：</strong>应符合用户预期，且保证可直接展示出典型字符</li>
+                    <li><strong>文字大小：</strong>建议为 14px，可根据需要适当增大或减小（建议不小于 12px），同一业务内建议采用统一的尺寸</li>
+                    <li><strong>图标大小：</strong>建议为 14px，尺寸可根据需要适当增大或减小（建议不小于 12px）</li>
+                    <li><strong>标签/辅助文字间距：</strong>为保证容器外的信息与容器关联性强，标签文字和辅助文字应接近容器本身，间距默认为 4px</li>
+                </ul>
+            </div>
+
+            <h3>组件状态</h3>
+            <div class="status-list">
+                <div class="status-item">默认态</div>
+                <div class="status-item">焦点态</div>
+                <div class="status-item">选中态</div>
+                <div class="status-item">完成态</div>
+                <div class="status-item">禁用态</div>
+                <div class="status-item">加载态</div>
+                <div class="status-item">成功态</div>
+                <div class="status-item">报错态</div>
+            </div>
+
+            <h3>何时使用</h3>
+            <ul>
+                <li>✓ 输入的内容自由度高时（如：收集用户的建议）</li>
+                <li>✓ 直接输入更为简单时（如：输入用户自己的生日）</li>
+                <li>✓ 用户想要进行复制粘贴时（如：快递地址信息）</li>
+            </ul>
+
+            <h3>何时不使用</h3>
+            <ul>
+                <li>✗ 需要输入特定数据格式时（如：日期区间，可考虑使用日期选择器）</li>
+                <li>✗ 用户输入负担较重时（如：机场名称，可考虑使用下拉菜单）</li>
+                <li>✗ 有限制的选项时（如：性别，可考虑使用单选框）</li>
+            </ul>
+
+            <h3>布局</h3>
+            <ul>
+                <li>标签文字位置视整体页面布局情况而定可分为左对齐、右对齐和顶对齐，同一业务内建议采用统一的布局</li>
+                <li>输入框组件之间需要有清晰的分隔空间，防止上下的提示信息混乱</li>
+            </ul>
+
+            <h3>文案指南</h3>
+            <ul>
+                <li><strong>简洁：</strong>文字描述应尽量简短</li>
+                <li><strong>直接：</strong>直接描述信息，不增加装饰性词语</li>
+            </ul>
+
+            <h3>交互行为</h3>
+            <p>除默认的交互行为外，为使输入行为更加顺利高效，可视情况增加以下交互：</p>
+            <ul>
+                <li><strong>自动补全：</strong>通过减少打字量，自动补全可以减少用户输入和记忆的负担，并减少错误</li>
+                <li><strong>语法助手：</strong>通过自动检测和纠正语法的功能，可以减少在输入过程中错误的出现</li>
+                <li><strong>字段掩码：</strong>使用适当的字段掩码规则可以控制数据输入格式，帮助用户专注于输入本身且更容易地发现错误（如输入银行卡号时）</li>
+                <li><strong>键盘适配（移动端）：</strong>当在手机端使用输入框时，根据数据类型提供适当键盘格式</li>
+            </ul>
+
+            <h3>关联组件</h3>
+            <p>表单 Form、数字输入框 InputNumber</p>
+        </div>
+
+        <!-- 模态框 Modal -->
+        <div id="modal" class="section">
+            <h2>模态框 Modal</h2>
+
+            <div class="component-card">
+                <h4>组件定义</h4>
+                <p>对话框用于关键信息录入或信息确认。当调用对话框时，会中断用户当前的任务流程，因此请谨慎使用对话框，避免对用户造成过多干扰。</p>
+                <p>对话框通常用于快速且不需要频繁操作的任务，如"重命名"。</p>
+            </div>
+
+            <h3>组件构成</h3>
+            <table>
+                <tr>
+                    <th>构成元素</th>
+                    <th>说明</th>
+                    <th>是否必需</th>
+                </tr>
+                <tr>
+                    <td>标题</td>
+                    <td>可以是纯文本，也可以在文本前有图标以指示状态</td>
+                    <td><span class="badge badge-required">必选</span></td>
+                </tr>
+                <tr>
+                    <td>主体内容</td>
+                    <td>可以包含文本描述、表单、表格、步骤条、通知等</td>
+                    <td><span class="badge badge-optional">可选</span></td>
+                </tr>
+                <tr>
+                    <td>操作按钮</td>
+                    <td>通知弹窗一般只包含一个按钮，确认或信息录入弹窗一般包含两个按钮（通常为"确定、取消"）</td>
+                    <td><span class="badge badge-optional">可选</span></td>
+                </tr>
+                <tr>
+                    <td>关闭按钮</td>
+                    <td>点击可关闭弹窗</td>
+                    <td><span class="badge badge-optional">可选</span></td>
+                </tr>
+                <tr>
+                    <td>黑色遮罩</td>
+                    <td>黑色遮罩覆盖整个页面，遮罩下方的页面内容不响应滚动和点击</td>
+                    <td><span class="badge badge-required">必选</span></td>
+                </tr>
+            </table>
+
+            <h3>组件类型</h3>
+            <table>
+                <tr>
+                    <th>类型</th>
+                    <th>说明</th>
+                </tr>
+                <tr>
+                    <td>功能对话框</td>
+                    <td>支持信息展示或录入，可在默认表单中加入警告提示、标签页、步骤条、数据穿梭框等组件</td>
+                </tr>
+                <tr>
+                    <td>确认对话框</td>
+                    <td>常用于删除操作的二次确认，防止不可逆的数据丢失</td>
+                </tr>
+                <tr>
+                    <td>消息提示对话框</td>
+                    <td>用于状态提示，包括"一般信息、成功、警告、错误"四种状态</td>
+                </tr>
+            </table>
+
+            <h3>组件尺寸</h3>
+            <div class="component-card">
+                <ul>
+                    <li><strong>小尺寸：</strong>固定宽度为 400px</li>
+                    <li><strong>中尺寸：</strong>固定宽度为 520px</li>
+                    <li><strong>大尺寸：</strong>固定宽度为 720px</li>
+                    <li>对话框宽度有限，高度根据内容自适应，最大高度不能超过一屏</li>
+                </ul>
+            </div>
+
+            <h3>组件状态</h3>
+            <ul>
+                <li><strong>点击黑色遮罩：</strong>一般信息展示的对话框可以通过点击黑色遮罩关闭。填写数据时需防止误触导致数据丢失。</li>
+                <li><strong>溢出内容的显示：</strong>如果文本内容超过对话框的最大高度，内容部分可以响应垂直滚动，标题和操作按钮在滚动时保持固定。对话框内容不支持横向滚动。</li>
+            </ul>
+
+            <h3>何时使用</h3>
+            <ul>
+                <li>需要用户立即响应时，使用对话框请求，以防止用户继续操作</li>
+                <li>通知用户紧急信息时，使用对话框通知用户关于其当前任务的紧急信息，通常用于报告系统错误或告知结果</li>
+                <li>确认用户决定时，使用对话框确认用户的决定，并清晰描述当前行为可能造成的潜在后果。如果该行为具有破坏性或不可逆性，请使用错误警告色</li>
+            </ul>
+
+            <h3>何时不使用</h3>
+            <ul>
+                <li>✗ 当对话框中内容过多、操作复杂，甚至需要二次跳转时，建议使用 <strong>抽屉 Drawer</strong> 或 <strong>新页面</strong> 代替 <strong>对话框</strong></li>
+                <li>✗ 当用于频繁的确认操作时，建议使用 <strong>气泡确认框</strong> 代替 <strong>对话框</strong>，因为 <strong>气泡确认框</strong> 的鼠标操作线更短，方便用户进行多次操作</li>
+                <li>✗ 当关闭对话框需要二次确认时，建议使用 <strong>气泡确认框</strong> 代替 <strong>叠加对话框</strong> 进行"二次确认"</li>
+            </ul>
+
+            <h3>布局</h3>
+            <ul>
+                <li>对话框的 <strong>位置</strong> 支持居中或顶部展示，建议在同一业务中使用统一的位置</li>
+                <li>对话框中的 <strong>标题</strong> 支持左对齐或居中对齐，建议在同一业务中使用统一的对齐方式</li>
+                <li>对话框中的 <strong>操作按钮</strong> 支持右对齐或居中对齐，建议在同一业务中使用统一的对齐方式</li>
+                <li>当对话框"加载中"和"加载完成"时，<strong>高度</strong>应保持一致，避免尺寸和位置跳变</li>
+            </ul>
+
+            <h3>文案指南</h3>
+            <ul>
+                <li><strong>标题</strong>应简短，使用动词和名词的组合，清晰描述任务或目的</li>
+                <li><strong>文本</strong>应仅包含与完成当前任务相关的内容。如果需要包含"PDF"等参考文档，请将其作为链接包含在模态框主体中</li>
+                <li><strong>操作按钮</strong>对添加、删除、保存等操作使用描述性词语，避免使用模糊词语</li>
+            </ul>
+
+            <h3>关联组件</h3>
+            <p>抽屉 Drawer、气泡确认框 Popconfirm</p>
+        </div>
+
+        <!-- 复选框 Checkbox -->
+        <div id="checkbox" class="section">
+            <h2>复选框 Checkbox</h2>
+
+            <div class="component-card">
+                <h4>组件定义</h4>
+                <p>当列表中有多个选项可供选择，且选项不互斥时，可以使用复选框组件。</p>
+            </div>
+
+            <h3>组件构成</h3>
+            <table>
+                <tr>
+                    <th>构成</th>
+                    <th>说明</th>
+                </tr>
+                <tr>
+                    <td>复选框</td>
+                    <td>显示当前状态</td>
+                </tr>
+                <tr>
+                    <td>复选框标签</td>
+                    <td>描述想要选择或取消选择的信息</td>
+                </tr>
+            </table>
+
+            <h3>组件状态</h3>
+            <div class="status-list">
+                <div class="status-item">未选中</div>
+                <div class="status-item">聚焦</div>
+                <div class="status-item">已选中</div>
+                <div class="status-item">禁用</div>
+                <div class="status-item">未选中禁用</div>
+                <div class="status-item">已选中禁用</div>
+            </div>
+            <p><strong>注意：</strong>复选框的默认状态是没有选中任何选项。</p>
+
+            <h3>何时使用</h3>
+            <ul>
+                <li>如果可以从列表中选择多个选项，应使用复选框</li>
+                <li><strong>筛选或批量处理操作：</strong>用于在页面和菜单中筛选数据，以及进行批量操作</li>
+                <li><strong>条款和条件级别：</strong>打开或关闭复选框以指示用户是否同意这些条款</li>
+            </ul>
+
+            <h3>何时不使用</h3>
+            <ul>
+                <li>✗ 当列表中只允许一个选项时，使用单选框 Radio</li>
+                <li>✗ 对于用户更改后立即生效的设置，使用开关 Switch</li>
+            </ul>
+
+            <h3>组件布局</h3>
+            <div class="component-card">
+                <h4>对齐方式</h4>
+                <p>如果有分组的复选框，可以水平或垂直排列。</p>
+                <p>对于需要换行的长文本标签，复选框始终与文本标签的顶部对齐。</p>
+            </div>
+
+            <div class="component-card">
+                <h4>复选框组</h4>
+                <p>复选框可以与其他复选框具有父子关系：</p>
+                <ul>
+                    <li>选择父选项后，所有子复选框都被选中</li>
+                    <li>如果未选中父复选框，则不选中所有子复选框</li>
+                    <li>如果选择了部分（但不是全部）子复选框，则父复选框变为半选复选框</li>
+                </ul>
+            </div>
+
+            <h3>交互行为</h3>
+            <p><strong>鼠标状态：</strong>用户可以点击复选框和复选框标签来触发目标选项。</p>
+
+            <h3>关联组件</h3>
+            <p>单选框 Radio、开关 Switch</p>
+        </div>
+
+        <!-- 选择器 Select -->
+        <div id="select" class="section">
+            <h2>选择器 Select</h2>
+
+            <div class="component-card">
+                <h4>组件定义</h4>
+                <p>用于在一组选项中选择一个或多个值，常用于表单填写和数据过滤。</p>
+            </div>
+
+            <h3>组件构成</h3>
+            <table>
+                <tr>
+                    <th>构成</th>
+                    <th>说明</th>
+                </tr>
+                <tr>
+                    <td>文本标签</td>
+                    <td>选项内容的高层概括</td>
+                </tr>
+                <tr>
+                    <td>选择框</td>
+                    <td>已选选项的容器，也是下拉面板的触发器</td>
+                </tr>
+                <tr>
+                    <td>下拉面板</td>
+                    <td>容纳所有选项的容器，可根据选项数量控制下拉面板的高度。当选项过多需要滚动时，建议显示最后菜单项高度的 50%</td>
+                </tr>
+                <tr>
+                    <td>星号</td>
+                    <td>表示该条目为必填项，一般位于文本标签的左侧</td>
+                </tr>
+            </table>
+
+            <h3>组件类型</h3>
+            <table>
+                <tr>
+                    <th>类型</th>
+                    <th>说明</th>
+                </tr>
+                <tr>
+                    <td>基础选择器</td>
+                    <td>最简单的选择器，一般只支持选择一个选项</td>
+                </tr>
+                <tr>
+                    <td>多选选择器</td>
+                    <td>允许用户从列表中选择多个选项</td>
+                </tr>
+                <tr>
+                    <td>无边框</td>
+                    <td>一种弱化选择器概念的选择器类型，风格更简洁紧凑</td>
+                </tr>
+            </table>
+
+            <h3>功能扩展</h3>
+            <table>
+                <tr>
+                    <th>属性</th>
+                    <th>说明</th>
+                </tr>
+                <tr>
+                    <td>菜单分组</td>
+                    <td>如果选项过多，可以使用分类来组织选项供用户选择</td>
+                </tr>
+                <tr>
+                    <td>搜索</td>
+                    <td>如果用户熟悉选项数据，可以使用搜索功能快速定位目标选项</td>
+                </tr>
+                <tr>
+                    <td>可清除</td>
+                    <td>当选择框中有值时，可以使用清除按钮取消选择</td>
+                </tr>
+            </table>
+
+            <h3>组件尺寸</h3>
+            <div class="component-card">
+                <p>选择器可以分为 4 种尺寸：</p>
+                <ul>
+                    <li><strong>迷你尺寸：</strong>24px</li>
+                    <li><strong>小尺寸：</strong>28px</li>
+                    <li><strong>中尺寸：</strong>32px</li>
+                    <li><strong>大尺寸：</strong>36px</li>
+                </ul>
+            </div>
+
+            <h3>何时使用</h3>
+            <p>主要用于表单填写（录入）和属性选择（筛选）场景。</p>
+
+            <div class="component-card">
+                <h4>表单填写</h4>
+                <p>在表单填写场景中，因为下拉面板中只显示合法选项，使用选择器可以防止用户输入错误数据。</p>
+                <ul>
+                    <li><strong>合理使用星号：</strong>当表单中的所有条目基本都为必填项时，可以省略星号的显示，避免星号过多对用户造成干扰</li>
+                    <li><strong>占位符文本：</strong>保持暗提示简洁，避免使用暗提示作为选择器的辅助描述</li>
+                    <li><strong>选择框宽度：</strong>应根据选项长度定义选择框宽度，对下拉框内容形成隐喻</li>
+                </ul>
+            </div>
+
+            <div class="component-card">
+                <h4>属性选择</h4>
+                <p>用户可以从菜单中选择一个值，通常与列表、表格等信息块一起作为信息筛选。</p>
+            </div>
+
+            <h3>何时不使用</h3>
+            <ul>
+                <li>✗ <strong>避免使用选择器承载过少选项：</strong>当菜单数量较少时，建议直接使用选择框在主界面展开，以减少用户的操作步骤。少于 5 个时建议使用单选框 Radio</li>
+                <li>✗ <strong>避免使用选择器存储用户非常熟悉且简单的数据：</strong>例如，用户的出生日期、月份或年份等，使用选择器可能会给用户带来更多工作</li>
+            </ul>
+
+            <h3>布局</h3>
+            <table>
+                <tr>
+                    <th>类型</th>
+                    <th>说明</th>
+                </tr>
+                <tr>
+                    <td>上下布局</td>
+                    <td>适合长文本标签或在英文场景中使用，缺点是视觉动线较复杂</td>
+                </tr>
+                <tr>
+                    <td>左右布局</td>
+                    <td>更常见的布局方式，视觉动线更简单，缺点是容易造成横向空间浪费导致表单过长</td>
+                </tr>
+            </table>
+
+            <h3>关联组件</h3>
+            <p>下拉菜单 Dropdown、复选框 Checkbox、单选框 Radio</p>
+        </div>
+
+        <!-- 标签页 Tabs -->
+        <div id="tabs" class="section">
+            <h2>标签页 Tabs</h2>
+
+            <div class="component-card">
+                <h4>组件定义</h4>
+                <p>标签页是一个单选组件，用于在同一个视图中组织相似内容。标签页允许用户在同一层级的不同子任务、视图和模式之间切换，具有全局导航的效果。</p>
+            </div>
+
+            <h3>组件构成</h3>
+            <table>
+                <tr>
+                    <th>构成元素</th>
+                    <th>说明</th>
+                    <th>是否必需</th>
+                </tr>
+                <tr>
+                    <td>标签</td>
+                    <td>简短的文本描述（如有需要可带有图标），用于概括对应视图中的内容，同时作为切换视图的按钮。建议每个标签不超过 4 个中文字符。一次最多显示 7 个标签</td>
+                    <td><span class="badge badge-required">必选</span></td>
+                </tr>
+                <tr>
+                    <td>内容区</td>
+                    <td>显示所选标签对应的内容，内容格式不限，区域大小取决于内容量和页面布局</td>
+                    <td><span class="badge badge-required">必选</span></td>
+                </tr>
+                <tr>
+                    <td>滑动按钮</td>
+                    <td>当页面空间不足时，部分标签会溢出容器。使用滑动按钮左右或上下滑动显示剩余标签</td>
+                    <td><span class="badge badge-optional">可选</span></td>
+                </tr>
+                <tr>
+                    <td>添加和关闭按钮</td>
+                    <td>在支持自定义标签页的场景中，可以通过添加和关闭按钮删除和添加标签页</td>
+                    <td><span class="badge badge-optional">可选</span></td>
+                </tr>
+            </table>
+
+            <h3>组件类型</h3>
+            <table>
+                <tr>
+                    <th>类型</th>
+                    <th>说明</th>
+                </tr>
+                <tr>
+                    <td>默认标签页</td>
+                    <td>选中的标签页通过下划线标识和颜色变化来指示</td>
+                </tr>
+                <tr>
+                    <td>文本型标签页</td>
+                    <td>轻量级标签页类型，仅通过文本颜色变化来指示选中的标签页，适合页面信息量较多时的次要内容模块</td>
+                </tr>
+                <tr>
+                    <td>卡片型标签页</td>
+                    <td>为标签文本添加背景容器，适合强调重要标签页或内容区域较大的场景</td>
+                </tr>
+            </table>
+
+            <h3>组件尺寸</h3>
+            <div class="component-card">
+                <ul>
+                    <li>标签页一般分为 4 种尺寸。根据不同使用场景选择合适的尺寸。大尺寸常用于头部区域，小尺寸常用于弹窗等小容器</li>
+                    <li>标签的默认文本为 14px，页面空间不足时可以使用 12px。同一组标签页的文本大小需要相同</li>
+                </ul>
+            </div>
+
+            <h3>组件状态</h3>
+            <div class="status-list">
+                <div class="status-item">选中状态</div>
+                <div class="status-item">默认状态</div>
+                <div class="status-item">禁用状态</div>
+                <div class="status-item">聚焦状态</div>
+            </div>
+
+            <h3>何时使用</h3>
+            <ul>
+                <li>当显示同级但不同类的内容时（如动物的图片集合），使用标签页可以按类别更清晰地展示内容，方便用户快速获取想要的内容</li>
+                <li>当页面信息量过多时（如班级人员详情），考虑使用标签页来简化用户一次获取的信息量，帮助用户更专注于当前展示的内容</li>
+            </ul>
+
+            <h3>何时不使用</h3>
+            <ul>
+                <li>✗ 当内容不能通过标签清晰分类时，不应使用标签页，以免造成用户对内容的误解</li>
+                <li>✗ 需要比较多个内容的场景（如同一物品的不同尺寸），将内容展开在界面上比较更方便看出差异，此时不应使用标签页</li>
+                <li>✗ 当内容有固定的阅读顺序时（如预订演出票务），不应使用标签页</li>
+            </ul>
+
+            <h3>布局</h3>
+            <p>根据标签的位置，标签页可以分为上下布局和左右布局。</p>
+
+            <h3>文案指南</h3>
+            <ul>
+                <li><strong>强概括性：</strong>标签文本需要使用简洁直接的强概括性词语，能够准确概括标签下所包含的内容</li>
+                <li><strong>含义清晰：</strong>标签文本之间必须有明显的含义区分，不能造成歧义</li>
+            </ul>
+
+            <h3>交互行为</h3>
+            <p>标签会根据不同的交互行为触发不同的状态。具体状态请参考【组件状态】模块。</p>
+            <p>当有标签溢出组件容器时，通过左右或上下滑动按钮（当设备为触摸屏时，需要支持触摸滑动）显示剩余标签。</p>
+
+            <h3>关联组件</h3>
+            <p>列表 List、菜单 Menu</p>
+        </div>
+
+        <!-- 表格 Table -->
+        <div id="table" class="section">
+            <h2>表格 Table</h2>
+
+            <div class="component-card">
+                <h4>组件定义</h4>
+                <p>表格是以行和列的形式结构化显示信息，方便用户查看和分析数据。</p>
+            </div>
+
+            <h3>组件构成</h3>
+            <table>
+                <tr>
+                    <th>构成元素</th>
+                    <th>说明</th>
+                    <th>是否必需</th>
+                </tr>
+                <tr>
+                    <td>表头</td>
+                    <td>指示该列的信息类别。也可以在表头中放置一些排序、筛选等操作按钮</td>
+                    <td><span class="badge badge-required">必选</span></td>
+                </tr>
+                <tr>
+                    <td>单元格</td>
+                    <td>表格的主体由多个单元格组成，单元格支持文本、图标、按钮、标签、单选框、复选框等元素</td>
+                    <td><span class="badge badge-required">必选</span></td>
+                </tr>
+                <tr>
+                    <td>行和列分割线</td>
+                    <td>在视觉上分隔信息</td>
+                    <td><span class="badge badge-optional">不一定</span></td>
+                </tr>
+            </table>
+
+            <h3>组件类型</h3>
+            <table>
+                <tr>
+                    <th>类型</th>
+                    <th>说明</th>
+                </tr>
+                <tr>
+                    <td>基础表格</td>
+                    <td>由表头和单元格组成，没有其他扩展操作，是最基本的数据展示</td>
+                </tr>
+                <tr>
+                    <td>固定行表格</td>
+                    <td>用于在固定表格高度时显示不完的场景。出现滚动条以通过滑动预览</td>
+                </tr>
+                <tr>
+                    <td>固定列+行表格</td>
+                    <td>用于固定重要信息列和行，可以上下左右滑动查看其他内容信息</td>
+                </tr>
+                <tr>
+                    <td>单选/多选表格</td>
+                    <td>表格支持单选/多选</td>
+                </tr>
+                <tr>
+                    <td>可展开表格</td>
+                    <td>表格行可以展开以显示更多信息</td>
+                </tr>
+                <tr>
+                    <td>树表格</td>
+                    <td>当数据信息有明确的层级关系时，可以使用树表格</td>
+                </tr>
+            </table>
+
+            <h3>何时使用</h3>
+            <ul>
+                <li>当有大量结构化数据需要显示时，可以使用表格有序地展示数据，更有利于用户获取数据</li>
+                <li>当需要对数据进行排序、搜索、筛选等复杂操作时，可以使用表格组件，方便对数据进行操作</li>
+                <li>当需要对数据进行比较、汇总、分类时，可以使用表格组件，便于比较信息，方便用户快速查询差异和变化，关联和区别</li>
+            </ul>
+
+            <h3>何时不使用</h3>
+            <ul>
+                <li>✗ 在单独选项和对应选项的情况下，当单独选项对应选项时，可以使用列表组件代替表格组件</li>
+            </ul>
+
+            <h3>布局</h3>
+            <ul>
+                <li>复杂的全局操作一般在表格头部，如筛选、排序、搜索等</li>
+                <li>分割方式：无分割线、分割线、斑马纹等</li>
+            </ul>
+
+            <h3>文案指南</h3>
+            <ul>
+                <li><strong>高可读性：</strong>表格中的文字描述应尽可能简短且可读性高</li>
+                <li><strong>直接：</strong>直接描述信息，不增加装饰性词语</li>
+            </ul>
+
+            <h3>交互行为</h3>
+            <ul>
+                <li>在表格中可以通过单选框和多选框进行勾选和交互</li>
+                <li>如果表格信息是可编辑的，点击进行交互</li>
+                <li>当表格信息仍在加载时，可以显示加载动画的反馈</li>
+            </ul>
+
+            <h3>关联组件</h3>
+            <p>列表 List、图标 Icon</p>
+        </div>
+
+        <!-- 页脚 -->
+        <div style="text-align: center; padding: 40px 0; color: #86909C;">
+            <p>本文档基于 Arco Design 官方设计规范整理</p>
+            <p>来源：<a href="https://arco.design" style="color: #165DFF;">https://arco.design</a></p>
+            <p>Powered By Claude Code · 2025</p>
+        </div>
+    </div>
+
+    <script>
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // 高亮当前章节
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('.section');
+            const navLinks = document.querySelectorAll('.nav-links a');
+
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.style.background = '#F2F3F5';
+                link.style.color = '#4E5969';
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.style.background = '#165DFF';
+                    link.style.color = 'white';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

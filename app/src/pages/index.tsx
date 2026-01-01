@@ -10,16 +10,9 @@ import { LuminaAddButton } from '@/components/LuminaAddButton';
 import { LoadingAndEmpty } from '@/components/Common/LoadingAndEmpty';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useMemo, useState } from 'react';
-import dayjs from '@/lib/dayjs';
-import { NoteType } from '@shared/lib/types';
 import { DndContext, closestCenter, DragOverlay } from '@dnd-kit/core';
 import { useDragCard, DraggableLuminaCard } from '@/hooks/useDragCard';
 import { TagListPanel } from '@/components/Common/TagListPanel';
-
-interface TodoGroup {
-    displayDate: string;
-    todos: any[];
-}
 
 const Home = observer(() => {
     const { t } = useTranslation();
@@ -28,7 +21,6 @@ const Home = observer(() => {
     Lumina.use()
     Lumina.useQuery();
     const [searchParams] = useSearchParams();
-    const isTodoView = searchParams.get('path') === 'todo';
     const isArchivedView = searchParams.get('path') === 'archived';
     const isTrashView = searchParams.get('path') === 'trash';
     const isAllView = searchParams.get('path') === 'all';
@@ -36,26 +28,23 @@ const Home = observer(() => {
     const [insertPosition, setInsertPosition] = useState<number | null>(null);
     const [isDragForbidden, setIsDragForbidden] = useState<boolean>(false);
 
-    // Focus Mode: Only show on the default home view (not todo, archived, trash, or all)
-    const isFocusMode = !isTodoView && !isArchivedView && !isTrashView && !isAllView;
+    // Focus Mode: Only show on the default home view (not archived, trash, or all)
+    const isFocusMode = !isArchivedView && !isTrashView && !isAllView;
 
     const currentListState = useMemo(() => {
-        if (isTodoView) {
-            return Lumina.todoList;
-        } else if (isArchivedView) {
+        if (isArchivedView) {
             return Lumina.archivedList;
         } else if (isTrashView) {
             return Lumina.trashList;
         } else if (isAllView) {
-            return Lumina.noteList;
+            return Lumina.LuminaList; // 使用 LuminaList 替代已删除的 noteList
         } else {
             return Lumina.LuminaList;
         }
-    }, [isTodoView, isArchivedView, isTrashView, isAllView, Lumina]);
+    }, [isArchivedView, isTrashView, isAllView, Lumina]);
 
-    // Use drag card hook only for non-todo views
     const { localNotes, sensors, setLocalNotes, handleDragStart, handleDragEnd, handleDragOver } = useDragCard({
-        notes: isTodoView ? undefined : currentListState.value,
+        notes: currentListState.value,
         activeId,
         setActiveId,
         insertPosition,
@@ -73,38 +62,6 @@ const Home = observer(() => {
             return currentListState.isLoadAll
         }
     }))
-
-    const todosByDate = useMemo(() => {
-        if (!isTodoView || !currentListState.value) return {} as Record<string, TodoGroup>;
-        const todoItems = currentListState.value;
-        const groupedTodos: Record<string, TodoGroup> = {};
-        todoItems.forEach(todo => {
-            const date = dayjs(todo.createdAt).format('YYYY-MM-DD');
-            const isToday = dayjs().isSame(dayjs(todo.createdAt), 'day');
-            const isYesterday = dayjs().subtract(1, 'day').isSame(dayjs(todo.createdAt), 'day');
-            let displayDate;
-            if (isToday) {
-                displayDate = t('today');
-            } else if (isYesterday) {
-                displayDate = t('yesterday');
-            } else {
-                displayDate = dayjs(todo.createdAt).format('MM/DD (ddd)');
-            }
-            if (!groupedTodos[date]) {
-                groupedTodos[date] = {
-                    displayDate,
-                    todos: []
-                };
-            }
-            groupedTodos[date].todos.push(todo);
-        });
-        return Object.entries(groupedTodos)
-            .sort(([dateA], [dateB]) => new Date(dateB).getTime() - new Date(dateA).getTime())
-            .reduce((acc, [date, data]) => {
-                acc[date] = data;
-                return acc;
-            }, {} as Record<string, TodoGroup>);
-    }, [currentListState.value, isTodoView, t]);
 
     // Recent notes for Focus Mode preview (last 3)
     const recentNotes = useMemo(() => {
@@ -139,7 +96,6 @@ const Home = observer(() => {
                 {/* Hero Input Area - Upper section */}
                 <div className="w-full max-w-6xl relative group z-10 mb-12">
                     {/* Dynamic Glow Background */}
-                    {/* Dynamic Glow Background - Enhanced for Prominence */}
                     <div className="absolute -inset-4 bg-gradient-to-r from-pink-500/30 via-purple-500/30 to-indigo-500/30 rounded-[48px] blur-[35px] opacity-60 group-hover:opacity-80 transition-opacity duration-700"></div>
 
                     {/* Gradient Border Wrapper */}
@@ -186,7 +142,7 @@ const Home = observer(() => {
     }
 
     // ============================================
-    // STANDARD LIST LAYOUT (for Todo, Archived, Trash, All, Mobile)
+    // STANDARD LIST LAYOUT (for Archived, Trash, All, Mobile)
     // ============================================
     return (
         <div
@@ -260,67 +216,41 @@ const Home = observer(() => {
                             style={{ height: store.showEditor ? `calc(100% - ${(isPc ? (!store.showEditor ? store.editorHeight : 10) : 0)}px)` : '100%' }}
                             className={`px-2 mt-0 md:${Lumina.config.value?.hidePcEditor ? 'mt-0' : 'mt-4'} md:px-6 w-full h-full !transition-all scroll-area`}>
 
-                            {isTodoView ? (
-                                <div className="timeline-view relative">
-                                    {Object.entries(todosByDate).map(([date, { displayDate, todos }]) => (
-                                        <div key={date} className="mb-6 relative">
-                                            <div className="flex items-center mb-2 relative z-10">
-                                                <div className="w-4 h-4 rounded-sm bg-primary absolute left-[4.5px] transform translate-x-[-50%]"></div>
-                                                <h3 className="text-base font-bold ml-5">{displayDate}</h3>
-                                            </div>
-                                            <div className="md:pl-4">
-                                                {todos.map(todo => (
-                                                    <div key={todo.id} className="mb-3">
-                                                        <LuminaCard LuminaItem={todo} />
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ))}
-                                    {Object.keys(todosByDate).length === 0 && (
-                                        <div className="text-center py-8 text-gray-500">
-                                            <i className="ri-clipboard-line text-5xl mx-auto mb-2 opacity-50"></i>
-                                            <p>{t('no-data-here-well-then-time-to-write-a-note')}</p>
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <>
-                                    <DndContext
-                                        sensors={sensors}
-                                        collisionDetection={closestCenter}
-                                        onDragStart={handleDragStart}
-                                        onDragOver={handleDragOver}
-                                        onDragEnd={handleDragEnd}
-                                    >
-                                        <div className={`gap-6 space-y-6 pb-24 ${isAllView ? 'columns-1 md:columns-2 lg:columns-2 xl:columns-3' : 'columns-1 md:columns-2 lg:columns-3'}`}>
-                                            {
-                                                localNotes?.map((i, index) => {
-                                                    const showInsertLine = insertPosition === i.id && activeId !== i.id;
-                                                    return (
-                                                        <DraggableLuminaCard
-                                                            key={i.id}
-                                                            LuminaItem={i}
-                                                            showInsertLine={showInsertLine}
-                                                            insertPosition="top"
-                                                            isDragForbidden={isDragForbidden && showInsertLine}
-                                                        />
-                                                    );
-                                                })
-                                            }
-                                        </div>
-                                        <DragOverlay>
-                                            {activeId ? (
-                                                <div className="rotate-3 scale-105 opacity-90 max-w-sm shadow-xl">
-                                                    <LuminaCard
-                                                        LuminaItem={localNotes.find(n => n.id === activeId)}
+                            <>
+                                <DndContext
+                                    sensors={sensors}
+                                    collisionDetection={closestCenter}
+                                    onDragStart={handleDragStart}
+                                    onDragOver={handleDragOver}
+                                    onDragEnd={handleDragEnd}
+                                >
+                                    <div className={`gap-6 space-y-6 pb-24 ${isAllView ? 'columns-1 md:columns-2 lg:columns-2 xl:columns-3' : 'columns-1 md:columns-2 lg:columns-3'}`}>
+                                        {
+                                            localNotes?.map((i, index) => {
+                                                const showInsertLine = insertPosition === i.id && activeId !== i.id;
+                                                return (
+                                                    <DraggableLuminaCard
+                                                        key={i.id}
+                                                        LuminaItem={i}
+                                                        showInsertLine={showInsertLine}
+                                                        insertPosition="top"
+                                                        isDragForbidden={isDragForbidden && showInsertLine}
                                                     />
-                                                </div>
-                                            ) : null}
-                                        </DragOverlay>
-                                    </DndContext>
-                                </>
-                            )}
+                                                );
+                                            })
+                                        }
+                                    </div>
+                                    <DragOverlay>
+                                        {activeId ? (
+                                            <div className="rotate-3 scale-105 opacity-90 max-w-sm shadow-xl">
+                                                <LuminaCard
+                                                    LuminaItem={localNotes.find(n => n.id === activeId)}
+                                                />
+                                            </div>
+                                        ) : null}
+                                    </DragOverlay>
+                                </DndContext>
+                            </>
 
                             {store.showLoadAll && <div className='select-none w-full text-center text-sm font-bold text-ignore my-4'>{t('all-notes-have-been-loaded', { items: currentListState.value?.length })}</div>}
                         </ScrollArea>
