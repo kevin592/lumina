@@ -14,7 +14,6 @@
  * - OfflineStore: 离线笔记
  */
 
-import { useEffect } from 'react';
 import { makeAutoObservable } from 'mobx';
 import { eventBus } from '@/lib/event';
 import i18n from '@/lib/i18n';
@@ -350,83 +349,6 @@ export class LuminaStore {
   private clear() {
     this.config.clearAllStorage();
     this.offline.clear();
-  }
-
-  // ===== Hooks =====
-
-  use() {
-    useEffect(() => {
-      if (RootStore.Get(UserStore).id) {
-        console.log('firstLoad', RootStore.Get(UserStore).id);
-        this.firstLoad();
-      }
-    }, [RootStore.Get(UserStore).id]);
-
-    useEffect(() => {
-      if (this.updateTicker === 0) return;
-      console.log('updateTicker', this.updateTicker);
-      this.refreshData();
-    }, [this.updateTicker]);
-  }
-
-  useQuery() {
-    // 使用现有的 useQuery 实现
-    // 这里简化处理，实际应该保持原有逻辑
-    const { useSearchParams } = require('react-router-dom');
-    const { useLocation } = require('react-router-dom');
-
-    const [searchParams] = useSearchParams();
-    const location = useLocation();
-
-    useEffect(() => {
-      const tagId = searchParams.get('tagId');
-      if (tagId && Number(tagId) === this.noteListFilterConfig.tagId) {
-        return;
-      }
-
-      const withoutTag = searchParams.get('withoutTag');
-      const withFile = searchParams.get('withFile');
-      const withLink = searchParams.get('withLink');
-      const searchText = searchParams.get('searchText') || this.searchText;
-      const path = searchParams.get('path');
-
-      this.noteListFilterConfig.tagId = null;
-      this.noteListFilterConfig.isArchived = false;
-      this.noteListFilterConfig.withoutTag = false;
-      this.noteListFilterConfig.withLink = false;
-      this.noteListFilterConfig.withFile = false;
-      this.noteListFilterConfig.isRecycle = false;
-      this.noteListFilterConfig.startDate = null;
-      this.noteListFilterConfig.endDate = null;
-      this.noteListFilterConfig.isShare = null;
-      this.noteListFilterConfig.type = 0;
-
-      if (tagId) {
-        this.noteListFilterConfig.tagId = Number(tagId);
-      }
-      if (withoutTag) {
-        this.noteListFilterConfig.withoutTag = true;
-      }
-      if (withLink) {
-        this.noteListFilterConfig.withLink = true;
-      }
-      if (withFile) {
-        this.noteListFilterConfig.withFile = true;
-      }
-      if (searchText) {
-        this.searchText = searchText;
-      } else {
-        this.searchText = '';
-      }
-
-      if (path === 'archived') {
-        this.archivedList.resetAndCall({});
-      } else if (path === 'trash') {
-        this.trashList.resetAndCall({});
-      } else {
-        this.LuminaList.resetAndCall({});
-      }
-    }, [this.forceQuery, location.pathname, searchParams]);
   }
 }
 

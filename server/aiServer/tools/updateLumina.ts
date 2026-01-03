@@ -6,7 +6,6 @@ import { verifyToken } from '@server/lib/helper';
 export const updateLuminaTool = createTool({
   id: 'update-lumina-tool',
   description: 'you are a lumina assistant,you can use api to update lumina,save to database',
-  //@ts-ignore
   inputSchema: z.object({
     id: z.number().describe('the note ID'),
     content: z.string().describe('note content'),
@@ -15,7 +14,7 @@ export const updateLuminaTool = createTool({
     isShare: z.union([z.boolean(), z.null()]).default(null),
     isRecycle: z.union([z.boolean(), z.null()]).default(null),
     token: z.string().optional().describe("internal use, do not pass!")
-  }),
+  }) as any,
   execute: async ({ context, runtimeContext }) => {
     const accountId = runtimeContext?.get('accountId') || (await verifyToken(context.token))?.sub;
     try {

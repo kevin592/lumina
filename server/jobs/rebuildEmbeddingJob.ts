@@ -3,45 +3,21 @@ import { prisma } from "../prisma";
 import { NotificationType } from "@shared/lib/prismaZodType";
 import { CreateNotification } from "../routerTrpc/notification";
 import { AiModelFactory } from "@server/aiServer/aiModelFactory";
-import { AiService } from "@server/aiServer";
 import { CronTime } from "cron";
+import { REBUILD_EMBEDDING_TASK_NAME } from "./rebuildEmbeddingTypes";
+import type { ResultRecord, RebuildProgress } from "./rebuildEmbeddingTypes";
+import { RebuildEmbeddingProcessors } from "./rebuildEmbeddingProcessors";
 
-export const REBUILD_EMBEDDING_TASK_NAME = "rebuildEmbedding";
-
-// JSON-serializable result record
-export interface ResultRecord {
-  type: 'success' | 'skip' | 'error';
-  content: string;
-  error?: string;
-  timestamp: string; // Store as ISO string for JSON compatibility
-}
-
-// JSON-serializable progress object
-export interface RebuildProgress {
-  current: number;
-  total: number;
-  percentage: number;
-  isRunning: boolean;
-  results: ResultRecord[];
-  lastUpdate: string;
-  processedNoteIds: number[];
-  failedNoteIds: number[];
-  skippedNoteIds: number[];
-  lastProcessedId?: number;
-  retryCount: number;
-  startTime: string;
-  isIncremental: boolean;
-  [key: string]: any;
-}
+export { REBUILD_EMBEDDING_TASK_NAME } from "./rebuildEmbeddingTypes";
+export type { ResultRecord, RebuildProgress } from "./rebuildEmbeddingTypes";
 
 export class RebuildEmbeddingJob extends BaseScheduleJob {
   protected static taskName = REBUILD_EMBEDDING_TASK_NAME;
   protected static job = this.createJob();
-  // Add a force stop flag to terminate the running task
   private static forceStopFlag = false;
 
   static {
-    this.autoStart('0 0 * * *'); // Run once a day at midnight by default
+    this.autoStart('0 0 * * *');
   }
 
   protected static async initializeJob() {
@@ -72,7 +48,6 @@ export class RebuildEmbeddingJob extends BaseScheduleJob {
                 } as any
               }
             });
-            // Add a small delay before firing to ensure database update is committed
             setTimeout(() => {
               this.job.fireOnTick();
             }, 500);
@@ -92,7 +67,7 @@ export class RebuildEmbeddingJob extends BaseScheduleJob {
   }
 
   /**
-   * Force restart the rebuild embedding task
+   * 强制重启重建任务
    */
   static async ForceRebuild(force: boolean = true, incremental: boolean = false): Promise<boolean> {
     try {
@@ -107,7 +82,6 @@ export class RebuildEmbeddingJob extends BaseScheduleJob {
         if (progress?.isRunning && force) {
           console.log(`Task ${this.taskName} is already running, force stopping before restart`);
           await this.StopRebuild();
-          // Give a small delay to ensure the stop completes
           await new Promise(resolve => setTimeout(resolve, 1000));
         }
       }
@@ -171,7 +145,6 @@ export class RebuildEmbeddingJob extends BaseScheduleJob {
         });
       }
 
-      // Fire the task immediately
       this.job.fireOnTick();
       return true;
     } catch (error) {
@@ -181,16 +154,13 @@ export class RebuildEmbeddingJob extends BaseScheduleJob {
   }
 
   /**
-   * Stop the current rebuild task if it's running
+   * 停止当前重建任务
    */
   static async StopRebuild(): Promise<boolean> {
     try {
-      // Set the force stop flag to true
       this.forceStopFlag = true;
-      
-      // Stop the scheduled job
       await this.Stop();
-      
+
       const task = await prisma.scheduledTask.findFirst({
         where: { name: this.taskName }
       });
@@ -216,7 +186,7 @@ export class RebuildEmbeddingJob extends BaseScheduleJob {
   }
 
   /**
-   * Get current progress of the rebuild embedding task
+   * 获取重建任务进度
    */
   static async GetProgress(): Promise<RebuildProgress | null> {
     try {
@@ -225,7 +195,6 @@ export class RebuildEmbeddingJob extends BaseScheduleJob {
       });
 
       if (!task) return null;
-
       return task.output as unknown as RebuildProgress;
     } catch (error) {
       console.error("Failed to get rebuild embedding progress:", error);
@@ -233,8 +202,70 @@ export class RebuildEmbeddingJob extends BaseScheduleJob {
     }
   }
 
+  /**
+   * 恢复重建任务
+   */
+  static async ResumeRebuild(): Promise<boolean> {
+    return this.ForceRebuild(true, true);
+  }
+
+  /**
+   * 获取失败的笔记 ID 列表
+   */
+  static async GetFailedNotes(): Promise<number[]> {
+    try {
+      const task = await prisma.scheduledTask.findFirst({
+        where: { name: this.taskName }
+      });
+
+      if (!task?.output) return [];
+      const progress = task.output as any;
+      return progress.failedNoteIds || [];
+    } catch (error) {
+      console.error("Failed to get failed notes:", error);
+      return [];
+    }
+  }
+
+  /**
+   * 重试失败的笔记
+   */
+  static async RetryFailedNotes(): Promise<boolean> {
+    try {
+      const task = await prisma.scheduledTask.findFirst({
+        where: { name: this.taskName }
+      });
+
+      if (!task?.output) return false;
+
+      const progress = task.output as any;
+      const updatedProgress = {
+        ...progress,
+        processedNoteIds: (progress.processedNoteIds || []).filter((id: number) =>
+          !(progress.failedNoteIds || []).includes(id)
+        ),
+        failedNoteIds: [],
+        isRunning: true,
+        isIncremental: true
+      };
+
+      await prisma.scheduledTask.update({
+        where: { name: this.taskName },
+        data: { output: updatedProgress as any }
+      });
+
+      this.job.fireOnTick();
+      return true;
+    } catch (error) {
+      console.error("Failed to retry failed notes:", error);
+      return false;
+    }
+  }
+
+  /**
+   * 主任务执行逻辑
+   */
   protected static async RunTask(): Promise<any> {
-    // Get current task from database
     const task = await prisma.scheduledTask.findFirst({
       where: { name: this.taskName }
     });
@@ -294,23 +325,20 @@ export class RebuildEmbeddingJob extends BaseScheduleJob {
         : notes.length;
       let current = currentProgress.current || processedIds.size;
 
-      // Process notes in batches
       const BATCH_SIZE = 5;
-
       console.log(`[${new Date().toISOString()}] start rebuild embedding, ${notes.length} notes`);
 
       for (let i = 0; i < notes.length; i += BATCH_SIZE) {
-        // Check if force stop flag is set
         if (this.forceStopFlag) {
           const stoppedProgress = {
             current,
             total,
             percentage: Math.floor((current / total) * 100),
             isRunning: false,
-            results: results.slice(-50), // Keep only latest 50 results
+            results: results.slice(-50),
             lastUpdate: new Date().toISOString()
           };
-          
+
           await prisma.scheduledTask.update({
             where: { name: this.taskName },
             data: {
@@ -318,18 +346,16 @@ export class RebuildEmbeddingJob extends BaseScheduleJob {
               output: stoppedProgress as any
             }
           });
-          
+
           return stoppedProgress;
         }
-        
-        // Check if task was stopped through database
+
         const latestTask = await prisma.scheduledTask.findFirst({
           where: { name: this.taskName }
         });
 
         const latestProgress = latestTask?.output as any;
         if (latestProgress && !latestProgress.isRunning) {
-          // Task was stopped
           return latestProgress;
         }
 
@@ -337,7 +363,14 @@ export class RebuildEmbeddingJob extends BaseScheduleJob {
 
         for (const note of noteBatch) {
           if (this.forceStopFlag) {
-            return this.createStoppedProgress(current, total, results, processedIds, failedIds);
+            return RebuildEmbeddingProcessors.createStoppedProgress(
+              this.taskName,
+              current,
+              total,
+              results,
+              processedIds,
+              failedIds
+            );
           }
 
           if (processedIds.has(note.id)) {
@@ -354,7 +387,7 @@ export class RebuildEmbeddingJob extends BaseScheduleJob {
             }
 
             if (note?.content && note.content.trim() !== '') {
-              const result = await this.processNoteWithRetry(note, 3);
+              const result = await RebuildEmbeddingProcessors.processNoteWithRetry(note, 3);
               if (result.success) {
                 results.push({
                   type: 'success',
@@ -375,13 +408,7 @@ export class RebuildEmbeddingJob extends BaseScheduleJob {
 
             if (note?.attachments) {
               for (const attachment of note.attachments) {
-                const isImage = (filePath: string): boolean => {
-                  if (!filePath) return false;
-                  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.svg'];
-                  return imageExtensions.some(ext => filePath.toLowerCase().endsWith(ext));
-                };
-
-                if (isImage(attachment?.path)) {
+                if (RebuildEmbeddingProcessors.isImage(attachment?.path)) {
                   results.push({
                     type: 'skip',
                     content: (attachment?.path),
@@ -391,7 +418,7 @@ export class RebuildEmbeddingJob extends BaseScheduleJob {
                   continue;
                 }
 
-                const attachmentResult = await this.processAttachmentWithRetry(note, attachment, 3);
+                const attachmentResult = await RebuildEmbeddingProcessors.processAttachmentWithRetry(note, attachment, 3);
                 if (attachmentResult.success) {
                   results.push({
                     type: 'success',
@@ -416,7 +443,6 @@ export class RebuildEmbeddingJob extends BaseScheduleJob {
             }
 
             const percentage = Math.floor((current / total) * 100);
-
             const latestResults = results.slice(-50);
 
             const updatedProgress: RebuildProgress = {
@@ -442,7 +468,6 @@ export class RebuildEmbeddingJob extends BaseScheduleJob {
 
           } catch (error) {
             console.error(`[${new Date().toISOString()}] error processing note ${note.id}:`, error);
-            // Record error but continue processing
             results.push({
               type: 'error',
               content: note.content.slice(0, 30),
@@ -478,7 +503,6 @@ export class RebuildEmbeddingJob extends BaseScheduleJob {
         }
       });
 
-      // Create notification
       await CreateNotification({
         title: 'embedding-rebuild-complete',
         content: 'embedding-rebuild-complete',
@@ -490,7 +514,6 @@ export class RebuildEmbeddingJob extends BaseScheduleJob {
     } catch (error) {
       console.error("Error rebuilding embedding index:", error);
 
-      // Update with error status
       const errorProgress = {
         ...currentProgress,
         isRunning: false,
@@ -518,143 +541,4 @@ export class RebuildEmbeddingJob extends BaseScheduleJob {
       throw error;
     }
   }
-
-  private static async processNoteWithRetry(note: any, maxRetries: number): Promise<{ success: boolean; error?: string }> {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        const { ok, error } = await AiService.embeddingUpsert({
-          createTime: note.createdAt,
-          updatedAt: note.updatedAt,
-          id: note.id,
-          content: note.content,
-          type: 'update' as const
-        });
-
-        if (ok) {
-          return { success: true };
-        } else {
-          if (attempt === maxRetries) {
-            return { success: false, error: error?.toString() || 'Unknown error' };
-          }
-          console.warn(`Attempt ${attempt} failed for note ${note.id}, retrying...`);
-          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
-        }
-      } catch (error) {
-        if (attempt === maxRetries) {
-          return { success: false, error: error?.toString() || 'Unknown error' };
-        }
-        console.warn(`Attempt ${attempt} failed for note ${note.id}, retrying...`);
-        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
-      }
-    }
-    return { success: false, error: 'Max retries exceeded' };
-  }
-
-  private static async processAttachmentWithRetry(note: any, attachment: any, maxRetries: number): Promise<{ success: boolean; error?: string }> {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        const { ok, error } = await AiService.embeddingInsertAttachments({
-          id: note.id,
-          updatedAt: note.updatedAt,
-          filePath: attachment?.path
-        });
-
-        if (ok) {
-          return { success: true };
-        } else {
-          if (attempt === maxRetries) {
-            return { success: false, error: error?.toString() || 'Unknown error' };
-          }
-          console.warn(`Attempt ${attempt} failed for attachment ${attachment.path}, retrying...`);
-          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
-        }
-      } catch (error) {
-        if (attempt === maxRetries) {
-          return { success: false, error: error?.toString() || 'Unknown error' };
-        }
-        console.warn(`Attempt ${attempt} failed for attachment ${attachment.path}, retrying...`);
-        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
-      }
-    }
-    return { success: false, error: 'Max retries exceeded' };
-  }
-
-  private static async createStoppedProgress(current: number, total: number, results: ResultRecord[], processedIds: Set<number>, failedIds: Set<number>): Promise<RebuildProgress> {
-    const stoppedProgress: RebuildProgress = {
-      current,
-      total,
-      percentage: Math.floor((current / total) * 100),
-      isRunning: false,
-      results: results.slice(-50),
-      lastUpdate: new Date().toISOString(),
-      processedNoteIds: Array.from(processedIds),
-      failedNoteIds: Array.from(failedIds),
-      skippedNoteIds: [],
-      retryCount: 0,
-      startTime: new Date().toISOString(),
-      isIncremental: true
-    };
-
-    await prisma.scheduledTask.update({
-      where: { name: this.taskName },
-      data: {
-        isRunning: false,
-        output: stoppedProgress as any
-      }
-    });
-
-    return stoppedProgress;
-  }
-
-  static async ResumeRebuild(): Promise<boolean> {
-    return this.ForceRebuild(true, true);
-  }
-
-  static async GetFailedNotes(): Promise<number[]> {
-    try {
-      const task = await prisma.scheduledTask.findFirst({
-        where: { name: this.taskName }
-      });
-
-      if (!task?.output) return [];
-
-      const progress = task.output as any;
-      return progress.failedNoteIds || [];
-    } catch (error) {
-      console.error("Failed to get failed notes:", error);
-      return [];
-    }
-  }
-
-  static async RetryFailedNotes(): Promise<boolean> {
-    try {
-      const task = await prisma.scheduledTask.findFirst({
-        where: { name: this.taskName }
-      });
-
-      if (!task?.output) return false;
-
-      const progress = task.output as any;
-      const updatedProgress = {
-        ...progress,
-        processedNoteIds: (progress.processedNoteIds || []).filter((id: number) =>
-          !(progress.failedNoteIds || []).includes(id)
-        ),
-        failedNoteIds: [],
-        isRunning: true,
-        isIncremental: true
-      };
-
-      await prisma.scheduledTask.update({
-        where: { name: this.taskName },
-        data: { output: updatedProgress as any }
-      });
-
-      this.job.fireOnTick();
-      return true;
-    } catch (error) {
-      console.error("Failed to retry failed notes:", error);
-      return false;
-    }
-  }
-} 
+}

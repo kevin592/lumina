@@ -225,8 +225,7 @@ export class Memos {
 
         if (row?.blob) {
           const { filePath } = await FileService.uploadFile({
-            //@ts-ignore
-            buffer: row!.blob,
+            buffer: row!.blob as Buffer,
             originalName: row?.filename,
             type: "",
             accountId: Number(ctx.id),

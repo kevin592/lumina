@@ -171,13 +171,12 @@ async function setupApiRoutes(app: express.Application) {
 
   // OpenAPI integration
   app.use('/api',
-    // @ts-ignore
     createOpenApiExpressMiddleware({
       router: appRouter,
       createContext: ({ req, res }: { req: express.Request; res: express.Response }) => {
         return createContext(req, res);
       }
-    })
+    }) as any
   );
 
   // Health check endpoint
@@ -227,10 +226,10 @@ async function bootstrap() {
 
     // Setup API routes
     await setupApiRoutes(app);
-    //@ts-ignore
-    app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const errorMiddleware: express.ErrorRequestHandler = (err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
       errorHandler(err, req, res, next);
-    });
+    };
+    app.use(errorMiddleware);
 
     // Start or update server
     if (!server) {

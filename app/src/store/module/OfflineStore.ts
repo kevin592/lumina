@@ -9,7 +9,7 @@ import i18n from '@/lib/i18n';
 import { api } from '@/lib/trpc';
 import { type Note } from '@shared/lib/types';
 import { makeAutoObservable } from 'mobx';
-import type { UpsertNoteParams } from './NoteStore';
+import type { UpsertNoteParams } from './NoteOperationsStore';
 
 // 离线笔记接口
 export interface OfflineNote extends Omit<Note, 'id' | 'references'> {

@@ -84,7 +84,6 @@ let activeStreams = 0;
  *     security:
  *       - bearer: []
  */
-//@ts-ignore
 router.get(/.*/, async (req, res) => {
   const fullPath = decodeURIComponent(req.path.substring(1));
   const token = await getTokenFromRequest(req);

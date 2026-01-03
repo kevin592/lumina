@@ -18,15 +18,16 @@ import { DialogStore } from "@/store/module/Dialog";
 import { AiStore } from "@/store/aiStore";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
-const Emoji = ({ icon }: { icon: string }) => {
+const Emoji = ({ icon }: { icon: string | null | undefined }) => {
+  // 判断是否为 Iconify 图标（包含冒号）
+  const isIconifyIcon = icon && typeof icon === 'string' && icon.includes(':');
+
   return <>
     {
       icon ? <>
         {
-          // @ts-ignore
-          icon?.includes(':') ?
-            // @ts-ignore
-            <i className={icon}></i> :
+          isIconifyIcon ?
+            <i className={icon as string}></i> :
             icon
         }
       </> : <i className="ri-hashtag-line"></i>
@@ -114,8 +115,8 @@ export const TagListPanel = observer(() => {
           <div {...getNodeProps()} style={{ paddingLeft: 20 * (level - 1) + 6 }} >
             <div className={`${SideBarItem}relative group ${(isSelected(element.id)) ? '!bg-primary !text-primary-foreground' : ''}`}
               onClick={e => {
-                //@ts-ignore
-                base.currentRouter = Lumina.allTagRouter
+                // 将当前标签路由设置为 base.currentRouter，用于导航状态追踪
+                base.currentRouter = Lumina.allTagRouter as typeof base.routerList[0];
                 Lumina.updateTagFilter(Number(element.id))
                 navigate('/?path=all&tagId=' + element.id, { replace: true })
               }}

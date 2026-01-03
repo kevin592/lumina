@@ -12,6 +12,13 @@ import { downloadDir, publicDir } from '@tauri-apps/api/path'
 import { useEffect, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 
+// 扩展 Window 接口以支持 Tauri 全局对象
+declare global {
+  interface Window {
+    __TAURI__?: any;
+  }
+}
+
 export interface PermissionStatus {
     audio: boolean;
     camera: boolean;
@@ -47,7 +54,6 @@ export function isWindows() {
 
 export function isInTauri() {
     try {
-        // @ts-ignore
         return typeof window !== 'undefined' && window.__TAURI__ !== undefined;
     } catch (error) {
         return false

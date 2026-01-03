@@ -6,6 +6,7 @@ export interface TagTreeNode {
   children?: TagTreeNode[];
 }
 export type TagTreeDBNode = Tag & { children?: TagTreeDBNode[]; metadata: { icon: string, path: string } }
+// Export helper object
 export const helper = {
   regex: {
     isEndsWithHashTag: /#[/\w\p{L}\p{N}]*$/u,
@@ -199,8 +200,7 @@ export const helper = {
     },
   },
   env: {
-    //@ts-ignore
-    isBrowser: typeof window === 'undefined' ? false : true,
+    isBrowser: typeof window !== 'undefined',
     isIOS: () => {
       try {
         const userAgent = window.navigator.userAgent.toLowerCase();
@@ -215,3 +215,10 @@ export const helper = {
     }
   }
 };
+
+// Named exports for functions that need to be imported separately
+export const buildHashTagTreeFromHashString = helper.buildHashTagTreeFromHashString.bind(helper);
+export const buildHashTagTreeFromDb = helper.buildHashTagTreeFromDb.bind(helper);
+export const extractHashtags = helper.extractHashtags.bind(helper);
+export const assemblyPageResult = helper.assemblyPageResult.bind(helper);
+export const getFileExtension = helper.getFileExtension.bind(helper);

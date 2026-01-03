@@ -19,6 +19,7 @@ import i18n from '@/lib/i18n';
 import { ToastPlugin } from '../module/Toast/Toast';
 import { UserStore } from '../user';
 import { RootStore } from '../root';
+import { BaseStore } from '../baseStore';
 import type { OfflineNote } from './NoteListStore';
 
 export interface UpsertNoteParams {
@@ -220,7 +221,6 @@ export class NoteOperationsStore {
   get isOnline(): boolean {
     // 假设 BaseStore 有 isOnline 属性
     try {
-      const { BaseStore } = require('../baseStore');
       return RootStore.Get(BaseStore).isOnline;
     } catch {
       return true;

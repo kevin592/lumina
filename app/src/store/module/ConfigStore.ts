@@ -9,7 +9,8 @@
 
 import { makeAutoObservable } from 'mobx';
 import { PromiseState } from '../standard/PromiseState';
-import { StorageState, StorageListState } from '../standard/StorageListState';
+import { StorageState } from '../standard/StorageState';
+import { StorageListState } from '../standard/StorageListState';
 import { api } from '@/lib/trpc';
 
 export interface Config {
@@ -61,6 +62,21 @@ export class ConfigStore {
   // 刷新配置
   async refreshConfig() {
     await this.config.call();
+  }
+
+  // 向后兼容：call 方法委托给 config.call
+  async call(...args: any[]) {
+    return await this.config.call(...args);
+  }
+
+  // 向后兼容：value 属性
+  get value() {
+    return this.config.value;
+  }
+
+  // 向后兼容：loading 属性
+  get loading() {
+    return this.config.loading;
   }
 
   // 刷新用户列表

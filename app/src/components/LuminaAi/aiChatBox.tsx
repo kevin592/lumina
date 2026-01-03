@@ -152,8 +152,7 @@ const AiMessage = ({ content, withoutAnimation = false, withStreamAnimation = fa
                   <PopoverContent className="overflow-y-auto">
                     <ScrollArea className="flex flex-col gap-2 p-2 h-[400px]" onBottom={() => { }}>
                       {
-                        //@ts-ignore
-                        metadata?.notes?.map((item: LuminaItem) => (
+                        (metadata?.notes ?? []).map((item: LuminaItem) => (
                           <LuminaCard className='w-[300px] md:w-[600px]' LuminaItem={item!} withoutHoverAnimation />
                         ))
                       }

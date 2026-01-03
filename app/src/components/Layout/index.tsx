@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Badge } from '@heroui/react';
 import { Icon } from '@/components/Common/Iconify/icons';
-import { UserStore } from '@/store/user';
 import { observer } from 'mobx-react-lite';
 import { RootStore } from '@/store';
 import { LuminaStore } from '@/store/luminaStore';
@@ -25,6 +24,8 @@ import { BarSearchInput } from './BarSearchInput';
 import { LuminaNotification } from '@/components/LuminaNotification';
 import { AiStore } from '@/store/aiStore';
 import { useLocation, useSearchParams, Link } from 'react-router-dom';
+import { useUserInit } from '@/hooks/useUserInit';
+import { useLuminaInit, useLuminaQuery } from '@/hooks/useLuminaInit';
 
 export const SideBarItem = 'p-2 flex flex-row items-center cursor-pointer gap-2 hover:bg-hover rounded-xl !transition-all';
 
@@ -41,13 +42,15 @@ export const CommonLayout = observer(({ children, header }: { children?: React.R
 
   const isPc = useMediaQuery('(min-width: 768px)');
   const { t } = useTranslation();
-  const user = RootStore.Get(UserStore);
   const lumina = RootStore.Get(LuminaStore);
   const base = RootStore.Get(BaseStore);
   const location = useLocation()
   const [searchParams] = useSearchParams()
-  lumina.use();
-  user.use();
+
+  // 使用自定义 Hooks 替代 Store.use() 调用
+  useUserInit();
+  useLuminaInit();
+  useLuminaQuery();
   base.useInitApp();
 
 

@@ -1,0 +1,2078 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lumina OKR 管理系统 - 交互原型</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --primary-light: #e0e7ff;
+      --success: #10b981;
+      --success-light: #dcfce7;
+      --warning: #f59e0b;
+      --warning-light: #fef3c7;
+      --danger: #ef4444;
+      --danger-light: #fee2e2;
+      --bg-main: #f8fafc;
+      --bg-card: #ffffff;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --border: #e2e8f0;
+      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg-main);
+      color: var(--text-primary);
+      line-height: 1.5;
+      padding-bottom: 40px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* ========== Header ========== */
+    .header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow);
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+
+    .btn-secondary {
+      background: var(--bg-main);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--border);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+    }
+
+    .btn-ghost:hover {
+      background: var(--bg-main);
+      color: var(--text-primary);
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+
+    /* ========== Page Title ========== */
+    .page-header {
+      margin: 32px 0 24px;
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .page-subtitle {
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+
+    /* ========== Tabs ========== */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab {
+      padding: 12px 20px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .tab:hover {
+      color: var(--text-primary);
+    }
+
+    .tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    /* ========== OKR Grid ========== */
+    .okr-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .okr-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .okr-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    .okr-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .okr-title-wrapper {
+      flex: 1;
+    }
+
+    .okr-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: all 0.15s;
+    }
+
+    .okr-title:hover {
+      background: var(--bg-main);
+    }
+
+    .okr-title.editing {
+      background: white;
+      border: 2px solid var(--primary);
+      outline: none;
+      padding: 4px 8px;
+    }
+
+    .okr-period {
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: var(--bg-main);
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .okr-menu {
+      position: relative;
+    }
+
+    .okr-menu-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .okr-menu-btn:hover {
+      background: var(--bg-main);
+      color: var(--text-primary);
+    }
+
+    .okr-menu-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: white;
+      border-radius: 8px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border);
+      min-width: 160px;
+      z-index: 10;
+      display: none;
+      overflow: hidden;
+    }
+
+    .okr-menu-dropdown.show {
+      display: block;
+      animation: dropdownFadeIn 0.15s ease;
+    }
+
+    @keyframes dropdownFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .okr-menu-item {
+      padding: 10px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--text-primary);
+      transition: all 0.15s;
+    }
+
+    .okr-menu-item:hover {
+      background: var(--bg-main);
+    }
+
+    .okr-menu-item.danger {
+      color: var(--danger);
+    }
+
+    .okr-menu-item.danger:hover {
+      background: var(--danger-light);
+    }
+
+    /* Progress Bar */
+    .progress-section {
+      margin: 12px 0;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+
+    .progress-label {
+      color: var(--text-secondary);
+    }
+
+    .progress-value {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: var(--bg-main);
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .progress-bar:hover {
+      height: 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 4px;
+      transition: width 0.3s ease, background 0.3s ease;
+    }
+
+    .progress-fill.success {
+      background: var(--success);
+    }
+
+    .progress-fill.warning {
+      background: var(--warning);
+    }
+
+    .progress-fill.danger {
+      background: var(--danger);
+    }
+
+    /* KR List */
+    .kr-list {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .kr-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .kr-item:last-child {
+      border-bottom: none;
+    }
+
+    .kr-checkbox {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+
+    .kr-checkbox:hover {
+      border-color: var(--primary);
+    }
+
+    .kr-checkbox.checked {
+      background: var(--success);
+      border-color: var(--success);
+    }
+
+    .kr-checkbox.checked::after {
+      content: '';
+      width: 8px;
+      height: 4px;
+      border: solid white;
+      border-width: 0 0 2px 2px;
+      transform: rotate(-45deg);
+      margin-top: -1px;
+    }
+
+    .kr-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .kr-title {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .kr-title.completed {
+      text-decoration: line-through;
+      color: var(--text-secondary);
+    }
+
+    .kr-meta {
+      font-size: 12px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .kr-quick-update {
+      padding: 2px 8px;
+      background: var(--primary-light);
+      color: var(--primary);
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .kr-quick-update:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* OKR Status Badge */
+    .okr-status {
+      position: absolute;
+      top: 20px;
+      right: 60px;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    .okr-status.on-track {
+      background: var(--success-light);
+      color: var(--success);
+    }
+
+    .okr-status.at-risk {
+      background: var(--warning-light);
+      color: var(--warning);
+    }
+
+    .okr-status.off-track {
+      background: var(--danger-light);
+      color: var(--danger);
+    }
+
+    /* ========== Modal ========== */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s;
+    }
+
+    .modal-backdrop.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 16px;
+      box-shadow: var(--shadow-xl);
+      width: 90%;
+      max-width: 650px;
+      max-height: 90vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transform: scale(0.95);
+      transition: all 0.2s;
+    }
+
+    .modal-backdrop.show .modal {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .modal-close:hover {
+      background: var(--bg-main);
+      color: var(--text-primary);
+    }
+
+    .modal-body {
+      padding: 24px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Wizard Steps */
+    .wizard-progress {
+      margin-bottom: 24px;
+    }
+
+    .wizard-steps {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .wizard-step {
+      flex: 1;
+      height: 4px;
+      background: var(--bg-main);
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+
+    .wizard-step.active {
+      background: var(--primary);
+    }
+
+    .wizard-step.completed {
+      background: var(--success);
+    }
+
+    .wizard-step-label {
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 8px;
+    }
+
+    /* Form */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+
+    .form-label.required::after {
+      content: '*';
+      color: var(--danger);
+      margin-left: 4px;
+    }
+
+    .form-input,
+    .form-textarea,
+    .form-select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+
+    .form-input:focus,
+    .form-textarea:focus,
+    .form-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-hint {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 6px;
+    }
+
+    .form-error {
+      font-size: 13px;
+      color: var(--danger);
+      margin-top: 6px;
+      display: none;
+    }
+
+    .form-error.show {
+      display: block;
+    }
+
+    /* KR Form */
+    .kr-form-item {
+      background: var(--bg-main);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .kr-form-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .kr-form-item-title {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .kr-form-item-remove {
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .kr-form-item-remove:hover {
+      background: var(--danger-light);
+      color: var(--danger);
+    }
+
+    .kr-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* Period Selector */
+    .period-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .period-option {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .period-option:hover {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .period-option.selected {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    /* ========== Side Panel ========== */
+    .side-panel-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 900;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.25s;
+    }
+
+    .side-panel-backdrop.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .side-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 500px;
+      max-width: 90vw;
+      background: white;
+      box-shadow: var(--shadow-xl);
+      z-index: 901;
+      transform: translateX(100%);
+      transition: transform 0.25s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .side-panel.show {
+      transform: translateX(0);
+    }
+
+    .side-panel-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .side-panel-body {
+      padding: 24px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .side-panel-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* ========== Popover ========== */
+    .popover {
+      position: fixed;
+      background: white;
+      border-radius: 8px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border);
+      padding: 16px;
+      z-index: 800;
+      min-width: 280px;
+      display: none;
+    }
+
+    .popover.show {
+      display: block;
+      animation: popoverFadeIn 0.15s ease;
+    }
+
+    @keyframes popoverFadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .popover-header {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+    }
+
+    .popover-slider {
+      width: 100%;
+      margin: 16px 0;
+    }
+
+    .popover-input-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .popover-input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 14px;
+      width: 80px;
+    }
+
+    .popover-textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 13px;
+      resize: vertical;
+      min-height: 60px;
+      font-family: inherit;
+      margin-bottom: 12px;
+    }
+
+    /* ========== Confirm Dialog ========== */
+    .confirm-dialog {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .confirm-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .confirm-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .confirm-message {
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .confirm-impact {
+      background: var(--bg-main);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 20px;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .confirm-impact-title {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--warning);
+    }
+
+    .confirm-impact-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .confirm-impact-list li {
+      padding: 4px 0;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .confirm-impact-list li::before {
+      content: '•';
+      position: absolute;
+      left: 8px;
+      color: var(--text-secondary);
+    }
+
+    .confirm-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    /* ========== Inline Form ========== */
+    .inline-form {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .inline-form.show {
+      max-height: 500px;
+    }
+
+    .inline-form-inner {
+      padding: 16px;
+      background: var(--bg-main);
+      border-radius: 8px;
+      margin-top: 12px;
+    }
+
+    /* ========== Toast ========== */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1100;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      background: white;
+      border-radius: 8px;
+      box-shadow: var(--shadow-lg);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 300px;
+      border-left: 4px solid var(--primary);
+      animation: toastSlideIn 0.3s ease;
+    }
+
+    @keyframes toastSlideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .toast.success {
+      border-left-color: var(--success);
+    }
+
+    .toast.error {
+      border-left-color: var(--danger);
+    }
+
+    .toast-content {
+      flex: 1;
+    }
+
+    .toast-title {
+      font-weight: 500;
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+
+    .toast-message {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .toast-undo {
+      padding: 6px 12px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    /* ========== Responsive ========== */
+    @media (max-width: 768px) {
+      .okr-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .side-panel {
+        width: 100%;
+      }
+
+      .kr-form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ========== Empty State ========== */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+    }
+
+    .empty-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .empty-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .empty-message {
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    /* ========== Helpers ========== */
+    .hidden {
+      display: none !important;
+    }
+
+    .text-sm {
+      font-size: 13px;
+    }
+
+    .text-muted {
+      color: var(--text-secondary);
+    }
+
+    .mt-2 { margin-top: 8px; }
+    .mt-4 { margin-top: 16px; }
+    .mb-2 { margin-bottom: 8px; }
+    .mb-4 { margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">
+          <span>🎯</span>
+          <span>Lumina OKR</span>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-secondary" onclick="showDemoInfo()">
+            <span>💡</span>
+            <span>交互说明</span>
+          </button>
+          <button class="btn btn-primary" onclick="openCreateOKRModal()">
+            <span>+</span>
+            <span>新建 OKR</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1 class="page-title">我的目标</h1>
+      <p class="page-subtitle">追踪你的目标，把愿景变成现实</p>
+    </div>
+
+    <!-- Tabs -->
+    <nav class="tabs">
+      <button class="tab active" onclick="filterOKR('all')">全部</button>
+      <button class="tab" onclick="filterOKR('yearly')">年度</button>
+      <button class="tab" onclick="filterOKR('quarterly')">季度</button>
+      <button class="tab" onclick="filterOKR('monthly')">月度</button>
+    </nav>
+
+    <!-- OKR Grid -->
+    <div class="okr-grid" id="okrGrid">
+      <!-- OKR Cards will be rendered here -->
+    </div>
+  </div>
+
+  <!-- ========== Create OKR Modal (Wizard) ========== -->
+  <div class="modal-backdrop" id="createOKRModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="wizardTitle">创建 OKR</h2>
+        <button class="modal-close" onclick="closeCreateOKRModal()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Wizard Progress -->
+        <div class="wizard-progress">
+          <div class="wizard-steps">
+            <div class="wizard-step active" data-step="1"></div>
+            <div class="wizard-step" data-step="2"></div>
+            <div class="wizard-step" data-step="3"></div>
+          </div>
+          <div class="wizard-step-label" id="wizardStepLabel">步骤 1/3：选择周期</div>
+        </div>
+
+        <!-- Step 1: Period -->
+        <div class="wizard-step-content" data-step="1">
+          <div class="form-group">
+            <label class="form-label required">目标周期</label>
+            <div class="period-selector">
+              <div class="period-option" data-value="yearly" onclick="selectPeriod('yearly')">
+                <div style="font-size: 24px; margin-bottom: 4px;">📅</div>
+                <div>年度</div>
+              </div>
+              <div class="period-option selected" data-value="quarterly" onclick="selectPeriod('quarterly')">
+                <div style="font-size: 24px; margin-bottom: 4px;">📊</div>
+                <div>季度</div>
+              </div>
+              <div class="period-option" data-value="monthly" onclick="selectPeriod('monthly')">
+                <div style="font-size: 24px; margin-bottom: 4px;">📆</div>
+                <div>月度</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label required">周期时间</label>
+            <input type="text" class="form-input" id="okrPeriodValue" placeholder="例如：2024-Q1" value="2024-Q1">
+            <div class="form-hint">系统会根据当前时间自动推荐</div>
+          </div>
+        </div>
+
+        <!-- Step 2: Objective -->
+        <div class="wizard-step-content hidden" data-step="2">
+          <div class="form-group">
+            <label class="form-label required">目标标题</label>
+            <input type="text" class="form-input" id="okrTitle" placeholder="例如：成为全栈开发者">
+            <div class="form-hint">一个好的目标应该是定性、激励性的</div>
+            <div class="form-error" id="okrTitleError">请输入目标标题</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">目标描述</label>
+            <textarea class="form-textarea" id="okrDescription" placeholder="描述你为什么想实现这个目标，以及它对你的意义..."></textarea>
+            <div class="form-hint">帮助你记住目标背后的动机</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">选择图标</label>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button type="button" class="btn btn-ghost btn-sm icon-option" onclick="selectIcon('🚀')">🚀</button>
+              <button type="button" class="btn btn-ghost btn-sm icon-option" onclick="selectIcon('📚')">📚</button>
+              <button type="button" class="btn btn-ghost btn-sm icon-option" onclick="selectIcon('💪')">💪</button>
+              <button type="button" class="btn btn-ghost btn-sm icon-option" onclick="selectIcon('🎨')">🎨</button>
+              <button type="button" class="btn btn-ghost btn-sm icon-option" onclick="selectIcon('💼')">💼</button>
+              <button type="button" class="btn btn-ghost btn-sm icon-option" onclick="selectIcon('🌟')">🌟</button>
+              <button type="button" class="btn btn-ghost btn-sm icon-option" onclick="selectIcon('🏃')">🏃</button>
+              <button type="button" class="btn btn-ghost btn-sm icon-option" onclick="selectIcon('🎯')">🎯</button>
+            </div>
+            <input type="hidden" id="okrIcon" value="🎯">
+          </div>
+        </div>
+
+        <!-- Step 3: Key Results -->
+        <div class="wizard-step-content hidden" data-step="3">
+          <div class="form-group">
+            <label class="form-label required">关键结果</label>
+            <div class="form-hint mb-4">关键结果应该是可量化的指标，建议 3-5 个</div>
+            <div id="krFormList">
+              <!-- KR Form Items will be added here -->
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="addKRForm()" style="width: 100%; justify-content: center; margin-top: 8px;">
+              <span>+</span>
+              <span>添加关键结果</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Preview -->
+        <div class="wizard-step-content hidden" data-step="preview">
+          <div style="background: var(--bg-main); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;" id="previewTitle">OKR 预览</h3>
+            <div id="previewContent"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" id="wizardPrevBtn" onclick="wizardPrev()" disabled>上一步</button>
+        <button type="button" class="btn btn-primary" id="wizardNextBtn" onclick="wizardNext()">下一步</button>
+        <button type="button" class="btn btn-primary hidden" id="wizardCreateBtn" onclick="createOKR()">创建 OKR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== Side Panel (Edit OKR) ========== -->
+  <div class="side-panel-backdrop" id="sidePanelBackdrop" onclick="closeSidePanel()"></div>
+  <div class="side-panel" id="editSidePanel">
+    <div class="side-panel-header">
+      <h2 class="modal-title">编辑 OKR</h2>
+      <button class="modal-close" onclick="closeSidePanel()">×</button>
+    </div>
+    <div class="side-panel-body">
+      <div class="form-group">
+        <label class="form-label required">目标标题</label>
+        <input type="text" class="form-input" id="editOKRTitle">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">目标描述</label>
+        <textarea class="form-textarea" id="editOKRDescription"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">周期时间</label>
+        <input type="text" class="form-input" id="editOKRPeriod">
+      </div>
+
+      <div style="border-top: 1px solid var(--border); padding-top: 20px; margin-top: 20px;">
+        <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">关键结果</h4>
+        <div id="editKRList"></div>
+      </div>
+    </div>
+    <div class="side-panel-footer">
+      <button type="button" class="btn btn-ghost" onclick="closeSidePanel()">取消</button>
+      <button type="button" class="btn btn-primary" onclick="saveOKREdit()">保存</button>
+    </div>
+  </div>
+
+  <!-- ========== Progress Update Popover ========== -->
+  <div class="popover" id="progressPopover">
+    <div class="popover-header" id="popoverTitle">更新进度</div>
+    <input type="range" class="popover-slider" id="progressSlider" min="0" max="100" value="0">
+    <div class="popover-input-group">
+      <span style="font-size: 13px; color: var(--text-secondary);">当前值:</span>
+      <input type="number" class="popover-input" id="progressValue" value="0">
+      <span style="font-size: 13px; color: var(--text-secondary);" id="progressTarget">/ 100</span>
+    </div>
+    <textarea class="popover-textarea" id="progressNote" placeholder="添加更新备注（可选）..."></textarea>
+    <div style="display: flex; gap: 8px;">
+      <button type="button" class="btn btn-secondary btn-sm" style="flex: 1;" onclick="closeProgressPopover()">取消</button>
+      <button type="button" class="btn btn-primary btn-sm" style="flex: 1;" onclick="saveProgress()">更新</button>
+    </div>
+  </div>
+
+  <!-- ========== Delete Confirm Dialog ========== -->
+  <div class="modal-backdrop" id="deleteModal">
+    <div class="modal" style="max-width: 450px;">
+      <div class="modal-body">
+        <div class="confirm-dialog">
+          <div class="confirm-icon">⚠️</div>
+          <h3 class="confirm-title" id="deleteTitle">删除 OKR</h3>
+          <div class="confirm-message" id="deleteMessage">确定要删除这个 OKR 吗？</div>
+          <div class="confirm-impact hidden" id="deleteImpact">
+            <div class="confirm-impact-title">将同时删除：</div>
+            <ul class="confirm-impact-list" id="deleteImpactList"></ul>
+          </div>
+          <div class="confirm-actions">
+            <button type="button" class="btn btn-ghost" onclick="closeDeleteModal()">取消</button>
+            <button type="button" class="btn btn-danger" onclick="confirmDelete()">删除</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== Toast Container ========== -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    // ========== Data Store ==========
+    let okrs = [
+      {
+        id: 1,
+        title: '2024年成为全栈开发者',
+        description: '掌握前后端开发技能，能够独立完成完整的 Web 应用',
+        period: 'yearly',
+        periodValue: '2024',
+        icon: '🚀',
+        progress: 35,
+        status: 'on-track',
+        krs: [
+          { id: 1, title: '完成 10 个开源项目贡献', target: 10, current: 3, unit: '个', completed: false },
+          { id: 2, title: '学习并掌握 5 个后端框架', target: 5, current: 2, unit: '个', completed: false },
+          { id: 3, title: '部署 3 个生产级项目', target: 3, current: 1, unit: '个', completed: false }
+        ]
+      },
+      {
+        id: 2,
+        title: '建立个人知识体系',
+        description: '通过持续学习和输出，构建完整的知识管理系统',
+        period: 'quarterly',
+        periodValue: '2024-Q1',
+        icon: '📚',
+        progress: 60,
+        status: 'at-risk',
+        krs: [
+          { id: 1, title: '阅读 12 本技术书籍', target: 12, current: 8, unit: '本', completed: false },
+          { id: 2, title: '写 24 篇技术博客', target: 24, current: 12, unit: '篇', completed: false },
+          { id: 3, title: '建立个人 Wiki 知识库', target: 1, current: 1, unit: '个', completed: true }
+        ]
+      },
+      {
+        id: 3,
+        title: '保持健康生活方式',
+        description: '通过规律运动和健康饮食，保持身体和心理的健康',
+        period: 'quarterly',
+        periodValue: '2024-Q1',
+        icon: '💪',
+        progress: 80,
+        status: 'on-track',
+        krs: [
+          { id: 1, title: '每周运动 4 次', target: 48, current: 40, unit: '次', completed: false },
+          { id: 2, title: '减重 5 公斤', target: 5, current: 4, unit: 'kg', completed: false },
+          { id: 3, title: '每天睡够 7 小时', target: 90, current: 85, unit: '天', completed: false }
+        ]
+      }
+    ];
+
+    let currentWizardStep = 1;
+    let selectedPeriod = 'quarterly';
+    let selectedIcon = '🎯';
+    let currentEditingOKR = null;
+    let currentUpdatingKR = null;
+    let deletingOKR = null;
+    let currentFilter = 'all';
+
+    // ========== Render Functions ==========
+    function renderOKRs() {
+      const grid = document.getElementById('okrGrid');
+      const filteredOKRs = currentFilter === 'all'
+        ? okrs
+        : okrs.filter(okr => okr.period === currentFilter);
+
+      if (filteredOKRs.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state" style="grid-column: 1/-1;">
+            <div class="empty-icon">📋</div>
+            <div class="empty-title">暂无 OKR</div>
+            <div class="empty-message">点击右上角"新建 OKR"开始创建你的第一个目标</div>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filteredOKRs.map(okr => {
+        const statusClass = okr.status;
+        const statusText = {
+          'on-track': '正常',
+          'at-risk': '有风险',
+          'off-track': '落后'
+        }[okr.status];
+
+        const progressColor = okr.progress >= 80 ? 'success' : okr.progress >= 50 ? '' : 'warning';
+
+        return `
+          <div class="okr-card" data-id="${okr.id}">
+            <span class="okr-status ${statusClass}">${statusText}</span>
+            <div class="okr-card-header">
+              <div class="okr-title-wrapper">
+                <div class="okr-title" contenteditable="false" onblur="handleInlineEdit(${okr.id}, this)" onclick="startInlineEdit(this)">${okr.icon} ${okr.title}</div>
+                <span class="okr-period">${okr.periodValue}</span>
+              </div>
+              <div class="okr-menu">
+                <button class="okr-menu-btn" onclick="toggleOKRMenu(${okr.id})">⋮</button>
+                <div class="okr-menu-dropdown" id="okrMenu${okr.id}">
+                  <div class="okr-menu-item" onclick="openEditSidePanel(${okr.id})">
+                    <span>✏️</span>
+                    <span>编辑</span>
+                  </div>
+                  <div class="okr-menu-item" onclick="duplicateOKR(${okr.id})">
+                    <span>📋</span>
+                    <span>复制</span>
+                  </div>
+                  <div class="okr-menu-item danger" onclick="openDeleteModal(${okr.id})">
+                    <span>🗑️</span>
+                    <span>删除</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="progress-section">
+              <div class="progress-header">
+                <span class="progress-label">整体进度</span>
+                <span class="progress-value">${okr.progress}%</span>
+              </div>
+              <div class="progress-bar" onclick="openQuickProgress(${okr.id})">
+                <div class="progress-fill ${progressColor}" style="width: ${okr.progress}%"></div>
+              </div>
+            </div>
+
+            <div class="kr-list">
+              ${okr.krs.map(kr => `
+                <div class="kr-item">
+                  <div class="kr-checkbox ${kr.completed ? 'checked' : ''}" onclick="toggleKRComplete(${okr.id}, ${kr.id})"></div>
+                  <div class="kr-content">
+                    <div class="kr-title ${kr.completed ? 'completed' : ''}">${kr.title}</div>
+                    <div class="kr-meta">
+                      <span>${kr.current}/${kr.target} ${kr.unit}</span>
+                      <span class="kr-quick-update" onclick="openKRProgress(${okr.id}, ${kr.id}, event)">更新进度</span>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+
+            <!-- Inline Add KR Form -->
+            <div class="inline-form" id="inlineAddKR${okr.id}">
+              <div class="inline-form-inner">
+                <input type="text" class="form-input mb-2" placeholder="关键结果标题" id="newKRTitle${okr.id}">
+                <div class="kr-form-grid">
+                  <input type="number" class="form-input" placeholder="目标值" id="newKRTarget${okr.id}">
+                  <input type="text" class="form-input" placeholder="单位" id="newKRUnit${okr.id}">
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 12px;">
+                  <button type="button" class="btn btn-primary btn-sm" onclick="addNewKR(${okr.id})">添加</button>
+                  <button type="button" class="btn btn-ghost btn-sm" onclick="toggleInlineAddKR(${okr.id})">取消</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ========== OKR Card Interactions ==========
+    function toggleOKRMenu(id) {
+      event.stopPropagation();
+      const menu = document.getElementById(`okrMenu${id}`);
+      document.querySelectorAll('.okr-menu-dropdown').forEach(m => {
+        if (m !== menu) m.classList.remove('show');
+      });
+      menu.classList.toggle('show');
+    }
+
+    // Close menus when clicking outside
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.okr-menu-dropdown').forEach(m => m.classList.remove('show'));
+    });
+
+    // Inline Edit Title
+    function startInlineEdit(element) {
+      element.contentEditable = true;
+      element.focus();
+      // Select all text
+      document.execCommand('selectAll', false, null);
+      element.classList.add('editing');
+    }
+
+    function handleInlineEdit(okrId, element) {
+      element.contentEditable = false;
+      element.classList.remove('editing');
+      const newTitle = element.textContent.trim();
+      if (newTitle && newTitle !== element.dataset.original) {
+        const okr = okrs.find(o => o.id === okrId);
+        if (okr) {
+          const oldTitle = okr.title;
+          okr.title = newTitle;
+          showToast('success', '已更新', `目标标题已从"${oldTitle}"改为"${newTitle}"`, () => {
+            okr.title = oldTitle;
+            renderOKRs();
+          });
+        }
+      }
+      renderOKRs();
+    }
+
+    function toggleKRComplete(okrId, krId) {
+      const okr = okrs.find(o => o.id === okrId);
+      const kr = okr.krs.find(k => k.id === krId);
+      kr.completed = !kr.completed;
+      recalculateOKRProgress(okr);
+      renderOKRs();
+    }
+
+    function recalculateOKRProgress(okr) {
+      const total = okr.krs.length;
+      const completed = okr.krs.filter(kr => kr.completed).length;
+      okr.progress = Math.round((completed / total) * 100);
+    }
+
+    function toggleInlineAddKR(okrId) {
+      const form = document.getElementById(`inlineAddKR${okrId}`);
+      form.classList.toggle('show');
+      if (form.classList.contains('show')) {
+        document.getElementById(`newKRTitle${okrId}`).focus();
+      }
+    }
+
+    function addNewKR(okrId) {
+      const title = document.getElementById(`newKRTitle${okrId}`).value.trim();
+      const target = document.getElementById(`newKRTarget${okrId}`).value;
+      const unit = document.getElementById(`newKRUnit${okrId}`).value.trim() || '个';
+
+      if (!title || !target) {
+        showToast('error', '添加失败', '请填写完整的 KR 信息');
+        return;
+      }
+
+      const okr = okrs.find(o => o.id === okrId);
+      okr.krs.push({
+        id: Date.now(),
+        title,
+        target: parseInt(target),
+        current: 0,
+        unit,
+        completed: false
+      });
+
+      renderOKRs();
+      showToast('success', '添加成功', '关键结果已添加');
+    }
+
+    // ========== Create OKR Wizard ==========
+    function openCreateOKRModal() {
+      currentWizardStep = 1;
+      selectedPeriod = 'quarterly';
+      selectedIcon = '🎯';
+      document.getElementById('createOKRModal').classList.add('show');
+      document.getElementById('okrPeriodValue').value = '2024-Q1';
+      document.getElementById('okrTitle').value = '';
+      document.getElementById('okrDescription').value = '';
+      updateWizardUI();
+      initKRForms();
+    }
+
+    function closeCreateOKRModal() {
+      document.getElementById('createOKRModal').classList.remove('show');
+    }
+
+    function selectPeriod(period) {
+      selectedPeriod = period;
+      document.querySelectorAll('.period-option').forEach(opt => opt.classList.remove('selected'));
+      document.querySelector(`.period-option[data-value="${period}"]`).classList.add('selected');
+
+      const periodMap = {
+        'yearly': '2024',
+        'quarterly': '2024-Q1',
+        'monthly': '2024-01'
+      };
+      document.getElementById('okrPeriodValue').value = periodMap[period];
+    }
+
+    function selectIcon(icon) {
+      selectedIcon = icon;
+      document.getElementById('okrIcon').value = icon;
+      document.querySelectorAll('.icon-option').forEach(btn => {
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-ghost');
+      });
+      event.target.classList.remove('btn-ghost');
+      event.target.classList.add('btn-primary');
+    }
+
+    function wizardNext() {
+      if (currentWizardStep === 2) {
+        const title = document.getElementById('okrTitle').value.trim();
+        if (!title) {
+          document.getElementById('okrTitleError').classList.add('show');
+          return;
+        }
+        document.getElementById('okrTitleError').classList.remove('show');
+      }
+
+      if (currentWizardStep < 3) {
+        currentWizardStep++;
+        updateWizardUI();
+      } else {
+        showPreview();
+      }
+    }
+
+    function wizardPrev() {
+      if (currentWizardStep > 1) {
+        currentWizardStep--;
+        updateWizardUI();
+      }
+    }
+
+    function updateWizardUI() {
+      // Update steps
+      document.querySelectorAll('.wizard-step').forEach((step, index) => {
+        step.classList.remove('active', 'completed');
+        if (index + 1 < currentWizardStep) {
+          step.classList.add('completed');
+        } else if (index + 1 === currentWizardStep) {
+          step.classList.add('active');
+        }
+      });
+
+      // Update label
+      const labels = {
+        1: '步骤 1/3：选择周期',
+        2: '步骤 2/3：设定目标',
+        3: '步骤 3/3：设定关键结果'
+      };
+      document.getElementById('wizardStepLabel').textContent = labels[currentWizardStep];
+
+      // Show/hide content
+      document.querySelectorAll('.wizard-step-content').forEach(content => {
+        content.classList.add('hidden');
+      });
+      document.querySelector(`.wizard-step-content[data-step="${currentWizardStep}"]`).classList.remove('hidden');
+
+      // Update buttons
+      document.getElementById('wizardPrevBtn').disabled = currentWizardStep === 1;
+      document.getElementById('wizardNextBtn').classList.toggle('hidden', currentWizardStep === 3);
+      document.getElementById('wizardCreateBtn').classList.toggle('hidden', currentWizardStep !== 3);
+    }
+
+    function initKRForms() {
+      const krList = document.getElementById('krFormList');
+      krList.innerHTML = '';
+      // Add 3 default KR forms
+      for (let i = 0; i < 3; i++) {
+        addKRForm();
+      }
+    }
+
+    function addKRForm() {
+      const krList = document.getElementById('krFormList');
+      const id = Date.now();
+      const html = `
+        <div class="kr-form-item" id="krForm${id}">
+          <div class="kr-form-item-header">
+            <span class="kr-form-item-title">关键结果 ${krList.children.length + 1}</span>
+            <button type="button" class="kr-form-item-remove" onclick="removeKRForm(${id})">×</button>
+          </div>
+          <div class="form-group" style="margin-bottom: 12px;">
+            <input type="text" class="form-input kr-title-input" placeholder="例如：完成 10 个开源项目贡献">
+          </div>
+          <div class="kr-form-grid">
+            <div>
+              <label class="form-label" style="font-size: 12px;">目标值</label>
+              <input type="number" class="form-input kr-target-input" placeholder="10" value="10">
+            </div>
+            <div>
+              <label class="form-label" style="font-size: 12px;">单位</label>
+              <input type="text" class="form-input kr-unit-input" placeholder="个" value="个">
+            </div>
+          </div>
+        </div>
+      `;
+      krList.insertAdjacentHTML('beforeend', html);
+    }
+
+    function removeKRForm(id) {
+      const form = document.getElementById(`krForm${id}`);
+      form.remove();
+      // Update titles
+      document.querySelectorAll('.kr-form-item').forEach((item, index) => {
+        item.querySelector('.kr-form-item-title').textContent = `关键结果 ${index + 1}`;
+      });
+    }
+
+    function showPreview() {
+      document.querySelectorAll('.wizard-step-content').forEach(content => {
+        content.classList.add('hidden');
+      });
+      document.querySelector('.wizard-step-content[data-step="preview"]').classList.remove('hidden');
+
+      const title = document.getElementById('okrTitle').value.trim();
+      const description = document.getElementById('okrDescription').value.trim();
+      const period = document.getElementById('okrPeriodValue').value.trim();
+
+      let krsHTML = '';
+      document.querySelectorAll('.kr-form-item').forEach(item => {
+        const krTitle = item.querySelector('.kr-title-input').value.trim();
+        const krTarget = item.querySelector('.kr-target-input').value;
+        const krUnit = item.querySelector('.kr-unit-input').value.trim();
+        if (krTitle && krTarget) {
+          krsHTML += `
+            <div style="padding: 8px 0; border-bottom: 1px solid var(--border);">
+              <div style="font-size: 14px;">${krTitle}</div>
+              <div style="font-size: 12px; color: var(--text-secondary);">0 / ${krTarget} ${krUnit}</div>
+            </div>
+          `;
+        }
+      });
+
+      document.getElementById('previewContent').innerHTML = `
+        <div style="font-size: 18px; font-weight: 600; margin-bottom: 4px;">${selectedIcon} ${title}</div>
+        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">${period}</div>
+        ${description ? `<div style="font-size: 14px; margin-bottom: 16px;">${description}</div>` : ''}
+        <div style="font-weight: 600; margin-bottom: 8px; font-size: 14px;">关键结果</div>
+        ${krsHTML || '<div style="color: var(--text-secondary); font-size: 14px;">暂无关键结果</div>'}
+      `;
+
+      document.getElementById('wizardPrevBtn').classList.remove('hidden');
+      document.getElementById('wizardCreateBtn').classList.remove('hidden');
+      document.getElementById('wizardStepLabel').textContent = '预览';
+    }
+
+    function createOKR() {
+      const title = document.getElementById('okrTitle').value.trim();
+      const description = document.getElementById('okrDescription').value.trim();
+      const period = document.getElementById('okrPeriodValue').value.trim();
+
+      if (!title) {
+        showToast('error', '创建失败', '请输入目标标题');
+        return;
+      }
+
+      const krs = [];
+      document.querySelectorAll('.kr-form-item').forEach(item => {
+        const krTitle = item.querySelector('.kr-title-input').value.trim();
+        const krTarget = parseInt(item.querySelector('.kr-target-input').value);
+        const krUnit = item.querySelector('.kr-unit-input').value.trim() || '个';
+        if (krTitle && krTarget) {
+          krs.push({
+            id: Date.now() + Math.random(),
+            title: krTitle,
+            target: krTarget,
+            current: 0,
+            unit: krUnit,
+            completed: false
+          });
+        }
+      });
+
+      const newOKR = {
+        id: Date.now(),
+        title,
+        description,
+        period: selectedPeriod,
+        periodValue: period,
+        icon: selectedIcon,
+        progress: 0,
+        status: 'on-track',
+        krs
+      };
+
+      okrs.unshift(newOKR);
+      renderOKRs();
+      closeCreateOKRModal();
+      showToast('success', '创建成功', `"${title}"已创建，开始添加任务吧！`);
+    }
+
+    // ========== Side Panel (Edit) ==========
+    function openEditSidePanel(okrId) {
+      currentEditingOKR = okrs.find(o => o.id === okrId);
+      if (!currentEditingOKR) return;
+
+      document.getElementById('editOKRTitle').value = currentEditingOKR.title;
+      document.getElementById('editOKRDescription').value = currentEditingOKR.description || '';
+      document.getElementById('editOKRPeriod').value = currentEditingOKR.periodValue;
+
+      const krList = document.getElementById('editKRList');
+      krList.innerHTML = currentEditingOKR.krs.map(kr => `
+        <div class="kr-form-item">
+          <div class="form-group" style="margin-bottom: 12px;">
+            <input type="text" class="form-input edit-kr-title" value="${kr.title}" data-kr-id="${kr.id}">
+          </div>
+          <div class="kr-form-grid">
+            <div>
+              <label class="form-label" style="font-size: 12px;">当前值</label>
+              <input type="number" class="form-input edit-kr-current" value="${kr.current}" data-kr-id="${kr.id}">
+            </div>
+            <div>
+              <label class="form-label" style="font-size: 12px;">目标值</label>
+              <input type="number" class="form-input edit-kr-target" value="${kr.target}" data-kr-id="${kr.id}">
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('sidePanelBackdrop').classList.add('show');
+      document.getElementById('editSidePanel').classList.add('show');
+    }
+
+    function closeSidePanel() {
+      document.getElementById('sidePanelBackdrop').classList.remove('show');
+      document.getElementById('editSidePanel').classList.remove('show');
+      currentEditingOKR = null;
+    }
+
+    function saveOKREdit() {
+      if (!currentEditingOKR) return;
+
+      currentEditingOKR.title = document.getElementById('editOKRTitle').value.trim();
+      currentEditingOKR.description = document.getElementById('editOKRDescription').value.trim();
+      currentEditingOKR.periodValue = document.getElementById('editOKRPeriod').value.trim();
+
+      document.querySelectorAll('.edit-kr-title').forEach(input => {
+        const krId = parseFloat(input.dataset.krId);
+        const kr = currentEditingOKR.krs.find(k => k.id === krId);
+        if (kr) kr.title = input.value.trim();
+      });
+
+      document.querySelectorAll('.edit-kr-current').forEach(input => {
+        const krId = parseFloat(input.dataset.krId);
+        const kr = currentEditingOKR.krs.find(k => k.id === krId);
+        if (kr) kr.current = parseFloat(input.value) || 0;
+      });
+
+      document.querySelectorAll('.edit-kr-target').forEach(input => {
+        const krId = parseFloat(input.dataset.krId);
+        const kr = currentEditingOKR.krs.find(k => k.id === krId);
+        if (kr) kr.target = parseFloat(input.value) || 1;
+      });
+
+      renderOKRs();
+      closeSidePanel();
+      showToast('success', '保存成功', 'OKR 已更新');
+    }
+
+    // ========== Progress Popover ==========
+    function openKRProgress(okrId, krId, event) {
+      event.stopPropagation();
+      const okr = okrs.find(o => o.id === okrId);
+      const kr = okr.krs.find(k => k.id === krId);
+      currentUpdatingKR = { okrId, krId, kr, okr };
+
+      const popover = document.getElementById('progressPopover');
+      const rect = event.target.getBoundingClientRect();
+      popover.style.top = `${rect.bottom + 8}px`;
+      popover.style.left = `${rect.left - 100}px`;
+
+      document.getElementById('popoverTitle').textContent = kr.title.substring(0, 20) + '...';
+      document.getElementById('progressSlider').max = kr.target;
+      document.getElementById('progressSlider').value = kr.current;
+      document.getElementById('progressValue').value = kr.current;
+      document.getElementById('progressTarget').textContent = `/ ${kr.target} ${kr.unit}`;
+      document.getElementById('progressNote').value = '';
+
+      popover.classList.add('show');
+    }
+
+    function openQuickProgress(okrId) {
+      const okr = okrs.find(o => o.id === okrId);
+      const card = document.querySelector(`.okr-card[data-id="${okrId}"]`);
+      const rect = card.getBoundingClientRect();
+
+      const popover = document.getElementById('progressPopover');
+      popover.style.top = `${rect.top + 100}px`;
+      popover.style.left = `${rect.left + 20}px`;
+
+      document.getElementById('popoverTitle').textContent = `更新 ${okr.title.substring(0, 15)}...`;
+      document.getElementById('progressSlider').max = 100;
+      document.getElementById('progressSlider').value = okr.progress;
+      document.getElementById('progressValue').value = okr.progress;
+      document.getElementById('progressTarget').textContent = '/ 100 %';
+      document.getElementById('progressNote').value = '';
+
+      currentUpdatingKR = { okrId, okr, isOverall: true };
+
+      popover.classList.add('show');
+    }
+
+    function closeProgressPopover() {
+      document.getElementById('progressPopover').classList.remove('show');
+      currentUpdatingKR = null;
+    }
+
+    document.getElementById('progressSlider').addEventListener('input', function() {
+      document.getElementById('progressValue').value = this.value;
+    });
+
+    document.getElementById('progressValue').addEventListener('input', function() {
+      document.getElementById('progressSlider').value = this.value;
+    });
+
+    function saveProgress() {
+      if (!currentUpdatingKR) return;
+
+      const value = parseInt(document.getElementById('progressValue').value) || 0;
+      const note = document.getElementById('progressNote').value.trim();
+
+      if (currentUpdatingKR.isOverall) {
+        currentUpdatingKR.okr.progress = Math.min(100, Math.max(0, value));
+      } else {
+        currentUpdatingKR.kr.current = value;
+        currentUpdatingKR.kr.completed = value >= currentUpdatingKR.kr.target;
+        recalculateOKRProgress(currentUpdatingKR.okr);
+      }
+
+      renderOKRs();
+      closeProgressPopover();
+      showToast('success', '进度已更新', note || '继续保持！', null);
+    }
+
+    // ========== Delete ==========
+    function openDeleteModal(okrId) {
+      deletingOKR = okrs.find(o => o.id === okrId);
+      if (!deletingOKR) return;
+
+      const activeKRs = deletingOKR.krs.filter(kr => !kr.completed).length;
+      const totalKRs = deletingOKR.krs.length;
+
+      document.getElementById('deleteTitle').textContent = activeKRs > 0 ? '取消 OKR' : '删除 OKR';
+      document.getElementById('deleteMessage').textContent = activeKRs > 0
+        ? `此 OKR 有 ${activeKRs} 个进行中的关键结果，确定要取消吗？`
+        : '确定要删除这个 OKR 吗？';
+
+      const impactDiv = document.getElementById('deleteImpact');
+      const impactList = document.getElementById('deleteImpactList');
+
+      if (activeKRs > 0 || totalKRs > 0) {
+        impactDiv.classList.remove('hidden');
+        impactList.innerHTML = `
+          <li>${deletingOKR.krs.length} 个关键结果</li>
+          ${activeKRs > 0 ? `<li>${activeKRs} 个进行中的任务</li>` : ''}
+        `;
+      } else {
+        impactDiv.classList.add('hidden');
+      }
+
+      document.getElementById('deleteModal').classList.add('show');
+    }
+
+    function closeDeleteModal() {
+      document.getElementById('deleteModal').classList.remove('show');
+      deletingOKR = null;
+    }
+
+    function confirmDelete() {
+      if (!deletingOKR) return;
+
+      const index = okrs.findIndex(o => o.id === deletingOKR.id);
+      if (index > -1) {
+        okrs.splice(index, 1);
+        renderOKRs();
+        showToast('success', '已删除', `"${deletingOKR.title}"已移至回收站，30 天内可恢复`, () => {
+          okrs.push(deletingOKR);
+          renderOKRs();
+        });
+      }
+      closeDeleteModal();
+    }
+
+    // ========== Duplicate ==========
+    function duplicateOKR(okrId) {
+      const okr = okrs.find(o => o.id === okrId);
+      if (!okr) return;
+
+      const newOKR = {
+        ...okr,
+        id: Date.now(),
+        title: okr.title + ' (副本)',
+        progress: 0,
+        krs: okr.krs.map(kr => ({ ...kr, id: Date.now() + Math.random(), current: 0, completed: false }))
+      };
+
+      okrs.unshift(newOKR);
+      renderOKRs();
+      showToast('success', '复制成功', `已创建"${okr.title}"的副本`);
+    }
+
+    // ========== Filter ==========
+    function filterOKR(type) {
+      currentFilter = type;
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+      renderOKRs();
+    }
+
+    // ========== Toast ==========
+    function showToast(type, title, message, onUndo) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `
+        <div class="toast-content">
+          <div class="toast-title">${title}</div>
+          <div class="toast-message">${message}</div>
+        </div>
+        ${onUndo ? '<button class="toast-undo">撤销</button>' : ''}
+      `;
+
+      if (onUndo) {
+        toast.querySelector('.toast-undo').addEventListener('click', () => {
+          onUndo();
+          toast.remove();
+        });
+      }
+
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // ========== Demo Info ==========
+    function showDemoInfo() {
+      const info = `
+🎯 Lumina OKR 交互原型说明
+
+【创建 OKR】
+• 点击右上角"新建 OKR"按钮
+• 体验分步向导（周期 → 目标 → 关键结果 → 预览）
+
+【编辑 OKR】
+• 点击标题可内联编辑
+• 点击菜单 → 编辑打开侧边栏
+
+【更新进度】
+• 点击进度条快速更新整体进度
+• 点击 KR 的"更新进度"更新单个 KR
+
+【删除 OKR】
+• 点击菜单 → 删除
+• 查看级联影响提示
+
+【其他交互】
+• 点击 KR 复选框标记完成
+• Tab 切换筛选不同周期的 OKR
+      `;
+      alert(info);
+    }
+
+    // ========== Init ==========
+    renderOKRs();
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeCreateOKRModal();
+        closeSidePanel();
+        closeProgressPopover();
+        closeDeleteModal();
+      }
+    });
+  </script>
+</body>
+</html>

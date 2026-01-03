@@ -50,29 +50,28 @@ export const PerferSetting = observer(() => {
       rightContent={<ThemeColor
         value={Lumina.config.value?.themeColor}
         onChange={async (background, foreground) => {
+          const bgColor = background as string | undefined;
+          const fgColor = foreground as string | undefined;
+
           await PromiseCall(api.config.update.mutate({
             key: 'themeColor',
-            value: background
+            value: bgColor
           }), { autoAlert: false })
           await PromiseCall(api.config.update.mutate({
             key: 'themeForegroundColor',
-            value: foreground
+            value: fgColor
           }))
 
           const darkElement = document.querySelector('.dark')
           if (darkElement) {
-            //@ts-ignore
-            darkElement.style.setProperty('--primary', background || "#f9f9f9")
-            //@ts-ignore
-            darkElement.style.setProperty('--primary-foreground', foreground || "#000000")
+            darkElement.style.setProperty('--primary', bgColor || "#f9f9f9")
+            darkElement.style.setProperty('--primary-foreground', fgColor || "#000000")
           }
 
           const lightElement = document.querySelector('.light')
           if (lightElement) {
-            //@ts-ignore
-            lightElement.style.setProperty('--primary', background || "black")
-            //@ts-ignore
-            lightElement.style.setProperty('--primary-foreground', foreground || "hsl(210 40% 98%)")
+            lightElement.style.setProperty('--primary', bgColor || "black")
+            lightElement.style.setProperty('--primary-foreground', fgColor || "hsl(210 40% 98%)")
           }
         }}
       />} />

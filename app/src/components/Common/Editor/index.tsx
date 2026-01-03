@@ -70,8 +70,8 @@ const Editor = observer(({ content, onChange, onSend, isSendLoading, originFiles
 
   useEditorInit(store, onChange, onSend, mode, originReference, initalContent);
   useEditorEvents(store);
-  useEditorFiles(store, Lumina, originFiles);
-  useEditorHeight(onHeightChange, Lumina, content, store);
+  useEditorFiles(store, originFiles);
+  useEditorHeight(onHeightChange, content, store);
 
   // Handle initial data from sharing
   useEffect(() => {
@@ -124,8 +124,7 @@ const Editor = observer(({ content, onChange, onSend, isSendLoading, originFiles
         ${store.isFullscreen ? 'fixed inset-0 z-[9999] m-0 rounded-none bg-white p-6' : ''}`}
         ref={el => {
           if (el) {
-            //@ts-ignore
-            el.__storeInstance = store;
+            (el as any).__storeInstance = store;
           }
         }}>
 
@@ -149,7 +148,8 @@ const Editor = observer(({ content, onChange, onSend, isSendLoading, originFiles
           </div>
 
           {/* Editor Footer Slots */}
-          {pluginApi.customEditorFooterSlots
+          {/* TODO: Restore plugin system when available
+          {pluginApi?.customEditorFooterSlots
             .filter(slot => {
               if (slot.isHidden) return false;
               if (slot.showCondition && !slot.showCondition(mode)) return false;
@@ -171,6 +171,7 @@ const Editor = observer(({ content, onChange, onSend, isSendLoading, originFiles
                 </div>
               </div>
             ))}
+          */}
 
           <div className='flex w-full items-center gap-1 mt-auto'>
             {!hiddenToolbar && (

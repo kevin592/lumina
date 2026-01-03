@@ -1,4 +1,4 @@
-import {  makeObservable } from "mobx";
+import {  makeObservable, observable } from "mobx";
 import { type Store, type StoreClass } from "./standard/base";
 import { useLocalObservable } from "mobx-react-lite";
 
@@ -6,7 +6,7 @@ import { useLocalObservable } from "mobx-react-lite";
 export class RootStore {
   instanceMap = new Map<Function, Map<string, Store>>();
   instance: Record<string, Store> = {};
-  providers: Store[] = [];
+  providers: Store[] = observable.array([]);
   isInited = false;
 
   static init(args: Partial<RootStore> = {}): RootStore {
@@ -31,6 +31,18 @@ export class RootStore {
     if (this.instanceMap.get(store.constructor)?.get(instanceMapId)) {
       return;
     }
+
+    // 检查 providers 数组中是否已经存在相同 sid 的 store
+    if (store.provider && this.providers.some(p => p.sid === store.sid)) {
+      // 如果已存在，只更新 instanceMap，不添加到 providers
+      this.instanceMap.get(store.constructor)?.set(instanceMapId, store);
+      this.instance[instanceId] = store;
+      if (store.init) {
+        store.init();
+      }
+      return;
+    }
+
     if (store.autoObservable) {
     }
     if (store.provider) {
@@ -88,10 +100,8 @@ export class RootStore {
   }
 
   static Local<T>(func: () => T, config: { sid?: string; args?: Partial<T> } = {}, ann?: any): T {
-    //@ts-ignore
-    const val = useLocalObservable(func, ann);
+    const val = useLocalObservable(func, ann) as T;
     RootStore.init().instance["Local." + config.sid] = val;
-    //@ts-ignore
     return val;
   }
 }

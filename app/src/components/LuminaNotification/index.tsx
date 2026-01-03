@@ -99,8 +99,7 @@ export const LuminaNotification = observer(() => {
       <PopoverContent className="w-[350px] p-0">
         <div className="flex items-center justify-between p-4  w-full">
           <div className="text-xl font-semibold">{t('notification')}</div>
-          {/* @ts-ignore  */}
-          {store?.unreadCount?.value > 0 && (
+          {((store?.unreadCount as any)?.value ?? 0) > 0 && (
             <Button
               color="success"
               variant="light"

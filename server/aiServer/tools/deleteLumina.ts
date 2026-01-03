@@ -6,11 +6,10 @@ import { verifyToken } from '@server/lib/helper';
 export const deleteLuminaTool = createTool({
   id: 'delete-lumina-tool',
   description: 'you are a lumina assistant,you can use api to delete lumina,save to database',
-  //@ts-ignore
   inputSchema: z.object({
     ids: z.array(z.number()),
     token: z.string().optional().describe("internal use, do not pass!")
-  }),
+  }) as any,
   execute: async ({ context, runtimeContext }) => {
     const accountId = runtimeContext?.get('accountId') || (await verifyToken(context.token))?.sub;
 

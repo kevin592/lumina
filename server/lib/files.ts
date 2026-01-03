@@ -1,85 +1,58 @@
-import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client, CopyObjectCommand } from "@aws-sdk/client-s3";
 import { getGlobalConfig } from "../routerTrpc/config";
 import { UPLOAD_FILE_PATH } from "@shared/lib/pathConstant";
-import fs, { unlink, writeFile } from 'fs/promises';
 import path from 'path';
 import { cache } from "@shared/lib/cache";
-import { prisma } from "../prisma";
+import { S3Client } from "@aws-sdk/client-s3";
 import { Readable } from 'stream';
-import { Upload } from "@aws-sdk/lib-storage";
-import { PassThrough } from 'stream';
-import { createWriteStream } from "fs";
+import { S3FileService } from "./s3FileService";
+import { LocalFileService } from "./localFileService";
+import { FileHelpers } from "./fileHelpers";
 
+/**
+ * 文件服务
+ * 统一的文件操作接口，支持本地和 S3 存储
+ */
 export class FileService {
+  /**
+   * 获取 S3 客户端实例（带缓存）
+   */
   public static async getS3Client() {
     const config = await getGlobalConfig({ useAdmin: true });
-    return cache.wrap(`${config.s3Endpoint}-${config.s3Region}-${config.s3Bucket}-${config.s3AccessKeyId}-${config.s3AccessKeySecret}`, async () => {
-      const s3ClientInstance = new S3Client({
-        endpoint: config.s3Endpoint,
-        region: config.s3Region,
-        credentials: {
-          accessKeyId: config.s3AccessKeyId,
-          secretAccessKey: config.s3AccessKeySecret,
-        },
-        forcePathStyle: true,
-      });
-      return { s3ClientInstance, config };
-    }, { ttl: 60 * 60 * 86400 * 1000 })
+    return cache.wrap(
+      `${config.s3Endpoint}-${config.s3Region}-${config.s3Bucket}-${config.s3AccessKeyId}-${config.s3AccessKeySecret}`,
+      async () => {
+        const s3ClientInstance = new S3Client({
+          endpoint: config.s3Endpoint,
+          region: config.s3Region,
+          credentials: {
+            accessKeyId: config.s3AccessKeyId,
+            secretAccessKey: config.s3AccessKeySecret,
+          },
+          forcePathStyle: true,
+        });
+        return { s3ClientInstance, config };
+      },
+      { ttl: 60 * 60 * 86400 * 1000 }
+    );
   }
 
-  private static async writeFileSafe(baseName: string, extension: string, buffer: Buffer, attempt: number = 0) {
-    const MAX_ATTEMPTS = 20;
-    const config = await getGlobalConfig({ useAdmin: true });
-
-    if (attempt >= MAX_ATTEMPTS) {
-      throw new Error('MAX_ATTEMPTS_REACHED');
-    }
-
-    const sanitizeFileName = (name: string) => {
-      try {
-        const decodedName = decodeURIComponent(name);
-        return decodedName
-          .replace(/[<>:"/\\|?*]/g, '_')
-          .replace(/\s+/g, '_');
-      } catch (error) {
-        return name
-          .replace(/[<>:"/\\|?*]/g, '_')
-          .replace(/\s+/g, '_');
-      }
-    };
-
-    let filename = attempt === 0 ?
-      `${sanitizeFileName(baseName)}${extension}` :
-      `${sanitizeFileName(baseName)}_${Date.now()}${extension}`;
-
-    let customPath = config.localCustomPath || '/';
-    if (customPath) {
-      customPath = customPath.startsWith('/') ? customPath : '/' + customPath;
-      customPath = customPath.endsWith('/') ? customPath : customPath + '/';
-    }
-
-    try {
-      const filePath = path.join(`${UPLOAD_FILE_PATH}${customPath}` + filename);
-      await fs.access(filePath);
-      return this.writeFileSafe(baseName, extension, buffer, attempt + 1);
-    } catch (error) {
-      const filePath = path.join(`${UPLOAD_FILE_PATH}${customPath}` + filename);
-      await fs.mkdir(path.dirname(filePath), { recursive: true });
-      try {
-        //@ts-ignore
-        await writeFile(filePath, buffer);
-      } catch (error) {
-        console.error('Error writing file:', error);
-        throw error;
-      }
-      return `${customPath}${filename}`.replace(/^\//, '');
-    }
-  }
-
+  /**
+   * 上传文件（Buffer）
+   */
   static async uploadFile({
-    buffer, originalName, type, withOutAttachment = false, accountId, metadata
+    buffer,
+    originalName,
+    type,
+    withOutAttachment = false,
+    accountId,
+    metadata
   }: {
-    buffer: Buffer, originalName: string, type: string, withOutAttachment?: boolean, accountId: number, metadata?: any
+    buffer: Buffer;
+    originalName: string;
+    type: string;
+    withOutAttachment?: boolean;
+    accountId: number;
+    metadata?: any;
   }) {
     const extension = path.extname(originalName);
     const baseName = path.basename(originalName, extension);
@@ -95,150 +68,78 @@ export class FileService {
         customPath = customPath.endsWith('/') ? customPath : customPath + '/';
       }
 
-      const timestampedFileName = `${baseName}_${timestamp}${extension}`;
-      const s3Key = `${customPath}${timestampedFileName}`.replace(/^\//, '');
+      const { filePath, fileName } = await S3FileService.uploadBuffer(
+        s3ClientInstance,
+        config,
+        buffer,
+        baseName,
+        extension,
+        timestamp,
+        customPath
+      );
 
-      const command = new PutObjectCommand({
-        Bucket: config.s3Bucket,
-        Key: s3Key,
-        Body: buffer,
-      });
-
-      await s3ClientInstance.send(command);
-      const s3Url = `/api/s3file/${s3Key}`;
       if (!withOutAttachment) {
-        await FileService.createAttachment({
-          path: s3Url,
-          name: FileService.getOriginFilename(timestampedFileName),
+        await FileHelpers.createAttachment({
+          path: filePath,
+          name: FileHelpers.getOriginFilename(fileName),
           size: buffer.length,
           type,
           accountId,
           metadata
         });
       }
-      return { filePath: s3Url, fileName: FileService.getOriginFilename(timestampedFileName) };
+      return { filePath, fileName: FileHelpers.getOriginFilename(fileName) };
     } else {
-      const filename = await this.writeFileSafe(baseName, extension, buffer);
-      await FileService.createAttachment({
-        path: `/api/file/${filename}`,
-        name: FileService.getOriginFilename(filename),
-        size: buffer.length,
-        type,
-        accountId,
-        metadata
-      });
-      return { filePath: `/api/file/${filename}`, fileName: FileService.getOriginFilename(filename) };
-    }
-  }
-
-  static getOriginFilename(name: string) {
-    const match = name.match(/-[^-]+(\.[^.]+)$/);
-    return match ? match[0].substring(1) : name;
-  }
-
-  static async deleteFile(api_attachment_path: string) {
-    const config = await getGlobalConfig({ useAdmin: true });
-    if (api_attachment_path.includes('/api/s3file/')) {
-      const { s3ClientInstance } = await this.getS3Client();
-      const fileName = api_attachment_path.replace('/api/s3file/', "");
-      const command = new DeleteObjectCommand({
-        Bucket: config.s3Bucket,
-        Key: fileName,
-      });
-      await s3ClientInstance.send(command);
-      const attachmentPath = await prisma.attachments.findFirst({ where: { path: api_attachment_path } })
-      if (attachmentPath) {
-        await prisma.attachments.delete({ where: { id: attachmentPath.id } })
+      let customPath = config.localCustomPath || '';
+      if (customPath) {
+        customPath = customPath.startsWith('/') ? customPath : '/' + customPath;
+        customPath = customPath.endsWith('/') ? customPath : customPath + '/';
       }
-    } else {
-      const filepath = path.join(UPLOAD_FILE_PATH, api_attachment_path.replace('/api/file/', ""));
-      const attachmentPath = await prisma.attachments.findFirst({ where: { path: api_attachment_path } })
-      if (attachmentPath) {
-        await prisma.attachments.delete({ where: { id: attachmentPath.id } })
+
+      const filename = await LocalFileService.writeFileSafe(
+        baseName,
+        extension,
+        buffer,
+        0,
+        config
+      );
+
+      if (!withOutAttachment) {
+        await FileHelpers.createAttachment({
+          path: `/api/file/${filename}`,
+          name: FileHelpers.getOriginFilename(filename),
+          size: buffer.length,
+          type,
+          accountId,
+          metadata
+        });
       }
-      await unlink(filepath);
-    }
-  }
-
-
-  /**
-   * Get file buffer from S3 or local storage without creating temporary files
-   */
-  static async getFileBuffer(filePath: string): Promise<Buffer> {
-    const config = await getGlobalConfig({ useAdmin: true });
-    const fileName = filePath.replace('/api/file/', '').replace('/api/s3file/', '');
-
-    if (config.objectStorage === 's3') {
-      const { s3ClientInstance } = await this.getS3Client();
-      const command = new GetObjectCommand({
-        Bucket: config.s3Bucket,
-        Key: fileName,
-      });
-
-      const response = await s3ClientInstance.send(command);
-      const chunks: any[] = [];
-      for await (const chunk of response.Body as any) {
-        chunks.push(chunk);
-      }
-      return Buffer.concat(chunks);
-    } else {
-      const localPath = path.join(UPLOAD_FILE_PATH, fileName);
-      return await fs.readFile(localPath);
+      return { filePath: `/api/file/${filename}`, fileName: FileHelpers.getOriginFilename(filename) };
     }
   }
 
   /**
-   * Get temporary file path (creates local copy for S3 files)
-   * WARNING: This method creates temporary files for S3 storage. Use getFileBuffer() when possible.
-   * Remember to clean up the returned path for S3 files after use.
+   * 上传文件（流）
    */
-  static async getFile(filePath: string): Promise<{ path: string; isTemporary: boolean; cleanup?: () => Promise<void> }> {
-    const config = await getGlobalConfig({ useAdmin: true });
-    const fileName = filePath.replace('/api/file/', '').replace('/api/s3file/', '');
-
-    if (config.objectStorage === 's3') {
-      const tempPath = path.join(UPLOAD_FILE_PATH, 'temp', `${Date.now()}_${path.basename(fileName)}`);
-      await fs.mkdir(path.dirname(tempPath), { recursive: true });
-
-      const buffer = await this.getFileBuffer(filePath);
-      await fs.writeFile(tempPath, new Uint8Array(buffer));
-
-      return {
-        path: tempPath,
-        isTemporary: true,
-        cleanup: async () => {
-          try {
-            await fs.unlink(tempPath);
-            // Try to remove temp directory if empty
-            try {
-              await fs.rmdir(path.dirname(tempPath));
-            } catch {
-              // Ignore if directory is not empty
-            }
-          } catch (error) {
-            console.warn('Failed to cleanup temporary file:', tempPath, error);
-          }
-        }
-      };
-    } else {
-      return {
-        path: path.join(UPLOAD_FILE_PATH, fileName),
-        isTemporary: false
-      };
-    }
-  }
-
-  static async uploadFileStream(
-    {
-      stream, originalName, fileSize, type, accountId, metadata
-    }: {
-      stream: ReadableStream, originalName: string, fileSize: number, type: string, accountId: number, metadata?: any
-    }) {
+  static async uploadFileStream({
+    stream,
+    originalName,
+    fileSize,
+    type,
+    accountId,
+    metadata
+  }: {
+    stream: ReadableStream;
+    originalName: string;
+    fileSize: number;
+    type: string;
+    accountId: number;
+    metadata?: any;
+  }) {
     const config = await getGlobalConfig({ useAdmin: true });
     const extension = path.extname(originalName);
     const baseName = path.basename(originalName, extension);
     const timestamp = Date.now();
-    const timestampedFileName = `${baseName}_${timestamp}${extension}`;
 
     try {
       if (config.objectStorage === 's3') {
@@ -250,51 +151,25 @@ export class FileService {
           customPath = customPath.endsWith('/') ? customPath : customPath + '/';
         }
 
-        const s3Key = `${customPath}${timestampedFileName}`.replace(/^\//, '');
+        const { filePath, fileName } = await S3FileService.uploadStream(
+          s3ClientInstance,
+          config,
+          stream,
+          baseName,
+          extension,
+          timestamp,
+          customPath
+        );
 
-        const passThrough = new PassThrough();
-        const nodeReadable = Readable.fromWeb(stream as any);
-        
-        // Setup proper error handling
-        nodeReadable.on('error', (err) => {
-          passThrough.destroy(err);
-        });
-
-        nodeReadable.pipe(passThrough);
-
-        const upload = new Upload({
-          client: s3ClientInstance as any,
-          params: {
-            Bucket: config.s3Bucket,
-            Key: s3Key,
-            Body: passThrough,
-          },
-        });
-
-        try {
-          await upload.done();
-        } catch (error) {
-          // Ensure streams are destroyed on error
-          passThrough.destroy();
-          nodeReadable.destroy();
-          throw error;
-        }
-        
-        // Explicitly destroy streams after upload completes
-        passThrough.destroy();
-        nodeReadable.destroy();
-        
-        const s3Url = `/api/s3file/${s3Key}`;
-
-        await FileService.createAttachment({
-          path: s3Url,
-          name: timestampedFileName,
+        await FileHelpers.createAttachment({
+          path: filePath,
+          name: fileName,
           size: fileSize,
           type,
           accountId,
           metadata
         });
-        return { filePath: s3Url, fileName: timestampedFileName };
+        return { filePath, fileName };
 
       } else {
         let customPath = config.localCustomPath || '';
@@ -303,51 +178,24 @@ export class FileService {
           customPath = customPath.endsWith('/') ? customPath : customPath + '/';
         }
 
-        const fullPath = path.join(UPLOAD_FILE_PATH, customPath, timestampedFileName);
-        await fs.mkdir(path.dirname(fullPath), { recursive: true });
+        const { filePath, fileName } = await LocalFileService.uploadStream(
+          stream,
+          baseName,
+          extension,
+          timestamp,
+          customPath
+        );
 
-        const writeStream = createWriteStream(fullPath);
-        const nodeReadable = Readable.fromWeb(stream as any);
-
-        // Setup proper error handling
-        nodeReadable.on('error', (err) => {
-          writeStream.destroy(err);
-        });
-        
-        writeStream.on('error', (err) => {
-          nodeReadable.destroy();
-          throw err;
-        });
-
-        await new Promise((resolve, reject) => {
-          nodeReadable.pipe(writeStream)
-            .on('finish', () => {
-              // Ensure writeStream is properly closed
-              writeStream.end();
-              resolve(null);
-            })
-            .on('error', (err) => {
-              // Clean up both streams on error
-              writeStream.destroy();
-              nodeReadable.destroy();
-              reject(err);
-            });
-        });
-
-        const relativePath = `${customPath}${timestampedFileName}`.replace(/^\//, '');
-        await FileService.createAttachment({
-          path: `/api/file/${relativePath}`,
-          name: timestampedFileName,
+        await FileHelpers.createAttachment({
+          path: filePath,
+          name: fileName,
           size: fileSize,
           type,
           noteId: null,
           accountId,
           metadata
         });
-        return {
-          filePath: `/api/file/${relativePath}`,
-          fileName: timestampedFileName
-        };
+        return { filePath, fileName };
       }
     } catch (error) {
       console.error('Failed to upload file stream:', error);
@@ -355,71 +203,76 @@ export class FileService {
     }
   }
 
-  // path: /api/file/123/456/789.jpg
-  static async createAttachment({
-    path, name, size, type, noteId, accountId, metadata
-  }: {
-    path: string, name: string, size: number, type: string, noteId?: number | null, accountId: number, metadata?: any
-  }) {
-    const pathParts = (path as string)
-      .replace('/api/file/', '')
-      .replace('/api/s3file/', '')
-      .split('/');
+  /**
+   * 删除文件
+   */
+  static async deleteFile(api_attachment_path: string) {
+    const config = await getGlobalConfig({ useAdmin: true });
 
-    const prefixPath = pathParts.slice(0, -1).join(',');
+    await FileHelpers.deleteAttachmentRecord(api_attachment_path);
 
-    await prisma.attachments.create({
-      data: {
-        path,
-        name,
-        size,
-        type,
-        depth: pathParts.length - 1,
-        perfixPath: prefixPath.startsWith(',') ? prefixPath.substring(1) : prefixPath,
-        ...(noteId ? { noteId } : {}),
-        accountId,
-        ...(metadata ? { metadata } : {})
-      }
-    })
+    if (api_attachment_path.includes('/api/s3file/')) {
+      const { s3ClientInstance } = await this.getS3Client();
+      const fileName = api_attachment_path.replace('/api/s3file/', '');
+      await S3FileService.deleteFile(s3ClientInstance, config, fileName);
+    } else {
+      const fileName = api_attachment_path.replace('/api/file/', '');
+      await LocalFileService.deleteFile(fileName);
+    }
   }
 
+  /**
+   * 获取文件 Buffer
+   */
+  static async getFileBuffer(filePath: string): Promise<Buffer> {
+    const config = await getGlobalConfig({ useAdmin: true });
+    const fileName = filePath.replace('/api/file/', '').replace('/api/s3file/', '');
+
+    if (config.objectStorage === 's3') {
+      const { s3ClientInstance } = await this.getS3Client();
+      return S3FileService.getFileBuffer(s3ClientInstance, config, fileName);
+    } else {
+      return LocalFileService.getFileBuffer(fileName);
+    }
+  }
+
+  /**
+   * 获取文件路径
+   */
+  static async getFile(filePath: string): Promise<{
+    path: string;
+    isTemporary: boolean;
+    cleanup?: () => Promise<void>;
+  }> {
+    const config = await getGlobalConfig({ useAdmin: true });
+    const fileName = filePath.replace('/api/file/', '').replace('/api/s3file/', '');
+
+    if (config.objectStorage === 's3') {
+      const { s3ClientInstance } = await this.getS3Client();
+      return S3FileService.getFile(s3ClientInstance, config, filePath, fileName);
+    } else {
+      return LocalFileService.getFile(fileName);
+    }
+  }
+
+  /**
+   * 重命名文件
+   */
   static async renameFile(oldPath: string, newName: string) {
     const config = await getGlobalConfig({ useAdmin: true });
 
-    await prisma.$transaction(async (prisma) => {
-      if (oldPath.includes('/api/s3file/')) {
-        const { s3ClientInstance } = await this.getS3Client();
-        const oldKey = oldPath.replace('/api/s3file/', '');
-        const dirPath = path.dirname(oldKey);
-
-        const normalizedDirPath = dirPath === '.' ? '' : dirPath.replace(/\\/g, '/');
-        const normalizedNewName = newName.replace(/\\/g, '/');
-        const newKey = normalizedDirPath ? `${normalizedDirPath}/${normalizedNewName}` : normalizedNewName;
-
-        try {
-          await s3ClientInstance.send(new CopyObjectCommand({
-            Bucket: config.s3Bucket,
-            CopySource: encodeURIComponent(`${config.s3Bucket}/${decodeURIComponent(oldKey)}`),
-            Key: decodeURIComponent(newKey)
-          }));
-
-          await s3ClientInstance.send(new DeleteObjectCommand({
-            Bucket: config.s3Bucket,
-            Key: decodeURIComponent(oldKey)
-          }));
-        } catch (error) {
-          console.error('S3 rename operation failed:', error);
-          throw new Error(`Failed to rename file in S3: ${error.message}`);
-        }
-      } else {
-        const oldFilePath = path.join(UPLOAD_FILE_PATH, oldPath.replace('/api/file/', ''));
-        const newFilePath = path.join(path.dirname(oldFilePath), newName);
-
-        await fs.rename(oldFilePath, newFilePath);
-      }
-    });
+    if (oldPath.includes('/api/s3file/')) {
+      const { s3ClientInstance } = await this.getS3Client();
+      const oldKey = oldPath.replace('/api/s3file/', '');
+      await S3FileService.renameFile(s3ClientInstance, config, oldKey, newName);
+    } else {
+      await LocalFileService.renameFile(oldPath, newName);
+    }
   }
 
+  /**
+   * 移动文件
+   */
   static async moveFile(oldPath: string, newPath: string) {
     const config = await getGlobalConfig({ useAdmin: true });
 
@@ -427,66 +280,16 @@ export class FileService {
       const { s3ClientInstance } = await this.getS3Client();
       const oldKey = oldPath.replace('/api/s3file/', '');
       let newKey = newPath.replace('/api/s3file/', '');
-
-      if (newKey.startsWith('/')) {
-        newKey = newKey.substring(1);
-      }
-
-      try {
-        await s3ClientInstance.send(new GetObjectCommand({
-          Bucket: config.s3Bucket,
-          Key: decodeURIComponent(oldKey)
-        }));
-      } catch (error) {
-        console.error('Source file check failed:', error);
-        throw new Error(`Source file does not exist: ${decodeURIComponent(oldKey)}`);
-      }
-
-      try {
-        await s3ClientInstance.send(new CopyObjectCommand({
-          Bucket: config.s3Bucket,
-          CopySource: encodeURIComponent(`${config.s3Bucket}/${decodeURIComponent(oldKey)}`),
-          Key: decodeURIComponent(newKey)
-        }));
-
-        await s3ClientInstance.send(new DeleteObjectCommand({
-          Bucket: config.s3Bucket,
-          Key: decodeURIComponent(oldKey)
-        }));
-      } catch (error) {
-        console.error('S3 operation failed:', error);
-        throw new Error(`Failed to move file in S3: ${error.message}`);
-      }
+      await S3FileService.moveFile(s3ClientInstance, config, oldKey, newKey);
     } else {
-      const oldFilePath = path.join(UPLOAD_FILE_PATH, oldPath.replace('/api/file/', ''));
-      const newFilePath = path.join(UPLOAD_FILE_PATH, newPath.replace('/api/file/', ''));
-
-      await fs.mkdir(path.dirname(newFilePath), { recursive: true });
-      await fs.rename(oldFilePath, newFilePath);
-
-      try {
-        const oldDir = path.dirname(oldFilePath);
-        const files = await fs.readdir(oldDir);
-
-        if (files.length === 0) {
-          await fs.rmdir(oldDir);
-
-          let parentDir = path.dirname(oldDir);
-          const uploadPath = path.join(UPLOAD_FILE_PATH);
-          while (parentDir !== uploadPath) {
-            const parentFiles = await fs.readdir(parentDir);
-            if (parentFiles.length === 0) {
-              await fs.rmdir(parentDir);
-              parentDir = path.dirname(parentDir);
-            } else {
-              break;
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Failed to cleanup old directories:', error);
-      }
+      await LocalFileService.moveFile(oldPath, newPath);
     }
   }
-}
 
+  /**
+   * 获取原始文件名
+   */
+  static getOriginFilename(name: string) {
+    return FileHelpers.getOriginFilename(name);
+  }
+}

@@ -109,22 +109,36 @@ export async function generateFeed(userId: number, origin: string, rows: number 
   return feed;
 }
 
-let isLoading = false
+// 缓存 JWT secret 以避免每次都从数据库读取
+let cachedJwtSecret: string | null = null;
+let isInitializing = false;
 
 export const getNextAuthSecret = async () => {
+  // 如果已经缓存了 secret，直接返回
+  if (cachedJwtSecret) {
+    return cachedJwtSecret;
+  }
+
+  // 如果正在初始化，等待初始化完成
+  if (isInitializing) {
+    // 等待一小段时间后重试
+    await new Promise(resolve => setTimeout(resolve, 100));
+    return getNextAuthSecret();
+  }
+
+  isInitializing = true;
+
   const configKey = 'JWT_SECRET';
   let secret = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET;
-  if (isLoading) {
-    return secret!
-  }
+
+  // 如果环境变量中的 secret 是默认值或不存在，从数据库获取或生成新的
   if (!secret || secret === 'my_ultra_secure_nextauth_secret') {
     try {
       const savedSecret = await prisma.config.findFirst({
         where: { key: configKey }
       });
       if (savedSecret) {
-        // @ts-ignore
-        secret = savedSecret.config.value as string;
+        secret = (savedSecret as any)?.value as string;
       } else {
         const newSecret = crypto.randomBytes(32).toString('base64');
         await prisma.config.create({
@@ -134,17 +148,26 @@ export const getNextAuthSecret = async () => {
           }
         });
         secret = newSecret;
+        console.log('Generated and stored new JWT secret in database');
       }
     } catch (error) {
-      // Database connection failed, use environment variable or generate a temporary secret
-      if (!secret) {
-        console.warn('Database connection failed, using temporary JWT secret');
-        secret = crypto.randomBytes(32).toString('base64');
-      }
+      // Database connection failed, generate a temporary secret
+      console.warn('Database connection failed, using temporary JWT secret');
+      secret = crypto.randomBytes(32).toString('base64');
     }
   }
-  isLoading = false
-  return secret!;
+
+  // 确保总是返回一个有效的 secret
+  if (!secret) {
+    console.error('JWT secret is undefined, generating a new one');
+    secret = crypto.randomBytes(32).toString('base64');
+  }
+
+  // 缓存 secret
+  cachedJwtSecret = secret;
+  isInitializing = false;
+
+  return secret;
 }
 
 export const generateToken = async (user: any, twoFactorVerified = false) => {

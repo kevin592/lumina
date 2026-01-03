@@ -4,11 +4,16 @@ import { RootStore } from "../root";
 
 export const AppProvider = observer(({ children }: { children?: React.ReactNode }) => {
   const rootStore = RootStore.init()
+  // 过滤掉没有 provider 的 store，避免渲染 null 元素
+  const validProviders = rootStore.providers.filter(store =>
+    store.provider && typeof store.provider === 'function'
+  );
+
   return (
     <>
-      {rootStore.providers.map((store) => {
+      {validProviders.map((store) => {
         const Component: any = store.provider;
-        return <Component rootStore={rootStore} key={store.sid} />;
+        return <Component key={store.sid} />;
       })}
       {children && children}
     </>

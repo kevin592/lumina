@@ -55,8 +55,7 @@ export interface BaseState {
 }
 
 export class StringState<T extends string> {
-  //@ts-ignore
-  value: T = null;
+  value: T | null = null;
   constructor(args: Partial<StringState<T>> = {}) {
     Object.assign(this, args);
     makeAutoObservable(this);
@@ -89,18 +88,17 @@ export class NumberState {
 }
 
 export class ValueState<T> {
-  //@ts-ignore
-  _value: T = null;
+  _value: T | null = null;
   constructor(args: Partial<ValueState<T>> = {}) {
     Object.assign(this, args);
     makeAutoObservable(this);
   }
 
-  get value() {
-    return this.getValue ? this.getValue(this._value) : this._value;
+  get value(): T | null {
+    return this.getValue ? this.getValue(this._value as T) : this._value;
   }
 
-  set value(value) {
+  set value(value: T | null) {
     this._value = value;
   }
 

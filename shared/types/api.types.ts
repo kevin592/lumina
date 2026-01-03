@@ -130,7 +130,7 @@ export interface BatchOperationResult {
 /**
  * 搜索参数
  */
-export interfaceSearchParams {
+export interface SearchParams {
   keyword: string;
   page?: number;
   size?: number;

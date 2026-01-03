@@ -7,14 +7,13 @@
 
 import type { Context } from '../context';
 import { noteRepository } from '../repositories/noteRepository';
-import { FileService } from '../lib/files';
-import { AiService } from '../aiServer';
 import { SendWebhook } from '../lib/helper';
-import { cache } from '@shared/lib/cache';
 import { prisma } from '../prisma';
 import { _ } from '@shared/lib/lodash';
 import type { Note } from '@prisma/client';
 import { z } from 'zod';
+import { noteTagService, type TagTreeNode } from './noteTagService';
+import { noteShareService } from './noteShareService';
 
 // 输入验证 Schema
 export const upsertNoteSchema = z.object({
@@ -43,111 +42,9 @@ export const upsertNoteSchema = z.object({
 export type UpsertNoteInput = z.infer<typeof upsertNoteSchema>;
 
 /**
- * 标签树节点
- */
-export interface TagTreeNode {
-  name: string;
-  children?: TagTreeNode[];
-}
-
-/**
  * Note Service 类
  */
 export class NoteService {
-  /**
-   * 从内容中提取标签
-   */
-  private extractHashtags(input: string): string[] {
-    const withoutCodeBlocks = input.replace(/```[\s\S]*?```/g, '');
-    const hashtagRegex = /(?<!:\/\/)(?<=\s|^)#[^\s#]+(?=\s|$)/g;
-    const matches = withoutCodeBlocks.match(hashtagRegex);
-    return matches || [];
-  }
-
-  /**
-   * 构建标签树
-   */
-  private buildHashTagTreeFromHashString(
-    hashString: string
-  ): TagTreeNode[] {
-    const tags = this.extractHashtags(hashString);
-    const result: TagTreeNode[] = [];
-
-    for (const tag of tags) {
-      const parts = tag.split('/').filter(Boolean);
-      let currentLevel = result;
-
-      for (let i = 0; i < parts.length; i++) {
-        const part = parts[i];
-        let existingNode = currentLevel.find((node) => node.name === part);
-
-        if (!existingNode) {
-          const newNode: TagTreeNode = { name: part };
-          currentLevel.push(newNode);
-          existingNode = newNode;
-        }
-
-        if (i < parts.length - 1) {
-          if (!existingNode.children) {
-            existingNode.children = [];
-          }
-          currentLevel = existingNode.children;
-        }
-      }
-    }
-
-    return result;
-  }
-
-  /**
-   * 处理标签关联
-   */
-  private async handleTags(
-    tagTree: TagTreeNode[],
-    parentTag: { id: number } | undefined,
-    noteId: number | undefined,
-    accountId: number
-  ): Promise<Array<{ id: number; name: string; parent: number }>> {
-    const newTags: Array<{ id: number; name: string; parent: number }> = [];
-
-    const handleAddTags = async (
-      nodes: TagTreeNode[],
-      parent: { id: number } | undefined
-    ) => {
-      for (const node of nodes) {
-        let hasTag = await prisma.tag.findFirst({
-          where: { name: node.name, parent: parent?.id ?? 0, accountId },
-        });
-
-        if (!hasTag) {
-          hasTag = await prisma.tag.create({
-            data: { name: node.name, parent: parent?.id ?? 0, accountId },
-          });
-        }
-
-        if (noteId) {
-          const hasRelation = await prisma.tagsToNote.findFirst({
-            where: { tagId: hasTag.id, noteId },
-          });
-          if (!hasRelation) {
-            await prisma.tagsToNote.create({
-              data: { tagId: hasTag.id, noteId },
-            });
-          }
-        }
-
-        if (node.children) {
-          await handleAddTags(node.children, hasTag);
-        }
-
-        newTags.push(hasTag);
-      }
-    };
-
-    await handleAddTags(tagTree, parentTag);
-    return newTags;
-  }
-
   /**
    * 创建或更新笔记
    */
@@ -187,7 +84,7 @@ export class NoteService {
     }
 
     // 处理标签
-    const tagTree = this.buildHashTagTreeFromHashString(content?.replace(/\\/g, '') + ' ');
+    const tagTree = noteTagService.buildHashTagTreeFromHashString(content?.replace(/\\/g, '') + ' ');
     const markdownImages =
       content?.match(/!\[.*?\]\((\/api\/(?:s3)?file\/[^)]+)\)/g)?.map((match) => {
         const matches = /!\[.*?\]\((\/api\/(?:s3)?file\/[^)]+)\)/.exec(match);
@@ -281,126 +178,15 @@ export class NoteService {
       if (content == null) return note;
 
       // 处理标签
-      const oldTagsInThisNote = await prisma.tagsToNote.findMany({
-        where: { noteId: note.id },
-        include: { tag: true },
-      });
-      const newTags = await this.handleTags(tagTree, undefined, note.id, Number(ctx.id));
-
-      const oldTags = oldTagsInThisNote.map((i) => i.tag).filter((i) => !!i);
-      const oldTagsString = oldTags.map((i) => `${i?.name}<key>${i?.parent}`);
-      const newTagsString = newTags.map((i) => `${i?.name}<key>${i?.parent}`);
-
-      const needTobeAddedRelationTags = _.difference(newTagsString, oldTagsString);
-      const needToBeDeletedRelationTags = _.difference(oldTagsString, newTagsString);
+      await noteTagService.handleTags(tagTree, undefined, note.id, Number(ctx.id));
+      const newTags = await noteTagService.handleTags(tagTree, undefined, note.id, Number(ctx.id));
+      await noteTagService.updateTagRelations(note.id, Number(ctx.id), newTags);
 
       // 处理引用
-      const oldReferences = await prisma.noteReference.findMany({
-        where: { fromNoteId: note.id },
-      });
-      const oldReferencesIds = oldReferences.map((ref) => ref.toNoteId);
-
-      if (references !== undefined) {
-        const needToBeAddedReferences = _.difference(references || [], oldReferencesIds);
-        const needToBeDeletedReferences = _.difference(oldReferencesIds, references || []);
-
-        if (needToBeDeletedReferences.length != 0) {
-          await prisma.noteReference.deleteMany({
-            where: {
-              fromNoteId: note.id,
-              toNoteId: { in: needToBeDeletedReferences },
-            },
-          });
-        }
-
-        if (needToBeAddedReferences.length != 0) {
-          await prisma.noteReference.createMany({
-            data: needToBeAddedReferences.map((toNoteId) => ({
-              fromNoteId: note.id,
-              toNoteId,
-            })),
-          });
-        }
-      }
-
-      // 删除不需要的标签关联
-      if (needToBeDeletedRelationTags.length != 0) {
-        await prisma.tagsToNote.deleteMany({
-          where: {
-            note: { id: note.id },
-            tag: {
-              id: {
-                in: needToBeDeletedRelationTags
-                  .map((i) => {
-                    const [name, parent] = i.split('<key>');
-                    return oldTags.find((t) => t?.name == name && t?.parent == Number(parent))!.id;
-                  })
-                  .filter((i) => !!i),
-              },
-            },
-          },
-        });
-      }
-
-      // 添加新的标签关联
-      if (needTobeAddedRelationTags.length != 0) {
-        for (const relationTag of needTobeAddedRelationTags) {
-          const [name, parent] = relationTag.split('<key>');
-          const tagId = newTags.find((t) => t.name == name && t.parent == Number(parent))?.id;
-          if (tagId) {
-            try {
-              await prisma.tagsToNote.create({
-                data: { noteId: note.id, tagId },
-              });
-            } catch (error) {
-              if ((error as any).code !== 'P2002') {
-                throw error;
-              }
-            }
-          }
-        }
-      }
-
-      // 删除未使用的标签
-      const allTagsIds = oldTags?.map((i) => i?.id);
-      const usingTags = (
-        await prisma.tagsToNote.findMany({
-          where: { tagId: { in: allTagsIds } },
-        })
-      ).map((i) => i.tagId);
-      const needTobeDeledTags = _.difference(allTagsIds, usingTags);
-      if (needTobeDeledTags?.length) {
-        await prisma.tag.deleteMany({
-          where: { id: { in: needTobeDeledTags }, accountId: Number(ctx.id) },
-        });
-      }
+      await this.updateReferences(note.id, references);
 
       // 处理附件
-      try {
-        if (attachments?.length != 0) {
-          const oldAttachments = await prisma.attachments.findMany({
-            where: { noteId: note.id },
-          });
-          const needTobeAddedAttachmentsPath = _.difference(
-            attachments?.map((i) => i.path),
-            oldAttachments.map((i) => i.path)
-          );
-
-          if (needTobeAddedAttachmentsPath.length != 0) {
-            const attachmentsIds = await prisma.attachments.findMany({
-              where: { path: { in: needTobeAddedAttachmentsPath } },
-            });
-            await prisma.attachments.updateMany({
-              where: { id: { in: attachmentsIds.map((i) => i.id) } },
-              data: { noteId: note.id },
-            });
-          }
-        }
-      } catch (err) {
-        console.log(err);
-      }
-
-      // TODO: 添加 AI embedding 和音频处理
+      await this.updateAttachments(note.id, attachments);
 
       SendWebhook({ ...note, attachments }, isRecycle ? 'delete' : 'update', ctx);
       return note;
@@ -420,7 +206,7 @@ export class NoteService {
         },
       });
 
-      await this.handleTags(tagTree, undefined, note.id, Number(ctx.id));
+      await noteTagService.handleTags(tagTree, undefined, note.id, Number(ctx.id));
 
       const attachmentsIds = await prisma.attachments.findMany({
         where: { path: { in: attachments.map((i) => i.path) } },
@@ -437,8 +223,6 @@ export class NoteService {
         });
       }
 
-      // TODO: 添加 AI embedding 和音频处理
-
       SendWebhook({ ...note, attachments }, 'create', ctx);
       return note;
     } catch (error) {
@@ -448,7 +232,72 @@ export class NoteService {
   }
 
   /**
-   * 分享笔记
+   * 更新笔记引用关系
+   */
+  private async updateReferences(noteId: number, references?: number[]): Promise<void> {
+    const oldReferences = await prisma.noteReference.findMany({
+      where: { fromNoteId: noteId },
+    });
+    const oldReferencesIds = oldReferences.map((ref) => ref.toNoteId);
+
+    if (references !== undefined) {
+      const needToBeAddedReferences = _.difference(references || [], oldReferencesIds);
+      const needToBeDeletedReferences = _.difference(oldReferencesIds, references || []);
+
+      if (needToBeDeletedReferences.length != 0) {
+        await prisma.noteReference.deleteMany({
+          where: {
+            fromNoteId: noteId,
+            toNoteId: { in: needToBeDeletedReferences },
+          },
+        });
+      }
+
+      if (needToBeAddedReferences.length != 0) {
+        await prisma.noteReference.createMany({
+          data: needToBeAddedReferences.map((toNoteId) => ({
+            fromNoteId: noteId,
+            toNoteId,
+          })),
+        });
+      }
+    }
+  }
+
+  /**
+   * 更新笔记附件关联
+   */
+  private async updateAttachments(
+    noteId: number,
+    attachments?: Array<{ path: string; name: string; size: number; type: string }>
+  ): Promise<void> {
+    try {
+      if (attachments?.length != 0) {
+        const oldAttachments = await prisma.attachments.findMany({
+          where: { noteId },
+        });
+        const needTobeAddedAttachmentsPath = _.difference(
+          attachments?.map((i) => i.path),
+          oldAttachments.map((i) => i.path)
+        );
+
+        if (needTobeAddedAttachmentsPath.length != 0) {
+          const attachmentsIds = await prisma.attachments.findMany({
+            where: { path: { in: needTobeAddedAttachmentsPath } },
+          });
+          await prisma.attachments.updateMany({
+            where: { id: { in: attachmentsIds.map((i) => i.id) } },
+            data: { noteId },
+          });
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  /**
+   * 分享笔记（委托给分享服务）
    */
   async share(
     id: number,
@@ -459,44 +308,7 @@ export class NoteService {
       expireAt?: Date;
     }
   ): Promise<Note> {
-    const { isCancel, password, expireAt } = params;
-
-    const note = await noteRepository.findById(id, accountId);
-    if (!note) {
-      throw new Error('Note not found');
-    }
-
-    const generateShareId = () => {
-      const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-      let result = '';
-      for (let i = 0; i < 8; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      return result;
-    };
-
-    if (isCancel) {
-      return await prisma.notes.update({
-        where: { id },
-        data: {
-          isShare: false,
-          sharePassword: '',
-          shareExpiryDate: null,
-          shareEncryptedUrl: null,
-        },
-      });
-    } else {
-      const shareId = note.shareEncryptedUrl || generateShareId();
-      return await prisma.notes.update({
-        where: { id },
-        data: {
-          isShare: true,
-          shareEncryptedUrl: shareId,
-          sharePassword: password,
-          shareExpiryDate: expireAt,
-        },
-      });
-    }
+    return noteShareService.share(id, accountId, params);
   }
 }
 

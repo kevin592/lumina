@@ -1,4 +1,4 @@
-import { createTRPCClient, httpBatchLink, httpLink, splitLink, httpBatchStreamLink } from '@trpc/client';
+import { createTRPCClient, httpBatchLink, httpLink, splitLink, httpBatchStreamLink, type TRPCClient } from '@trpc/client';
 import type { AppRouter } from '../../../server/routerTrpc/_app';
 import superjson from 'superjson';
 import { getluminaEndpoint } from './luminaEndpoint';
@@ -99,30 +99,29 @@ const getLinks = (useStream = false) => {
   }
 };
 
-//@ts-ignore
+// 使用类型别名以确保重新赋值类型兼容
+type ApiClient = TRPCClient<AppRouter>;
+
 export let api = createTRPCClient<AppRouter>({
   links: [getLinks(false)],
-});
+}) as ApiClient;
 
-//@ts-ignore
 export let streamApi = createTRPCClient<AppRouter>({
   links: [getLinks(true)],
-});
+}) as ApiClient;
 
 /**
  * refresh api
  * when need refresh auth status (login/logout)
  */
 export const reinitializeTrpcApi = () => {
-  //@ts-ignore
   api = createTRPCClient<AppRouter>({
     links: [getLinks(false)],
-  });
+  }) as ApiClient;
 
-  //@ts-ignore
   streamApi = createTRPCClient<AppRouter>({
     links: [getLinks(true)],
-  });
+  }) as ApiClient;
 
   return { api, streamApi };
 };

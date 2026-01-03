@@ -11,10 +11,8 @@ const COMMON_UNITS = ["small", "medium", "large"];
  * So we can use classes like `text-small` or `text-default-500` and override them.
  */
 const twMerge = extendTailwindMerge({
-  // @ts-ignore 
   extend: {
     theme: {
-      // @ts-ignore 
       opacity: ["disabled"],
       spacing: ["divider"],
       borderWidth: COMMON_UNITS,
@@ -26,7 +24,7 @@ const twMerge = extendTailwindMerge({
       "bg-image": ["bg-stripe-gradient"],
     },
   },
-});
+} as any);
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

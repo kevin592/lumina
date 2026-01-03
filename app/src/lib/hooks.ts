@@ -78,22 +78,25 @@ export const useSwiper = (threshold = 50) => {
 };
 
 
-export const handlePaste = (event) => {
-  //@ts-ignore
-  const clipboardData = event.clipboardData || window.clipboardData;
+export const handlePaste = (event: ClipboardEvent) => {
+  // clipboardData 是标准的 ClipboardEvent API
+  const clipboardData = event.clipboardData;
+  if (!clipboardData) return;
+
   const items = clipboardData.items;
-  let files = [];
+  const files: File[] = [];
 
   for (let i = 0; i < items.length; i++) {
     if (items[i].kind === "file") {
       const file = items[i].getAsFile();
-      //@ts-ignore
-      files.push(file);
+      if (file) {
+        files.push(file);
+      }
     }
   }
 
   if (files.length > 0) {
-    return files
+    return files;
   }
 };
 

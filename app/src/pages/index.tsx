@@ -13,13 +13,17 @@ import { useMemo, useState } from 'react';
 import { DndContext, closestCenter, DragOverlay } from '@dnd-kit/core';
 import { useDragCard, DraggableLuminaCard } from '@/hooks/useDragCard';
 import { TagListPanel } from '@/components/Common/TagListPanel';
+import { useLuminaInit, useLuminaQuery } from '@/hooks/useLuminaInit';
 
 const Home = observer(() => {
     const { t } = useTranslation();
     const isPc = useMediaQuery('(min-width: 768px)')
     const Lumina = RootStore.Get(LuminaStore)
-    Lumina.use()
-    Lumina.useQuery();
+
+    // 使用自定义 Hooks 替代 Lumina.use() 和 Lumina.useQuery()
+    useLuminaInit();
+    useLuminaQuery();
+
     const [searchParams] = useSearchParams();
     const isArchivedView = searchParams.get('path') === 'archived';
     const isTrashView = searchParams.get('path') === 'trash';

@@ -2,7 +2,6 @@ import { makeAutoObservable } from "mobx"
 import { Store } from './standard/base';
 import { api } from "@/lib/trpc";
 import { PromiseState } from "./standard/PromiseState";
-import { useEffect } from "react";
 import dayjs from "dayjs";
 
 interface MonthlyStats {
@@ -45,11 +44,4 @@ export class AnalyticsStore implements Store {
       return data
     }
   })
-
-  use() {
-    useEffect(() => {
-      this.dailyNoteCount.call()
-      this.monthlyStats.call()
-    }, [])
-  }
 }

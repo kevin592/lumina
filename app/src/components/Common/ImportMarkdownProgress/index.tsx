@@ -39,7 +39,8 @@ export const ImportProgress = observer(({ filePath }: { filePath: string }) => {
         type: 'success',
         content: t('import-done'),
       })
-      Lumina.updateTicker++
+      // Trigger data refresh
+      Lumina.refreshData()
     }
   }))
 

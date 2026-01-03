@@ -68,8 +68,10 @@ export const StatsCards = observer(({ stats }: StatsCardsProps) => {
     const indices = Array.from({ length: gradients.length }, (_, i) => i)
     for (let i = indices.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      //@ts-ignore
-      [indices[i], indices[j]] = [indices[j], indices[i]]
+      // 使用临时变量进行交换（避免 TypeScript 的解构交换类型问题）
+      const temp = indices[i];
+      indices[i] = indices[j]!;
+      indices[j] = temp;
     }
     return indices.slice(0, 4).map(i => gradients[i]!)
   }, [])

@@ -1,6 +1,5 @@
 // import { User } from 'next-auth';
 // import { useSession } from 'next-auth/react';
-import { useEffect } from 'react';
 import { RootStore } from './root';
 import { Store } from './standard/base';
 import { eventBus } from '@/lib/event';
@@ -8,9 +7,6 @@ import { makeAutoObservable } from 'mobx';
 import { PromiseState } from './standard/PromiseState';
 import { api } from '@/lib/trpc';
 import { BaseStore } from './baseStore';
-import { useTranslation } from 'react-i18next';
-import { useTheme } from 'next-themes';
-import { useNavigate, useLocation } from 'react-router-dom';
 import { signIn, TokenData, navigate } from '@/components/Auth/auth-client';
 import { DialogStore } from './module/Dialog';
 import { ShowTwoFactorModal } from '@/components/Common/TwoFactorModal';
@@ -354,89 +350,5 @@ export class UserStore implements Store {
         }
       }, false);
     }
-  }
-
-  use() {
-    const { i18n } = useTranslation()
-    const { setTheme, theme } = useTheme()
-    const navigate = useNavigate();
-    const location = useLocation();
-
-    useEffect(() => {
-      this.initializeSettings(setTheme, i18n);
-    }, []);
-
-    useEffect(() => {
-      setTauriTheme(theme).catch(console.error);
-    }, [theme]);
-
-    useEffect(() => {
-      eventBus.on('user:token', (tokenData) => {
-        this.handleToken(tokenData, () => {
-          this.initializeSettings(setTheme, i18n);
-          if (tokenData?.user?.id) {
-            this.userInfo.call(Number(tokenData.user.id));
-          }
-        });
-      });
-
-      eventBus.on('user:showTwoFactor', (data) => {
-        if (data && data.userId) {
-          const userId = typeof data.userId === 'number' ? String(data.userId) : data.userId;
-          this.tokenData.save({
-            ...this.tokenData.value,
-            requiresTwoFactor: true,
-            user: {
-              ...(this.tokenData.value?.user || {}),
-              id: userId
-            }
-          });
-
-          setTimeout(() => {
-            this.showTwoFactorDialog(data.userId);
-          }, 0);
-        } else {
-          console.error('Missing userId in showTwoFactor event:', data);
-        }
-      });
-
-      eventBus.on('user:twoFactorResult', (result) => {
-        if (result.success) {
-          RootStore.Get(DialogStore).close();
-          if (!this.requiresTwoFactor) {
-            navigate('/');
-          }
-        } else {
-          RootStore.Get(ToastPlugin).error('verification-failed');
-        }
-      });
-
-      return () => {
-        eventBus.off('user:token', this.handleToken);
-        eventBus.off('user:showTwoFactor', () => { });
-        eventBus.off('user:twoFactorResult', () => { });
-      };
-    }, []);
-
-    useEffect(() => {
-      this.userInfo.call(Number(this.id));
-    }, [this.id]);
-
-    useEffect(() => {
-      const handleSignout = () => {
-        const pathname = location.pathname;
-        if (pathname === '/signup' || pathname.includes('/share') || pathname.includes('/ai-share') || pathname.includes('/oauth-callback')) {
-          return
-        }
-        this.clear()
-        navigate('/signin')
-      }
-
-      eventBus.on('user:signout', handleSignout)
-
-      return () => {
-        eventBus.off('user:signout', handleSignout)
-      }
-    }, []);
   }
 }

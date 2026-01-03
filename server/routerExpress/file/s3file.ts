@@ -110,7 +110,6 @@ async function generateThumbnail(s3ClientInstance: any, config: any, fullPath: s
  *     security:
  *       - bearer: []
  */
-//@ts-ignore
 router.get(/.*/, async (req: Request, res: Response) => {
   try {
     const { s3ClientInstance, config } = await FileService.getS3Client();

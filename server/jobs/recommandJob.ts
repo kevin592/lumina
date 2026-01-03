@@ -153,16 +153,13 @@ export class RecommandJob extends BaseScheduleJob {
       if (hasCache) {
         await prisma.cache.update({
           where: { id: hasCache.id },
-          // @ts-ignore
-          data: { value: cachedList }
+          data: { value: cachedList as any }
         });
       } else {
-        // @ts-ignore
         await prisma.cache.create({
           data: {
             key: 'recommand_list',
-            // @ts-ignore
-            value: cachedList
+            value: cachedList as any
           }
         });
       }

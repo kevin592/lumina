@@ -11,7 +11,7 @@ export class BaseStore implements Store {
   constructor() {
     makeAutoObservable(this);
   }
-  // Design v2.0 - 路由列表（图标使?RemixIcon 与原型一致）
+  // Design v2.0 - 路由列表（图标使用RemixIcon 与原型一致）
   routerList = [
     {
       title: 'home',
@@ -30,11 +30,15 @@ export class BaseStore implements Store {
       title: 'todo',
       href: '/todo',
       icon: 'ri-checkbox-circle-line',
+      disabled: true,
+      isPlaceholder: true,
     },
     {
       title: 'notes',
       href: '/notes',
       icon: 'ri-file-list-3-line',
+      disabled: true,
+      isPlaceholder: true,
     },
     {
       title: 'analytics',

@@ -6,7 +6,7 @@
 
 import type { Context } from '../context';
 import { tagRepository } from '../repositories/tagRepository';
-import type { TagTreeNode } from './noteService';
+import type { TagTreeNode } from '@shared/lib/helper';
 import { prisma } from '../prisma';
 
 /**

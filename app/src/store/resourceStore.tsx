@@ -1,16 +1,12 @@
 import { Store } from "./standard/base";
 import { makeAutoObservable } from "mobx";
-import { useLocation, useSearchParams, useNavigate } from "react-router-dom";
 import { LuminaStore } from "./luminaStore";
 import { RootStore } from ".";
 import { ResourceType } from "@shared/lib/types";
-import { useEffect, useState } from "react";
 import { api } from "@/lib/trpc";
 import { PromiseCall } from "./standard/PromiseState";
 import { t } from "i18next";
 import { ToastPlugin } from "./module/Toast/Toast";
-import { DialogStore } from "./module/Dialog";
-import { Button, Input } from "@heroui/react";
 
 export class ResourceStore implements Store {
   sid = 'resourceStore';
@@ -146,91 +142,26 @@ export class ResourceStore implements Store {
     this.clipboard = null;
   };
 
-  use() {
-    const [searchParams] = useSearchParams();
+  createFolder = async (folderName: string) => {
+    const currentResources = this.Lumina.resourceList.value || [];
 
-    useEffect(() => {
-      const folder = searchParams.get('folder');
-      if (folder !== this.currentFolder) {
-        this.setCurrentFolder(folder);
-        this.loadResources(folder || undefined);
-      }
-    }, [searchParams]);
+    const isDuplicate = currentResources.some(
+      resource => resource.isFolder && resource.folderName?.toLowerCase() === folderName.trim().toLowerCase()
+    );
 
-    useEffect(() => {
-      this.loadResources(this.currentFolder || undefined);
-    }, [this.refreshTicker]);
+    if (isDuplicate) {
+      throw new Error(t('folder-name-exists'));
+    }
+
+    await PromiseCall(
+      api.attachments.createFolder.mutate({
+        folderName: folderName.trim(),
+        parentFolder: this.currentFolder || undefined
+      })
+    );
+
+    this.refreshTicker++;
   }
-
-  handleNewFolder = () => {
-    const Lumina = RootStore.Get(LuminaStore);
-    const currentResources = Lumina.resourceList.value || [];
-
-    RootStore.Get(DialogStore).setData({
-      isOpen: true,
-      size: 'sm',
-      title: t('new-folder'),
-      content: () => {
-        const [newName, setNewName] = useState<string>('');
-        const [error, setError] = useState<string>('');
-
-        const validateAndCreateFolder = async () => {
-          if (!newName.trim()) {
-            setError(t('folder-name-required'));
-            return;
-          }
-
-          const isDuplicate = currentResources.some(
-            resource => resource.isFolder && resource.folderName?.toLowerCase() === newName.trim().toLowerCase()
-          );
-
-          if (isDuplicate) {
-            setError(t('folder-name-exists'));
-            return;
-          }
-
-          try {
-            // Call backend API to create folder
-            await PromiseCall(
-              api.attachments.createFolder.mutate({
-                folderName: newName.trim(),
-                parentFolder: this.currentFolder || undefined
-              })
-            );
-            
-            // Refresh the resource list
-            this.refreshTicker++;
-            RootStore.Get(DialogStore).close();
-          } catch (error) {
-            setError(error.message || t('failed-to-create-folder'));
-          }
-        };
-
-        return (
-          <div className="flex flex-col gap-2 p-2">
-            <Input
-              label={t('folder-name')}
-              value={newName}
-              onChange={(e) => {
-                setNewName(e.target.value);
-                setError('');
-              }}
-              errorMessage={error}
-              isInvalid={!!error}
-            />
-            <Button
-              color="primary"
-              className="mt-2"
-              onPress={validateAndCreateFolder}
-              isDisabled={!newName.trim()}
-            >
-              {t('confirm')}
-            </Button>
-          </div>
-        );
-      }
-    });
-  };
 
   moveToParentFolder = async (items: ResourceType[]) => {
     if (!this.currentFolder) return;

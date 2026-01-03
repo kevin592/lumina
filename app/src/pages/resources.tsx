@@ -1,7 +1,7 @@
 import { RootStore } from "@/store";
 import { ResourceStore } from "@/store/resourceStore";
 import { observer } from "mobx-react-lite";
-import { useMemo, useCallback, useState } from "react";
+import { useMemo, useCallback, useState, useRef } from "react";
 import { ScrollArea } from "@/components/Common/ScrollArea";
 import { useTranslation } from "react-i18next";
 import { Button, Checkbox } from "@heroui/react";
@@ -15,6 +15,8 @@ import filesize from 'filesize';
 import dayjs from '@/lib/dayjs';
 import { FileIcons } from '@/components/Common/AttachmentRender/FileIcon';
 import { Icon } from '@/components/Common/Iconify/icons';
+import { useResourceInit } from '@/hooks/useResourceInit';
+import { openNewFolderDialog } from '@/components/LuminaResource/NewFolderDialog';
 
 const Page = observer(() => {
   const navigate = useNavigate();
@@ -22,6 +24,29 @@ const Page = observer(() => {
   const user = RootStore.Get(UserStore);
   const { t } = useTranslation();
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 使用自定义 Hook 替代 resourceStore.use()
+  useResourceInit();
+
+  // 处理文件上传
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    // TODO: 实现文件上传逻辑
+    console.log('Files to upload:', files);
+    // 这里可以调用上传 API
+
+    // 清空输入以允许再次选择相同文件
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const resources = useMemo(() => {
     const allResources = resourceStore.Lumina.resourceList.value || [];
@@ -46,8 +71,6 @@ const Page = observer(() => {
     if (!resourceStore.currentFolder) return [];
     return ['Root', ...resourceStore.currentFolder.split('/')];
   }, [resourceStore.currentFolder]);
-
-  resourceStore.use();
 
   // 获取文件图标和背景色
   const getFileIconStyle = (fileName: string) => {
@@ -80,11 +103,21 @@ const Page = observer(() => {
         {/* 头部 - 操作按钮 */}
         <div className="flex justify-between items-center px-6 py-4 border-b border-gray-50">
           <div className="flex gap-3">
-            <button className="px-4 py-2 bg-gray-900 text-white text-xs font-bold rounded-xl shadow hover:bg-black transition-all flex items-center gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              className="hidden"
+              onChange={handleFileChange}
+            />
+            <button
+              onClick={handleUploadClick}
+              className="px-4 py-2 bg-gray-900 text-white text-xs font-bold rounded-xl shadow hover:bg-black transition-all flex items-center gap-2"
+            >
               <i className="ri-upload-cloud-line"></i> {t('upload-file')}
             </button>
             <button
-              onClick={resourceStore.handleNewFolder}
+              onClick={openNewFolderDialog}
               className="px-4 py-2 bg-white border border-gray-200 text-gray-700 text-xs font-bold rounded-xl hover:bg-gray-50 transition-all"
             >
               {t('new-folder')}
@@ -106,7 +139,7 @@ const Page = observer(() => {
           </div>
         </div>
 
-        {/* 面包屑导�?*/}
+        {/* 面包屑导�?*/}
         {resourceStore.currentFolder && (
           <div className="px-6 py-3 bg-gray-50/50 border-b border-gray-50">
             <div className="flex items-center gap-2 text-sm">

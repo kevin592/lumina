@@ -15,8 +15,14 @@ const Analytics = observer(() => {
   const analyticsStore = RootStore.Get(AnalyticsStore)
   const { t } = useTranslation()
   const [selectedMonth, setSelectedMonth] = React.useState(dayjs().format("YYYY-MM"))
-  analyticsStore.use()
 
+  // 初始化数据
+  useEffect(() => {
+    analyticsStore.dailyNoteCount.call()
+    analyticsStore.monthlyStats.call()
+  }, [])
+
+  // 当月份变化时更新数据
   useEffect(() => {
     analyticsStore.setSelectedMonth(selectedMonth)
   }, [selectedMonth])

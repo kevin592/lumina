@@ -5,6 +5,14 @@ import { LuminaStore } from "@/store/luminaStore"
 import dayjs from "@/lib/dayjs"
 import { useEffect, useRef } from "react"
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom"
+import type { Attachment } from "@shared/lib/types"
+
+// 扩展 HTMLElement 以支持自定义 store 属性
+declare global {
+  interface HTMLElement {
+    __storeInstance?: any;
+  }
+}
 
 type IProps = {
   mode: 'create' | 'edit',
@@ -130,8 +138,7 @@ export const LuminaEditor = observer(({ mode, onSended, onHeightChange, isInDial
         onHeightChange?.(editorRef.current?.clientHeight ?? 75)
         if (editorRef.current) {
           const editorElement = document.getElementById('global-editor');
-          if (editorElement && editorElement.children[0]) {
-            //@ts-ignore
+          if (editorElement && editorElement.children[0] && editorElement.children[0] instanceof HTMLElement) {
             editorElement.__storeInstance = editorElement.children[0].__storeInstance;
           }
         }
@@ -144,8 +151,13 @@ export const LuminaEditor = observer(({ mode, onSended, onHeightChange, isInDial
       onSend={async ({ files, references, metadata }) => {
         if (isCreateMode) {
           console.log("createMode", files, references, metadata)
-          //@ts-ignore
-          await Lumina.upsertNote.call({ references, refresh: false, content: Lumina.noteContent, attachments: files.map(i => { return { name: i.name, path: i.uploadPath, size: i.size, type: i.type } }), metadata })
+          const attachments: Attachment[] = files.map(i => ({
+            name: i.name,
+            path: i.uploadPath,
+            size: i.size,
+            type: i.type
+          }));
+          await Lumina.upsertNote.call({ references, refresh: false, content: Lumina.noteContent, attachments, metadata })
           Lumina.createAttachmentsStorage.clear()
           Lumina.createContentStorage.clear()
           if (location.pathname != '/') {
@@ -154,12 +166,16 @@ export const LuminaEditor = observer(({ mode, onSended, onHeightChange, isInDial
           }
           Lumina.updateTicker++
         } else {
+          const attachments: Attachment[] = files.map(i => ({
+            name: i.name,
+            path: i.uploadPath,
+            size: i.size,
+            type: i.type
+          }));
           await Lumina.upsertNote.call({
             id: Lumina.curSelectedNote!.id,
-            //@ts-ignore
             content: Lumina.curSelectedNote.content,
-            //@ts-ignore
-            attachments: files.map(i => { return { name: i.name, path: i.uploadPath, size: i.size, type: i.type } }),
+            attachments,
             references,
             metadata
           })
