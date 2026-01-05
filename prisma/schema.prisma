@@ -39,7 +39,7 @@ model accounts {
   okrTasks      okrTasks[]
   okrTimeEntries okrTimeEntries[]
   okrComments   okrComments[]
-  okrActivityLogs okrActivityLogs[]
+  okrActivityLogs okrActivityLog[]
   okrShares     okrShares[]
 
   @@index([name])
@@ -450,7 +450,7 @@ model okrObjectives {
   tasks       okrTasks[]
   noteRelations okrNoteRelations[]
   shares      okrShares[]
-  activityLogs okrActivityLogs[]
+  activityLogs okrActivityLog[]
   account     accounts        @relation(fields: [accountId], references: [id])
 
   @@index([accountId, status])
@@ -580,13 +580,16 @@ model okrActivityLog {
   entityId    Int
   actionType  ActionType   // CREATED | UPDATED | DELETED | STATUS_CHANGED | PROGRESS_UPDATED
   accountId   Int
+  objectiveId Int?         // 关联的OKR ID
   changes     Json?        @db.Json // 变更详情
   createdAt   DateTime     @default(now()) @db.Timestamptz(6)
 
   account     accounts     @relation(fields: [accountId], references: [id])
+  objective   okrObjectives? @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
 
   @@index([entityType, entityId])
   @@index([accountId])
+  @@index([objectiveId])
   @@index([createdAt])
 }
 
