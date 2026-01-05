@@ -35,7 +35,7 @@ const AIPage = lazy(() => import('./pages/ai'));
 const ResourcesPage = lazy(() => import('./pages/resources'));
 const SettingsPage = lazy(() => import('./pages/settings'));
 
-const AnalyticsPage = lazy(() => import('./pages/analytics'));
+const NotesAnalyticsPage = lazy(() => import('./pages/analytics'));
 const AllPage = lazy(() => import('./pages/all'));
 const OAuthCallbackPage = lazy(() => import('./pages/oauth-callback'));
 const DetailPage = lazy(() => import('./pages/detail'));
@@ -230,7 +230,7 @@ function AppRoutes() {
             <Route path="/resources" element={<ProtectedRoute><ResourcesPage /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
 
-            <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
+            <Route path="/analytics" element={<ProtectedRoute><NotesAnalyticsPage /></ProtectedRoute>} />
             <Route path="/all" element={<ProtectedRoute><AllPage /></ProtectedRoute>} />
             <Route path="/okr" element={<ProtectedRoute><Navigate to="/dashboard" replace /></ProtectedRoute>} />
             <Route path="/okr/:id" element={<ProtectedRoute><Navigate to="/dashboard" replace /></ProtectedRoute>} />

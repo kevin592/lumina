@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
-import { authProcedure, publicProcedure } from '../../middleware';
-import { prisma } from '../../lib/prisma';
+import { authProcedure } from '@server/middleware';
+import { prisma } from '../../prisma';
 
 /**
  * 时间记录API路由
