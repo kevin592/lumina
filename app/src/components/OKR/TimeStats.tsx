@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import { Card, Progress } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
-import { RiClockLine, RiCalendarLine, RiTimerLine } from 'react-icons/ri';
+import { RiTimeLine, RiCalendarLine, RiTimerLine } from 'react-icons/ri';
 
 interface TimeStatsProps {
   todayHours: number;
@@ -44,7 +44,7 @@ const TimeStats = observer(({
     {
       label: t('total') || '总计',
       value: `${totalHours.toFixed(1)}h`,
-      icon: <RiClockLine size={24} />,
+      icon: <RiTimeLine size={24} />,
       color: 'text-purple-500',
       bgColor: 'bg-purple-50 dark:bg-purple-900/20',
     },

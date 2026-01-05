@@ -4,73 +4,24 @@ $ tauri dev
 $ cd ../server && bun run dev
 $ bun --env-file ../.env --watch index.ts
 warn: File F:\blinko-main\shared\lib\pathConstant.ts is not in the project directory and will not be watched
-warn: File F:\blinko-main\shared\lib\cache.ts is not in the project directory and will not be watched
 warn: File F:\blinko-main\prisma\seed.ts is not in the project directory and will not be watched
+warn: File F:\blinko-main\shared\lib\cache.ts is not in the project directory and will not be watched
 warn: File F:\blinko-main\shared\lib\types.ts is not in the project directory and will not be watched
 warn: File F:\blinko-main\shared\lib\prismaZodType.ts is not in the project directory and will not be watched
-warn: File F:\blinko-main\shared\lib\sharedConstant.ts is not in the project directory and will not be watched
 warn: File F:\blinko-main\shared\lib\dayjs.ts is not in the project directory and will not be watched
-warn: File F:\blinko-main\shared\lib\lodash.ts is not in the project directory and will not be watched
-warn: File F:\blinko-main\prisma\seedData.ts is not in the project directory and will not be watched
-warn: File F:\blinko-main\shared\lib\helper.ts is not in the project directory and will not be watched
-warn: File F:\blinko-main\package.json is not in the project directory and will not be watched
-error: Cannot find module '../../lib/prisma' from 'F:\blinko-main\server\routerTrpc\okr\timeEntryRoutes.ts'
-        Warn Waiting for your frontend dev server to start on http://localhost:1111/...
-        Warn Waiting for your frontend dev server to start on http://localhost:1111/...
-        Warn Waiting for your frontend dev server to start on http://localhost:1111/...
-        Warn Waiting for your frontend dev server to start on http://localhost:1111/...
-        Warn Waiting for your frontend dev server to start on http://localhost:1111/...
-warn: File F:\blinko-main\shared\lib\pathConstant.ts is not in the project directory and will not be watched
-warn: File F:\blinko-main\shared\lib\cache.ts is not in the project directory and will not be watched
-warn: File F:\blinko-main\prisma\seed.ts is not in the project directory and will not be watched
-warn: File F:\blinko-main\shared\lib\prismaZodType.ts is not in the project directory and will not be watched
-warn: File F:\blinko-main\shared\lib\dayjs.ts is not in the project directory and will not be watched
-warn: File F:\blinko-main\shared\lib\types.ts is not in the project directory and will not be watched
 warn: File F:\blinko-main\shared\lib\sharedConstant.ts is not in the project directory and will not be watched
 warn: File F:\blinko-main\shared\lib\lodash.ts is not in the project directory and will not be watched
 warn: File F:\blinko-main\prisma\seedData.ts is not in the project directory and will not be watched
 warn: File F:\blinko-main\shared\lib\helper.ts is not in the project directory and will not be watched
-JWT secret is undefined, generating a new one
-[2m1:05:47 AM[22m [1m[36m[vite-express][39m[22m [32mRunning in [33mdevelopment[32m mode[39m
-🎉server start on port http://0.0.0.0:1111 - env: development
 ✨ Seed done! ✨
-[2m1:05:47 AM[22m [1m[36m[vite-express][39m[22m [32m[33mInline config[32m detected, ignoring [33mVite config file[32m[39m
+JWT secret is undefined, generating a new one
+[2m1:06:55 AM[22m [1m[36m[vite-express][39m[22m [32mRunning in [33mdevelopment[32m mode[39m
+[2m1:06:55 AM[22m [1m[36m[vite-express][39m[22m [32m[33mInline config[32m detected, ignoring [33mVite config file[32m[39m
+🎉server start on port http://0.0.0.0:1111 - env: development
+[2m01:06:55[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m Forced re-optimization of dependencies
      Running DevCommand (`cargo  run --no-default-features --color always --`)
         Info Watching F:\blinko-main\app\src-tauri for changes...
-[2m01:05:50[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m Forced re-optimization of dependencies
-Error: [31m  Failed to scan for dependencies from entries:
-  F:/blinko-main/app/index.html
-
-  [39m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mThe symbol "AnalyticsPage" has already been declared[0m
-
-    ../app/src/App.tsx:48:6:
-[37m      48 │ const [32mAnalyticsPage[37m = lazy(() => import('./pages/okr/analytics'));
-         ╵       [32m~~~~~~~~~~~~~[0m
-
-  The symbol "AnalyticsPage" was originally declared here:
-
-    ../app/src/App.tsx:38:6:
-[37m      38 │ const [32mAnalyticsPage[37m = lazy(() => import('./pages/analytics'));
-         ╵       [32m~~~~~~~~~~~~~[0m
-
-
-    at failureErrorWithLog (F:\blinko-main\node_modules\esbuild\lib\main.js:1467:19)
-    at <anonymous> (F:\blinko-main\node_modules\esbuild\lib\main.js:926:25)
-    at buildResponseToResult (F:\blinko-main\node_modules\esbuild\lib\main.js:924:7)
-    at <anonymous> (F:\blinko-main\node_modules\esbuild\lib\main.js:936:9)
-    at new Promise (native:1:11)
-    at <anonymous> (F:\blinko-main\node_modules\esbuild\lib\main.js:935:58)
-    at <anonymous> (F:\blinko-main\node_modules\esbuild\lib\main.js:628:17)
-    at handleRequest (F:\blinko-main\node_modules\esbuild\lib\main.js:615:34)
-    at handleIncomingPacket (F:\blinko-main\node_modules\esbuild\lib\main.js:653:7)
-    at readFromStdout (F:\blinko-main\node_modules\esbuild\lib\main.js:581:7)
-    at emit (node:events:95:22)
-    at addChunk (internal:streams/readable:264:47)
-    at readableAddChunkPushByteMode (internal:streams/readable:242:18)
-    at handleNumberResult (internal:streams/native-readable:79:18)
-    at <anonymous> (internal:streams/native-readable:53:68)
-    at processTicksAndRejections (native:7:39)
-[1m[92m    Finished[0m ]8;;https://doc.rust-lang.org/cargo/reference/profiles.html#default-profiles\`dev` profile [unoptimized + debuginfo]]8;;\ target(s) in 22.38s
+[1m[92m    Finished[0m ]8;;https://doc.rust-lang.org/cargo/reference/profiles.html#default-profiles\`dev` profile [unoptimized + debuginfo]]8;;\ target(s) in 0.75s
 [1m[92m     Running[0m `target\debug\Lumina.exe`
 error: script "dev" exited with code 255
 error: script "dev" exited with code 255
