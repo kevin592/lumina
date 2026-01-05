@@ -40,15 +40,28 @@ Lumina is an AI-powered card note-taking project. Designed for individuals who w
 </div>
 
 ## 🚀Main Features
-- 🤖**AI-Enhanced Note Retrieval** :With Lumina's advanced AI-powered RAG (Retrieval-Augmented Generation), you can quickly search and access your notes using natural language queries, making it effortless to find exactly what you need.
 
-- 🔒**Data Ownership** :Your privacy matters. All your notes and data are stored securely in your self-hosted environment, ensuring complete control over your information.
+### OKR & Task Management
+- 🎯**Unified OKR & Task Dashboard**: Manage your Objectives, Key Results, and Tasks in one unified interface. View all goals, progress, and tasks at a glance.
 
-- 🚀**Efficient and Fast** :Capture ideas instantly and store them as plain text for easy access, with full Markdown support for quick formatting and seamless sharing.
+- 📊**Visual Progress Tracking**: Track progress with intuitive visual indicators. See completion percentages for objectives, key results, and overall task status.
 
-- 💡**Lightweight architecture with multi-platform support** :Built with Tauri, Lumina features a clean and lightweight architecture that delivers robust performance while maintaining exceptional speed and efficiency, with native support for multi-platform deployment including macOS, Windows, Android, and Linux.
+- 🔧**Flexible Task Management**: Create tasks quickly, set priorities (URGENT, HIGH, MEDIUM, LOW), track status (PENDING, IN_PROGRESS, COMPLETED, CANCELLED, BLOCKED), and set due dates.
 
-- 🔓**Open for Collaboration** :As an open-source project, Lumina invites contributions from the community. All code is transparent and available on GitHub, fostering a spirit of collaboration and constant improvement.
+- ⌨️**Keyboard Shortcuts**: Boost productivity with keyboard shortcuts (Ctrl+N for quick task, Ctrl+O for OKR creation, Ctrl+K for search).
+
+- 📱**Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices with adaptive layouts.
+
+### Note-Taking & AI Features
+- 🤖**AI-Enhanced Note Retrieval**: With Lumina's advanced AI-powered RAG (Retrieval-Augmented Generation), you can quickly search and access your notes using natural language queries.
+
+- 🔒**Data Ownership**: Your privacy matters. All your notes and data are stored securely in your self-hosted environment.
+
+- 🚀**Efficient and Fast**: Capture ideas instantly with full Markdown support.
+
+- 💡**Lightweight Architecture**: Built with Tauri for clean, lightweight performance with multi-platform support (macOS, Windows, Android, Linux).
+
+- 🔓**Open for Collaboration**: As an open-source project, Lumina invites contributions from the community.
 
 ## 📦Start with Docker in seconds
 
