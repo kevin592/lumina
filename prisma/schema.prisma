@@ -35,6 +35,8 @@ model accounts {
   notifications notifications[]
   conversations conversation[]
   sharedNotes   noteInternalShare[]
+  okrObjectives okrObjectives[]
+  okrTasks      okrTasks[]
 
   @@index([name])
   @@index([role])
@@ -109,6 +111,7 @@ model notes {
   comments          comments[]      @relation("NoteComments")
   histories         noteHistory[]
   internalShares    noteInternalShare[]
+  okrRelations      okrNoteRelations[]
 
   @@index([accountId])
   @@index([accountId, isRecycle])
@@ -346,4 +349,157 @@ model aiModels {
   provider      aiProviders @relation(fields: [providerId], references: [id], onDelete: Cascade)
 
   @@index([providerId])
+}
+
+// ============================================
+// OKR System Models
+// ============================================
+
+enum OKRStatus {
+  PENDING
+  ACHIEVED
+  FAILED
+  ARCHIVED
+}
+
+enum OKRPeriod {
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+  CUSTOM
+}
+
+enum KRStatus {
+  PENDING
+  IN_PROGRESS
+  ACHIEVED
+  FAILED
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  BLOCKED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TaskType {
+  DAILY
+  CREATIVE
+  SUBTASK
+  FLASH
+}
+
+enum RelationType {
+  OBJECTIVE_NOTE
+  KR_NOTE
+  TASK_NOTE
+  FLASH_NOTE
+}
+
+model okrObjectives {
+  id          Int             @id @default(autoincrement())
+  title       String          @db.VarChar(255)
+  description String?         @db.Text
+  status      OKRStatus       @default(PENDING)
+  period      OKRPeriod       @default(CUSTOM)
+  startDate   DateTime        @db.Timestamptz(6)
+  endDate     DateTime?       @db.Timestamptz(6)
+  progress    Decimal         @default(0) @db.Decimal(5, 2)
+  accountId   Int
+  sortOrder   Int             @default(0)
+  createdAt   DateTime        @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime        @updatedAt @db.Timestamptz(6)
+
+  keyResults  okrKeyResults[]
+  tasks       okrTasks[]
+  noteRelations okrNoteRelations[]
+  account     accounts        @relation(fields: [accountId], references: [id])
+
+  @@index([accountId, status])
+  @@index([accountId, startDate])
+  @@index([status])
+}
+
+model okrKeyResults {
+  id           Int             @id @default(autoincrement())
+  title        String          @db.VarChar(255)
+  description  String?         @db.Text
+  status       KRStatus        @default(PENDING)
+  targetValue  Decimal?        @db.Decimal(10, 2)
+  currentValue Decimal?        @db.Decimal(10, 2)
+  unit         String?         @db.VarChar(50)
+  objectiveId  Int
+  sortOrder    Int             @default(0)
+  createdAt    DateTime        @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime        @updatedAt @db.Timestamptz(6)
+
+  tasks        okrTasks[]
+  noteRelations okrNoteRelations[]
+  objective    okrObjectives   @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+
+  @@index([objectiveId, status])
+  @@index([status])
+}
+
+model okrTasks {
+  id            Int             @id @default(autoincrement())
+  title         String          @db.VarChar(255)
+  description   String?         @db.Text
+  status        TaskStatus      @default(PENDING)
+  priority      TaskPriority    @default(MEDIUM)
+  taskType      TaskType        @default(DAILY)
+  objectiveId   Int?
+  keyResultId   Int?
+  dueDate       DateTime?       @db.Timestamptz(6)
+  estimatedHours Decimal?       @db.Decimal(5, 2)
+  actualHours   Decimal?        @db.Decimal(5, 2)
+  accountId     Int
+  sortOrder     Int             @default(0)
+  createdAt     DateTime        @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime        @updatedAt @db.Timestamptz(6)
+  completedAt   DateTime?       @db.Timestamptz(6)
+
+  objective     okrObjectives?  @relation(fields: [objectiveId], references: [id], onDelete: SetNull)
+  keyResult     okrKeyResults?  @relation(fields: [keyResultId], references: [id], onDelete: SetNull)
+  noteRelations okrNoteRelations[]
+  account       accounts        @relation(fields: [accountId], references: [id])
+
+  @@index([accountId, status, dueDate])
+  @@index([objectiveId])
+  @@index([keyResultId])
+  @@index([status])
+  @@index([taskType])
+}
+
+model okrNoteRelations {
+  id            Int          @id @default(autoincrement())
+  relationType  RelationType @default(TASK_NOTE)
+  objectiveId   Int?
+  keyResultId   Int?
+  taskId        Int?
+  noteId        Int
+  metadata      Json?        @db.Json
+  createdAt     DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime     @updatedAt @db.Timestamptz(6)
+
+  objective     okrObjectives? @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+  keyResult     okrKeyResults? @relation(fields: [keyResultId], references: [id], onDelete: Cascade)
+  task          okrTasks?      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  note          notes          @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  @@index([noteId])
+  @@index([taskId])
+  @@index([objectiveId])
+  @@index([keyResultId])
+  @@index([relationType])
 }

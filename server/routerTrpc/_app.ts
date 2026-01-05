@@ -20,6 +20,10 @@ import { publicRouter } from './public';
 import { analyticsRouter } from './analytics';
 import { messageRouter } from './message';
 import { taskRouter } from './task';
+import { okrRouter } from './okr';
+
+// Force reload
+
 export const appRouter = router({
   ai: aiRouter,
   notes: noteRouter,
@@ -30,6 +34,7 @@ export const appRouter = router({
   public: publicRouter,
   task: taskRouter,
   analytics: analyticsRouter,
+  okr: okrRouter,
   comments: commentRouter,
   follows: followsRouter,
   notifications: notificationRouter,

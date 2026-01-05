@@ -27,11 +27,9 @@ export class BaseStore implements Store {
       icon: 'ri-lightbulb-flash-line',
     },
     {
-      title: 'todo',
-      href: '/todo',
-      icon: 'ri-checkbox-circle-line',
-      disabled: true,
-      isPlaceholder: true,
+      title: 'goals-and-tasks',
+      href: '/dashboard',
+      icon: 'ri-dashboard-line',
     },
     {
       title: 'notes',

@@ -12,6 +12,7 @@ import { AppProvider } from '@/store/module/AppProvider';
 import { LuminaMultiSelectPop } from '@/components/LuminaMultiSelectPop';
 import { LuminaMusicPlayer } from '@/components/LuminaMusicPlayer';
 import { LoadingPage } from '@/components/Common/LoadingPage';
+import CommandPalette from '@/components/Common/CommandPalette';
 
 import { RootStore } from '@/store';
 import { UserStore } from '@/store/user';
@@ -41,6 +42,9 @@ const DetailPage = lazy(() => import('./pages/detail'));
 const ShareIndexPage = lazy(() => import('./pages/share'));
 const ShareDetailPage = lazy(() => import('./pages/share/[id]'));
 const AiSharePage = lazy(() => import('./pages/ai-share'));
+
+const TaskDetailPage = lazy(() => import('./pages/okr/task-detail'));
+const DashboardPage = lazy(() => import('./pages/okr/dashboard'));
 
 const HomeRedirect = () => {
   const navigate = useNavigate();
@@ -226,6 +230,11 @@ function AppRoutes() {
 
             <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
             <Route path="/all" element={<ProtectedRoute><AllPage /></ProtectedRoute>} />
+            <Route path="/okr" element={<ProtectedRoute><Navigate to="/dashboard" replace /></ProtectedRoute>} />
+            <Route path="/okr/:id" element={<ProtectedRoute><Navigate to="/dashboard" replace /></ProtectedRoute>} />
+            <Route path="/tasks" element={<ProtectedRoute><Navigate to="/dashboard" replace /></ProtectedRoute>} />
+            <Route path="/tasks/:id" element={<ProtectedRoute><TaskDetailPage /></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
             <Route path="/oauth-callback" element={<OAuthCallbackPage />} />
             <Route path="/detail/*" element={<ProtectedRoute><DetailPage /></ProtectedRoute>} />
             <Route path="/share" element={<ShareIndexPage />} />
@@ -272,6 +281,7 @@ function App() {
               <div className="app-content">
                 <AppRoutes />
                 <LuminaMultiSelectPop />
+                <CommandPalette />
               </div>
             </CommonLayout>
           </ThemeProvider>
