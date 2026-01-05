@@ -223,11 +223,6 @@ export class PromisePageState<T extends (...args: any) => Promise<any>, U = Retu
     }
   }
 
-  async setValue(val) {
-    let _val = val;
-    this.value = _val;
-  }
-
   private async call(...args: Parameters<T>): Promise<Awaited<U> | undefined> {
     const toast = RootStore.Get(ToastPlugin);
     const base = RootStore.Get(BaseStore);
@@ -296,6 +291,11 @@ export class PromisePageState<T extends (...args: any) => Promise<any>, U = Retu
     } finally {
       this.loading.setValue(false);
     }
+  }
+
+  async setValue(val) {
+    console.log(`[sid=${this.sid}] setValue called, val is ${Array.isArray(val) ? `array[${val.length}]` : typeof val}`);
+    this.value = val;
   }
 
   async resetAndCall(...args: Parameters<T>): Promise<Awaited<U> | undefined> {

@@ -40,7 +40,7 @@ export class BaseStore implements Store {
     },
     {
       title: 'analytics',
-      href: '/analytics',
+      href: '/okr/analytics',
       hiddenMobile: true,
       icon: 'ri-bar-chart-box-line',
     },

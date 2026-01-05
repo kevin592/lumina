@@ -107,7 +107,7 @@ const getCardClassName = (
 export const LuminaCard = observer(({ LuminaItem, account, isShareMode = false, glassEffect = false, forceBlog = false, withoutBoxShadow = false, withoutHoverAnimation = false, className, defaultExpanded = false }: LuminaCardProps) => {
   const isPc = useMediaQuery('(min-width: 768px)');
   const Lumina = RootStore.Get(LuminaStore);
-    const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const { pathname } = useLocation();
 
   useHistoryBack({

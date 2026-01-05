@@ -116,6 +116,12 @@ export class OKRStore {
   unlinkNote: any;
   progressStats: any;
 
+  // 时间记录相关
+  timeEntries: any;
+  createTimeEntry: any;
+  deleteTimeEntry: any;
+  timeStats: any;
+
   constructor() {
     this.objectives = new PromisePageState({
       sid: 'OKRStore.objectives',
@@ -248,6 +254,33 @@ export class OKRStore {
       }
     });
 
+    // 时间记录相关
+    this.timeEntries = new PromiseState({
+      function: async (params) => {
+        return await api.okr.getTimeEntries.query(params);
+      }
+    });
+
+    this.createTimeEntry = new PromiseState({
+      function: async (data) => {
+        return await api.okr.createTimeEntry.mutate(data);
+      },
+      successMsg: 'Time entry created successfully'
+    });
+
+    this.deleteTimeEntry = new PromiseState({
+      function: async (id) => {
+        return await api.okr.deleteTimeEntry.mutate({ id });
+      },
+      successMsg: 'Time entry deleted successfully'
+    });
+
+    this.timeStats = new PromiseState({
+      function: async (params) => {
+        return await api.okr.getTimeStats.query(params);
+      }
+    });
+
     makeAutoObservable(this);
   }
 
@@ -331,5 +364,15 @@ export class OKRStore {
 
   loadProgressStats = (objectiveId) => {
     this.progressStats.call(objectiveId);
+  };
+
+  // 加载时间记录
+  loadTimeEntries = (params) => {
+    this.timeEntries.call(params);
+  };
+
+  // 加载时间统计
+  loadTimeStats = (params) => {
+    this.timeStats.call(params);
   };
 }

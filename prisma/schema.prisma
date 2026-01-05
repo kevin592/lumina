@@ -37,6 +37,7 @@ model accounts {
   sharedNotes   noteInternalShare[]
   okrObjectives okrObjectives[]
   okrTasks      okrTasks[]
+  okrTimeEntries okrTimeEntries[]
 
   @@index([name])
   @@index([role])
@@ -472,6 +473,7 @@ model okrTasks {
   objective     okrObjectives?  @relation(fields: [objectiveId], references: [id], onDelete: SetNull)
   keyResult     okrKeyResults?  @relation(fields: [keyResultId], references: [id], onDelete: SetNull)
   noteRelations okrNoteRelations[]
+  timeEntries   okrTimeEntries[]
   account       accounts        @relation(fields: [accountId], references: [id])
 
   @@index([accountId, status, dueDate])
@@ -479,6 +481,24 @@ model okrTasks {
   @@index([keyResultId])
   @@index([status])
   @@index([taskType])
+}
+
+model okrTimeEntries {
+  id          Int      @id @default(autoincrement())
+  taskId      Int
+  accountId   Int
+  startTime   DateTime @db.Timestamptz(6)
+  endTime     DateTime? @db.Timestamptz(6)
+  duration    Decimal  @default(0) @db.Decimal(10, 2)
+  description String?  @db.Text
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
+
+  task    okrTasks  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  account accounts  @relation(fields: [accountId], references: [id])
+
+  @@index([taskId, startTime])
+  @@index([accountId, startTime])
 }
 
 model okrNoteRelations {
