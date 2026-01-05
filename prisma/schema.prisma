@@ -38,6 +38,9 @@ model accounts {
   okrObjectives okrObjectives[]
   okrTasks      okrTasks[]
   okrTimeEntries okrTimeEntries[]
+  okrComments   okrComments[]
+  okrActivityLogs okrActivityLogs[]
+  okrShares     okrShares[]
 
   @@index([name])
   @@index([role])
@@ -407,6 +410,28 @@ enum RelationType {
   FLASH_NOTE
 }
 
+enum EntityType {
+  OBJECTIVE
+  KEY_RESULT
+  TASK
+}
+
+enum ActionType {
+  CREATED
+  UPDATED
+  DELETED
+  STATUS_CHANGED
+  PROGRESS_UPDATED
+  COMMENT_ADDED
+  SHARED
+}
+
+enum Permission {
+  VIEW
+  COMMENT
+  EDIT
+}
+
 model okrObjectives {
   id          Int             @id @default(autoincrement())
   title       String          @db.VarChar(255)
@@ -424,6 +449,8 @@ model okrObjectives {
   keyResults  okrKeyResults[]
   tasks       okrTasks[]
   noteRelations okrNoteRelations[]
+  shares      okrShares[]
+  activityLogs okrActivityLogs[]
   account     accounts        @relation(fields: [accountId], references: [id])
 
   @@index([accountId, status])
@@ -516,10 +543,64 @@ model okrNoteRelations {
   keyResult     okrKeyResults? @relation(fields: [keyResultId], references: [id], onDelete: Cascade)
   task          okrTasks?      @relation(fields: [taskId], references: [id], onDelete: Cascade)
   note          notes          @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  comments      okrComments[]
 
   @@index([noteId])
   @@index([taskId])
   @@index([objectiveId])
   @@index([keyResultId])
   @@index([relationType])
+}
+
+// OKR评论模型
+model okrComments {
+  id          Int      @id @default(autoincrement())
+  content     String   @db.Text
+  relationId  Int      // 关联的noteRelation ID
+  accountId   Int
+  parentId    Int?     // 父评论ID（用于回复）
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
+
+  relation    okrNoteRelations @relation(fields: [relationId], references: [id], onDelete: Cascade)
+  account     accounts         @relation(fields: [accountId], references: [id])
+  parent      okrComments?     @relation("CommentReplies", fields: [parentId], references: [id])
+  replies     okrComments[]    @relation("CommentReplies")
+
+  @@index([relationId])
+  @@index([accountId])
+  @@index([parentId])
+  @@index([createdAt])
+}
+
+// OKR活动历史模型
+model okrActivityLog {
+  id          Int          @id @default(autoincrement())
+  entityType  EntityType   // OBJECTIVE | KEY_RESULT | TASK
+  entityId    Int
+  actionType  ActionType   // CREATED | UPDATED | DELETED | STATUS_CHANGED | PROGRESS_UPDATED
+  accountId   Int
+  changes     Json?        @db.Json // 变更详情
+  createdAt   DateTime     @default(now()) @db.Timestamptz(6)
+
+  account     accounts     @relation(fields: [accountId], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([accountId])
+  @@index([createdAt])
+}
+
+// OKR共享模型
+model okrShares {
+  id          Int          @id @default(autoincrement())
+  objectiveId Int
+  accountId   Int          // 被共享的用户
+  permission  Permission   // VIEW | COMMENT | EDIT
+  createdAt   DateTime     @default(now()) @db.Timestamptz(6)
+
+  objective   okrObjectives @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+  account     accounts      @relation(fields: [accountId], references: [id])
+
+  @@unique([objectiveId, accountId])
+  @@index([accountId])
 }

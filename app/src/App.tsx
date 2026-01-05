@@ -46,6 +46,7 @@ const AiSharePage = lazy(() => import('./pages/ai-share'));
 const TaskDetailPage = lazy(() => import('./pages/okr/task-detail'));
 const DashboardPage = lazy(() => import('./pages/okr/dashboard'));
 const AnalyticsPage = lazy(() => import('./pages/okr/analytics'));
+const ReportsPage = lazy(() => import('./pages/okr/reports'));
 
 const HomeRedirect = () => {
   const navigate = useNavigate();
@@ -237,6 +238,7 @@ function AppRoutes() {
             <Route path="/tasks/:id" element={<ProtectedRoute><TaskDetailPage /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
             <Route path="/okr/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
+            <Route path="/okr/reports" element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
             <Route path="/oauth-callback" element={<OAuthCallbackPage />} />
             <Route path="/detail/*" element={<ProtectedRoute><DetailPage /></ProtectedRoute>} />
             <Route path="/share" element={<ShareIndexPage />} />
