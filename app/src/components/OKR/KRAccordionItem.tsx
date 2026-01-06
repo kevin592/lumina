@@ -2,6 +2,7 @@ import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import { Card, Progress } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
+import { motion, AnimatePresence } from 'framer-motion';
 import { KeyResult, KRStatus, TaskStatus } from '@/store/module/OKRStore';
 import InlineTaskList from './InlineTaskList';
 import QuickTaskInput from './QuickTaskInput';
@@ -68,7 +69,12 @@ const KRAccordionItem = observer(({
     : 0;
 
   return (
-    <Card className="mb-3 shadow-sm hover:shadow-md transition-all duration-200">
+    <motion.div
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.15, ease: 'easeOut' }}
+    >
+      <Card className="mb-3 shadow-sm hover:shadow-md transition-all duration-200">
       {/* KR标题栏 */}
       <div
         className="p-4 cursor-pointer"
@@ -132,24 +138,26 @@ const KRAccordionItem = observer(({
             )}
 
             {/* 展开/折叠箭头 */}
-            <i
-              className={`ri-arrow-down-s-line text-xl text-gray-400 transition-transform duration-300 ${
-                isExpanded ? 'rotate-180' : ''
-              }`}
-            ></i>
+            <motion.i
+              className="ri-arrow-down-s-line text-xl text-gray-400"
+              animate={{ rotate: isExpanded ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
+            ></motion.i>
           </div>
         </div>
       </div>
 
-      {/* 展开内容 - 带平滑动画 */}
-      <div
-        className="overflow-hidden transition-all duration-300 ease-in-out"
-        style={{
-          maxHeight: isExpanded ? '1000px' : '0px',
-          opacity: isExpanded ? 1 : 0,
-        }}
-      >
-        <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800/50">
+      {/* 展开内容 - 使用framer-motion动画 */}
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: 'easeInOut' }}
+            className="overflow-hidden"
+          >
+            <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800/50">
           {/* 任务列表 */}
           <div className="mb-4">
             <InlineTaskList
@@ -169,9 +177,12 @@ const KRAccordionItem = observer(({
               onRefresh?.();
             }}
           />
-        </div>
-      </div>
-    </Card>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      </Card>
+    </motion.div>
   );
 });
 

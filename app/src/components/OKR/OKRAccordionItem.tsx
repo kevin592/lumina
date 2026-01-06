@@ -2,6 +2,7 @@ import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import { Card, Button, Progress } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Objective, OKRStatus } from '@/store/module/OKRStore';
 import QuickTaskInput from './QuickTaskInput';
 
@@ -77,7 +78,12 @@ const OKRAccordionItem = observer(({
   };
 
   return (
-    <Card className="mb-3 shadow-sm hover:shadow-md transition-shadow">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2, ease: 'easeOut' }}
+    >
+      <Card className="mb-3 shadow-sm hover:shadow-md transition-shadow">
       {/* OKR标题栏 */}
       <div
         className="p-4 cursor-pointer flex items-center justify-between"
@@ -150,14 +156,26 @@ const OKRAccordionItem = observer(({
               toggleExpanded();
             }}
           >
-            <i className={`ri-arrow-${isExpanded ? 'up' : 'down'}-s-line`}></i>
+            <motion.i
+              className="ri-arrow-down-s-line"
+              animate={{ rotate: isExpanded ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
+            ></motion.i>
           </Button>
         </div>
       </div>
 
       {/* 展开内容 */}
-      {isExpanded && (
-        <div className="border-t border-gray-200 dark:border-gray-700 p-4">
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="border-t border-gray-200 dark:border-gray-700 overflow-hidden"
+          >
+            <div className="p-4">
           {/* 描述 */}
           {objective.description && (
             <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm">
@@ -181,9 +199,12 @@ const OKRAccordionItem = observer(({
               placeholder={t('add-task-to-okr') || '添加任务到此OKR...'}
             />
           </div>
-        </div>
-      )}
-    </Card>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      </Card>
+    </motion.div>
   );
 });
 

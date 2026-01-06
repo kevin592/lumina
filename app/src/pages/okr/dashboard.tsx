@@ -1,6 +1,7 @@
 import { observer } from 'mobx-react-lite';
-import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { Button, Select, SelectItem, Spinner, Tabs, Tab } from '@heroui/react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { useTranslation } from 'react-i18next';
 import { RootStore } from '@/store';
 import { OKRStore, Objective, TaskStatus, OKRStatus } from '@/store/module/OKRStore';
@@ -54,6 +55,17 @@ const DashboardPage = observer(() => {
 
   // 快捷键支持
   const quickTaskInputRef = useState<HTMLInputElement | null>(null)[0];
+
+  // 虚拟滚动容器引用
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  // 配置虚拟滚动
+  const virtualizer = useVirtualizer({
+    count: filteredObjectives.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 200, // 预估每个OKR卡片高度（包括展开内容）
+    overscan: 5, // 额外渲染5个项目，减少滚动时的空白
+  });
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     // 如果在输入框中，不触发快捷键（除了 Ctrl+Enter）
@@ -386,61 +398,89 @@ const DashboardPage = observer(() => {
     >
       {/* 内容区域 - 根据视图显示不同内容 */}
       {currentView === 'okr' ? (
-        // OKR视图
-        <div>
-          {filteredObjectives.length === 0 ? (
-            <EmptyState
-              type="okr"
-              onCreate={() => setShowCreateDialog(true)}
-            />
-          ) : (
-            filteredObjectives.map((objective: Objective, index: number) => (
-              <OKRAccordionItem
-                key={objective.id}
-                objective={objective}
-                defaultExpanded={index === 0}
-                expanded={expandedObjectives.has(objective.id)}
-                onToggle={handleObjectiveToggle}
-                onDelete={handleDeleteObjective}
-                onExpand={handleObjectiveExpand}
-                krList={
-                  <div className="mb-4">
-                    <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-                      {t('key-results') || '关键结果'}
-                    </h4>
-                    {loadingKRs.has(objective.id) ? (
-                      <KRSkeletonCard count={2} />
-                    ) : (() => {
-                      // 优先使用懒加载的KR数据，如果没有则使用objective自带的keyResults
-                      const krList = krDataMap.get(objective.id) || objective.keyResults;
-                      return krList && krList.length > 0 ? (
-                        <div className="space-y-2">
-                          {krList.map((kr) => (
-                            <KRAccordionItem
-                              key={kr.id}
-                              kr={kr}
-                              objectiveId={objective.id}
-                              onTaskStatusChange={handleTaskStatusChange}
-                              onTaskDelete={handleDeleteTask}
-                              onRefresh={() => okrStore.objectives.resetAndCall({ page: 1, limit: 50 })}
-                            />
-                          ))}
+        // OKR视图 - 使用虚拟滚动优化性能
+        filteredObjectives.length === 0 ? (
+          <EmptyState
+            type="okr"
+            onCreate={() => setShowCreateDialog(true)}
+          />
+        ) : (
+          // 虚拟滚动容器
+          <div
+            ref={parentRef}
+            style={{
+              height: 'calc(100vh - 300px)', // 视口高度减去头部和统计卡片的高度
+              overflow: 'auto',
+            }}
+          >
+            <div
+              style={{
+                height: `${virtualizer.getTotalSize()}px`,
+                width: '100%',
+                position: 'relative',
+              }}
+            >
+              {virtualizer.getVirtualItems().map((virtualItem) => {
+                const objective = filteredObjectives[virtualItem.index];
+                return (
+                  <div
+                    key={virtualItem.key}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      transform: `translateY(${virtualItem.start}px)`,
+                    }}
+                  >
+                    <OKRAccordionItem
+                      objective={objective}
+                      defaultExpanded={virtualItem.index === 0}
+                      expanded={expandedObjectives.has(objective.id)}
+                      onToggle={handleObjectiveToggle}
+                      onDelete={handleDeleteObjective}
+                      onExpand={handleObjectiveExpand}
+                      krList={
+                        <div className="mb-4">
+                          <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+                            {t('key-results') || '关键结果'}
+                          </h4>
+                          {loadingKRs.has(objective.id) ? (
+                            <KRSkeletonCard count={2} />
+                          ) : (() => {
+                            // 优先使用懒加载的KR数据，如果没有则使用objective自带的keyResults
+                            const krList = krDataMap.get(objective.id) || objective.keyResults;
+                            return krList && krList.length > 0 ? (
+                              <div className="space-y-2">
+                                {krList.map((kr) => (
+                                  <KRAccordionItem
+                                    key={kr.id}
+                                    kr={kr}
+                                    objectiveId={objective.id}
+                                    onTaskStatusChange={handleTaskStatusChange}
+                                    onTaskDelete={handleDeleteTask}
+                                    onRefresh={() => okrStore.objectives.resetAndCall({ page: 1, limit: 50 })}
+                                  />
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="text-center py-6">
+                                <i className="ri-key-2-line text-2xl text-gray-400 dark:text-gray-500 mb-2 block"></i>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                  {t('no-krs') || '暂无关键结果'}
+                                </p>
+                              </div>
+                            );
+                          })()}
                         </div>
-                      ) : (
-                        <div className="text-center py-6">
-                          <i className="ri-key-2-line text-2xl text-gray-400 dark:text-gray-500 mb-2 block"></i>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {t('no-krs') || '暂无关键结果'}
-                          </p>
-                        </div>
-                      );
-                    })()}
+                      }
+                    />
                   </div>
-                }
-              />
-            ))
-          )}
-        </div>
+                );
+              })}
+            </div>
+          </div>
+        )
       ) : (
         // 任务视图（日常任务 / 全部任务）
         <div>
