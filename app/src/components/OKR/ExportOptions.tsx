@@ -3,6 +3,8 @@ import { Button, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@
 import { useTranslation } from 'react-i18next';
 import { RiDownloadLine, RiFilePdfLine, RiFileExcelLine, RiPrinterLine } from 'react-icons/ri';
 import { Objective, KeyResult, Task } from '@/store/module/OKRStore';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 interface ExportOptionsProps {
   objectives?: Objective[];
@@ -116,12 +118,73 @@ const ExportOptions = observer(({
     onPrint?.();
   };
 
-  // 导出为PDF（需要后端支持或前端库）
-  const handleExportPDF = () => {
-    // TODO: 实现PDF导出功能
-    // 可以使用 jsPDF 或 html2canvas + jspdf
-    alert('PDF导出功能开发中...');
-    onExportPDF?.();
+  // 导出为PDF
+  const handleExportPDF = async () => {
+    try {
+      // 查找报表内容容器
+      const element = document.getElementById('reports-content');
+      if (!element) {
+        console.error('未找到报表内容容器');
+        return;
+      }
+
+      // 显示加载提示
+      const loadingMsg = document.createElement('div');
+      loadingMsg.id = 'pdf-loading';
+      loadingMsg.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 20px 40px;
+        border-radius: 8px;
+        z-index: 9999;
+        font-size: 16px;
+      `;
+      loadingMsg.textContent = '正在生成PDF...';
+      document.body.appendChild(loadingMsg);
+
+      // 使用html2canvas将DOM转换为canvas
+      const canvas = await html2canvas(element, {
+        scale: 2, // 提高清晰度
+        useCORS: true, // 支持跨域图片
+        logging: false,
+        backgroundColor: '#ffffff',
+      });
+
+      // 移除加载提示
+      document.body.removeChild(loadingMsg);
+
+      // 计算PDF尺寸
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      const imgWidth = 210; // A4宽度（mm）
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      // 添加图片到PDF
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+
+      // 保存PDF文件
+      const filename = `okr-report-${new Date().toISOString().split('T')[0]}.pdf`;
+      pdf.save(filename);
+
+      onExportPDF?.();
+    } catch (error) {
+      console.error('PDF导出失败:', error);
+      // 移除可能的加载提示
+      const loadingMsg = document.getElementById('pdf-loading');
+      if (loadingMsg) {
+        document.body.removeChild(loadingMsg);
+      }
+      alert('PDF导出失败，请重试');
+    }
   };
 
   return (

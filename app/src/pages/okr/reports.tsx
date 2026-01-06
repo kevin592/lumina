@@ -54,7 +54,7 @@ const ReportsPage = observer(() => {
   const weeklyReport = generateWeeklyReport();
 
   return (
-    <div className="space-y-6">
+    <div id="reports-content" className="space-y-6">
       {/* 头部 */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">
