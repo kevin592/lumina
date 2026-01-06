@@ -35,6 +35,9 @@ const DashboardPage = observer(() => {
   const [krDataMap, setKrDataMap] = useState<Map<number, any[]>>(new Map());
   const [loadingKRs, setLoadingKRs] = useState<Set<number>>(new Set());
 
+  // 手风琴展开状态管理 - 保持展开状态不丢失
+  const [expandedObjectives, setExpandedObjectives] = useState<Set<number>>(new Set());
+
   // 加载OKR列表
   useEffect(() => {
     okrStore.objectives.resetAndCall({ page: 1, limit: 50 });
@@ -230,6 +233,19 @@ const DashboardPage = observer(() => {
     loadKeyResults(objectiveId, shouldReload);
   };
 
+  // 处理手风琴展开/折叠状态变化
+  const handleObjectiveToggle = (objectiveId: number, expanded: boolean) => {
+    setExpandedObjectives(prev => {
+      const newSet = new Set(prev);
+      if (expanded) {
+        newSet.add(objectiveId);
+      } else {
+        newSet.delete(objectiveId);
+      }
+      return newSet;
+    });
+  };
+
   // 顶部操作栏
   const headerActions = (
     <div className="flex items-center gap-3">
@@ -383,6 +399,8 @@ const DashboardPage = observer(() => {
                 key={objective.id}
                 objective={objective}
                 defaultExpanded={index === 0}
+                expanded={expandedObjectives.has(objective.id)}
+                onToggle={handleObjectiveToggle}
                 onDelete={handleDeleteObjective}
                 onExpand={handleObjectiveExpand}
                 krList={

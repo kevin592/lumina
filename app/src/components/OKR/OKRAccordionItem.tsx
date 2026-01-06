@@ -13,6 +13,8 @@ interface OKRAccordionItemProps {
   taskList?: React.ReactNode;
   defaultExpanded?: boolean;
   onExpand?: (id: number) => void;
+  expanded?: boolean; // 新增：受控模式的展开状态
+  onToggle?: (id: number, expanded: boolean) => void; // 新增：展开状态变化回调
 }
 
 /**
@@ -26,10 +28,14 @@ const OKRAccordionItem = observer(({
   krList,
   taskList,
   defaultExpanded = false,
-  onExpand
+  onExpand,
+  expanded: controlledExpanded,
+  onToggle
 }: OKRAccordionItemProps) => {
   const { t } = useTranslation();
-  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+  // 使用受控模式或非受控模式
+  const [internalExpanded, setInternalExpanded] = useState(defaultExpanded);
+  const isExpanded = controlledExpanded !== undefined ? controlledExpanded : internalExpanded;
 
   const getStatusText = (status: OKRStatus) => {
     const map: Record<OKRStatus, string> = {
@@ -53,7 +59,17 @@ const OKRAccordionItem = observer(({
 
   const toggleExpanded = () => {
     const newExpanded = !isExpanded;
-    setIsExpanded(newExpanded);
+
+    // 更新本地状态（非受控模式）
+    if (controlledExpanded === undefined) {
+      setInternalExpanded(newExpanded);
+    }
+
+    // 调用父组件回调
+    if (onToggle) {
+      onToggle(objective.id, newExpanded);
+    }
+
     // 只在展开时调用回调（折叠时不需要）
     if (newExpanded && onExpand) {
       onExpand(objective.id);
