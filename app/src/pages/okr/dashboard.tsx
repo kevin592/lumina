@@ -56,6 +56,21 @@ const DashboardPage = observer(() => {
   // 快捷键支持
   const quickTaskInputRef = useState<HTMLInputElement | null>(null)[0];
 
+  // 筛选OKR列表
+  const filteredObjectives = useMemo(() => {
+    let objectives = okrStore.objectives.value || [];
+
+    if (selectedPeriod !== 'ALL') {
+      objectives = objectives.filter((o: Objective) => o.period === selectedPeriod);
+    }
+
+    if (selectedStatus !== 'ALL') {
+      objectives = objectives.filter((o: Objective) => o.status === selectedStatus);
+    }
+
+    return objectives;
+  }, [okrStore.objectives.value, selectedPeriod, selectedStatus]);
+
   // 虚拟滚动容器引用
   const parentRef = useRef<HTMLDivElement>(null);
 
@@ -71,8 +86,8 @@ const DashboardPage = observer(() => {
     // 如果在输入框中，不触发快捷键（除了 Ctrl+Enter）
     const target = e.target as HTMLElement;
     const isInputFocused = target.tagName === 'INPUT' ||
-                           target.tagName === 'TEXTAREA' ||
-                           target.contentEditable === 'true';
+      target.tagName === 'TEXTAREA' ||
+      target.contentEditable === 'true';
 
     // Ctrl+N: 快速创建任务
     if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
@@ -169,20 +184,7 @@ const DashboardPage = observer(() => {
     };
   }, [okrStore.objectives.value]);
 
-  // 筛选OKR列表
-  const filteredObjectives = useMemo(() => {
-    let objectives = okrStore.objectives.value || [];
 
-    if (selectedPeriod !== 'ALL') {
-      objectives = objectives.filter((o: Objective) => o.period === selectedPeriod);
-    }
-
-    if (selectedStatus !== 'ALL') {
-      objectives = objectives.filter((o: Objective) => o.status === selectedStatus);
-    }
-
-    return objectives;
-  }, [okrStore.objectives.value, selectedPeriod, selectedStatus]);
 
   // 处理任务状态变化
   const handleTaskStatusChange = async (taskId: number, newStatus: TaskStatus) => {
@@ -300,32 +302,38 @@ const DashboardPage = observer(() => {
         <div className="hidden lg:flex items-center gap-3">
           <Select
             size="sm"
-            variant="bordered"
-            label={t('period') || '周期'}
+            classNames={{
+              trigger: "glass-input shadow-none hover:bg-white/60 transition-colors h-10 min-h-10 rounded-xl",
+              popoverContent: "bg-white/80 backdrop-blur-xl border border-white/50 shadow-glass rounded-xl",
+            }}
+            label={t('period') || 'Period'}
             className="w-32"
             selectedKeys={[selectedPeriod]}
             onSelectionChange={(keys) => setSelectedPeriod(Array.from(keys)[0] as string)}
           >
-            <SelectItem key="ALL">{t('all') || '全部'}</SelectItem>
-            <SelectItem key="WEEKLY">{t('weekly') || '周'}</SelectItem>
-            <SelectItem key="MONTHLY">{t('monthly') || '月'}</SelectItem>
-            <SelectItem key="QUARTERLY">{t('quarterly') || '季度'}</SelectItem>
-            <SelectItem key="YEARLY">{t('yearly') || '年'}</SelectItem>
+            <SelectItem key="ALL">{t('all') || 'All'}</SelectItem>
+            <SelectItem key="WEEKLY">{t('weekly') || 'Weekly'}</SelectItem>
+            <SelectItem key="MONTHLY">{t('monthly') || 'Monthly'}</SelectItem>
+            <SelectItem key="QUARTERLY">{t('quarterly') || 'Quarterly'}</SelectItem>
+            <SelectItem key="YEARLY">{t('yearly') || 'Yearly'}</SelectItem>
           </Select>
 
           <Select
             size="sm"
-            variant="bordered"
-            label={t('status') || '状态'}
+            classNames={{
+              trigger: "glass-input shadow-none hover:bg-white/60 transition-colors h-10 min-h-10 rounded-xl",
+              popoverContent: "bg-white/80 backdrop-blur-xl border border-white/50 shadow-glass rounded-xl",
+            }}
+            label={t('status') || 'Status'}
             className="w-32"
             selectedKeys={[selectedStatus]}
             onSelectionChange={(keys) => setSelectedStatus(Array.from(keys)[0] as string)}
           >
-            <SelectItem key="ALL">{t('all') || '全部'}</SelectItem>
-            <SelectItem key="PENDING">{t('pending') || '进行中'}</SelectItem>
-            <SelectItem key="ACHIEVED">{t('achieved') || '已完成'}</SelectItem>
-            <SelectItem key="FAILED">{t('failed') || '失败'}</SelectItem>
-            <SelectItem key="ARCHIVED">{t('archived') || '已归档'}</SelectItem>
+            <SelectItem key="ALL">{t('all') || 'All'}</SelectItem>
+            <SelectItem key="PENDING">{t('pending') || 'Pending'}</SelectItem>
+            <SelectItem key="ACHIEVED">{t('achieved') || 'Achieved'}</SelectItem>
+            <SelectItem key="FAILED">{t('failed') || 'Failed'}</SelectItem>
+            <SelectItem key="ARCHIVED">{t('archived') || 'Archived'}</SelectItem>
           </Select>
         </div>
       )}

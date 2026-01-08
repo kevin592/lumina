@@ -1,0 +1,288 @@
+/**
+ * Fortent Design System - Apple + Google 风格
+ * 基于 design-system-all-in-one.html 规范
+ * 适配 Tailwind CSS v3
+ */
+
+:root {
+  /* ========================================
+     Material You (Google) 紫色主题
+     ======================================== */
+
+  --color-primary: #6750A4;
+  --color-on-primary: #FFFFFF;
+  --color-container: #EADDFF;
+  --color-on-container: #21005D;
+
+  /* ========================================
+     Apple VisionOS 玻璃态
+     ======================================== */
+
+  --glass-100: rgba(255, 255, 255, 0.1);
+  --glass-200: rgba(255, 255, 255, 0.2);
+  --glass-300: rgba(255, 255, 255, 0.3);
+  --glass-border: rgba(255, 255, 255, 0.4);
+  --glass-text: rgba(0, 0, 0, 0.8);
+
+  /* ========================================
+     Aurora 背景渐变
+     ======================================== */
+
+  --aurora-gradient-1: radial-gradient(at 0% 0%, rgba(103, 80, 164, 0.15) 0px, transparent 50%);
+  --aurora-gradient-2: radial-gradient(at 100% 0%, rgba(208, 188, 255, 0.2) 0px, transparent 50%);
+  --aurora-gradient-3: radial-gradient(at 100% 100%, rgba(225, 232, 237, 0.5) 0px, transparent 50%);
+  --aurora-gradient-4: radial-gradient(at 0% 100%, rgba(255, 255, 255, 0.8) 0px, transparent 50%);
+
+  /* ========================================
+     字体系统 (Apple + Google)
+     ======================================== */
+
+  --font-sans: 'Inter', 'Noto Sans SC', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* ========================================
+     间距系统
+     ======================================== */
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* ========================================
+     圆角系统
+     ======================================== */
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* ========================================
+     阴影系统
+     ======================================== */
+
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+  --shadow-float: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
+  --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+
+  /* ========================================
+     组件尺寸
+     ======================================== */
+
+  --sidebar-width: 260px;
+  --sidebar-width-collapsed: 72px;
+  --header-height: 52px;
+}
+
+/* ========================================
+   全局样式
+   ======================================== */
+
+body {
+  background-color: #f0f0f5;
+  background-image:
+    var(--aurora-gradient-1),
+    var(--aurora-gradient-2),
+    var(--aurora-gradient-3),
+    var(--aurora-gradient-4);
+  background-attachment: fixed;
+  background-size: cover;
+  color: #1a1a1c;
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ========================================
+   玻璃态面板
+   ======================================== */
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.02),
+    0 2px 4px -1px rgba(0, 0, 0, 0.02),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-xl);
+}
+
+/* ========================================
+   侧边栏样式
+   ======================================== */
+
+.sidebar {
+  transition: width 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  margin: 4px 0;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  transition: all 0.2s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-item:hover {
+  background: rgba(0, 0, 0, 0.03);
+  color: #000;
+}
+
+.nav-item.active {
+  background: rgba(255, 255, 255, 0.6);
+  color: #000;
+  font-weight: 600;
+  box-shadow: var(--shadow-subtle);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 16px;
+  background: var(--color-primary);
+  border-radius: 0 4px 4px 0;
+}
+
+/* ========================================
+   卡片样式
+   ======================================== */
+
+.card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.card-elevated {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: var(--shadow-float);
+}
+
+/* ========================================
+   按钮样式
+   ======================================== */
+
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #523e85;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-subtle);
+}
+
+.btn-secondary {
+  background: var(--color-container);
+  color: var(--color-on-container);
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: #D0BCFF;
+  transform: translateY(-1px);
+}
+
+/* ========================================
+   输入框样式
+   ======================================== */
+
+.input {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(103, 80, 164, 0.1);
+}
+
+/* ========================================
+   动画
+   ======================================== */
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-in {
+  animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ========================================
+   工具类
+   ======================================== */
+
+.text-primary {
+  color: var(--color-primary);
+}
+
+.bg-primary {
+  background-color: var(--color-primary);
+}
+
+.bg-container {
+  background-color: var(--color-container);
+}
+
+.rounded-glass {
+  border-radius: var(--radius-xl);
+}
+
+.shadow-glass {
+  box-shadow: var(--shadow-glass);
+}
+
+.shadow-float {
+  box-shadow: var(--shadow-float);
+}

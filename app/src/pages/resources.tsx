@@ -98,10 +98,10 @@ const Page = observer(() => {
       onBottom={resourceStore.loadNextPage}
       className="px-6 h-[calc(100vh_-_100px)]"
     >
-      {/* Design v2.0 - 白色大卡片容器包裹资源库 */}
-      <div className="bg-white rounded-2xl shadow-card ring-1 ring-gray-900/5 overflow-hidden min-h-[600px]">
+      {/* Design V6 - Glass Panel Container */}
+      <div className="glass-panel h-full flex flex-col overflow-hidden">
         {/* 头部 - 操作按钮 */}
-        <div className="flex justify-between items-center px-6 py-4 border-b border-gray-50">
+        <div className="flex justify-between items-center px-6 py-4 border-b border-white/40">
           <div className="flex gap-3">
             <input
               ref={fileInputRef}
@@ -112,27 +112,27 @@ const Page = observer(() => {
             />
             <button
               onClick={handleUploadClick}
-              className="px-4 py-2 bg-gray-900 text-white text-xs font-bold rounded-xl shadow hover:bg-black transition-all flex items-center gap-2"
+              className="px-5 py-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-xs font-bold rounded-full shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 hover:scale-105 transition-all flex items-center gap-2"
             >
-              <i className="ri-upload-cloud-line"></i> {t('upload-file')}
+              <i className="ri-upload-cloud-line text-sm"></i> {t('upload-file')}
             </button>
             <button
               onClick={openNewFolderDialog}
-              className="px-4 py-2 bg-white border border-gray-200 text-gray-700 text-xs font-bold rounded-xl hover:bg-gray-50 transition-all"
+              className="px-5 py-2.5 bg-white/50 border border-white/60 text-gray-700 text-xs font-bold rounded-full hover:bg-white hover:shadow-subtle transition-all"
             >
               {t('new-folder')}
             </button>
           </div>
-          <div className="flex gap-1 bg-gray-100 p-1 rounded-lg">
+          <div className="flex gap-1 bg-white/30 p-1 rounded-full border border-white/40">
             <button
               onClick={() => setViewMode('list')}
-              className={`p-1.5 rounded ${viewMode === 'list' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-400 hover:text-gray-900'}`}
+              className={`p-1.5 rounded-full transition-all ${viewMode === 'list' ? 'bg-white shadow-sm text-violet-600' : 'text-gray-500 hover:text-gray-900'}`}
             >
               <i className="ri-list-check"></i>
             </button>
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-1.5 rounded ${viewMode === 'grid' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-400 hover:text-gray-900'}`}
+              className={`p-1.5 rounded-full transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-violet-600' : 'text-gray-500 hover:text-gray-900'}`}
             >
               <i className="ri-grid-fill"></i>
             </button>

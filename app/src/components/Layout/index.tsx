@@ -85,14 +85,10 @@ export const CommonLayout = observer(({ children, header }: { children?: React.R
 
   return (
     <div
-      className={`flex w-full h-mobile-full overflow-x-hidden ${isPc ? 'p-4 gap-4 bg-[#F5F5F7]' : 'bg-white'}`}
+      className={`flex w-full h-mobile-full overflow-x-hidden selection:bg-violet-200 selection:text-violet-900 ${isPc ? 'p-4 gap-4 md:p-5 md:gap-5' : ''}`}
       id="outer-container"
     >
-      {/* Background Gradients */}
-      <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0">
-        <div className="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] bg-purple-300/30 rounded-full blur-[150px] animate-pulse-slow"></div>
-        <div className="absolute bottom-[-20%] right-[-10%] w-[70%] h-[70%] bg-blue-300/30 rounded-full blur-[150px] animate-pulse-slow delay-1000"></div>
-      </div>
+      {/* Background is now handled by body in globals.css - Aurora Mesh Gradient */}
       <AiWritePop />
       <SettingsModal />
 
@@ -110,111 +106,110 @@ export const CommonLayout = observer(({ children, header }: { children?: React.R
         id="page-wrap"
         style={{ width: isPc ? `calc(100% - ${base.sideBarWidth}px - 16px)` : '100%' }}
         className={`
-          flex !transition-all duration-300 overflow-y-hidden w-full flex-col
-          ${isPc ? 'bg-transparent' : 'bg-gray-50'}
+          flex !transition-all duration-300 overflow-y-hidden w-full flex-col relative
+          ${isPc ? 'glass-panel shadow-float bg-gradient-to-b from-white/40 to-transparent' : 'bg-white'}
         `}
       >
-        {/* nav bar  */}
-        <header
-          className={`
+        {/* nav bar - Hidden in Focus Mode AND Library Mode (home page) */}
+        {!(isPc && location.pathname === '/' && (!searchParams.get('path') || searchParams.get('path') === 'all')) && (
+          <header
+            className={`
             sticky top-0 z-10 shrink-0
             ${isPc ? 'p-4 pb-0' : 'w-full'}
           `}
-          style={!isPc ? {
-            position: 'fixed',
-            top: 0,
-            zIndex: 11,
-            width: '100%',
-          } : undefined}
-        >
-          <div className={`
+            style={!isPc ? {
+              position: 'fixed',
+              top: 0,
+              zIndex: 11,
+              width: '100%',
+            } : undefined}
+          >
+            <div className={`
              flex items-center justify-between gap-2 transition-all duration-300 w-full z-[1]
              ${isPc ? 'rounded-2xl px-6 py-3 bg-white/10 backdrop-blur-xl border border-white/10' : 'h-16 px-4 bg-white/80 backdrop-blur-lg border-b border-gray-200/50'}
           `}>
-            {!isPc && (
-              <button className="flex" onClick={() => setisOpen(!isOpen)}>
-                <i className="ri-menu-2-line text-2xl"></i>
-              </button>
-            )}
-            <div className="flex flex-1 items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-[4px] h-[16px] bg-primary rounded-xl hidden md:block" />
-                <div className="flex flex-row items-center gap-1">
-                  <div className="font-black select-none">
-                    {location.pathname == '/ai'
-                      ? !!RootStore.Get(AiStore).currentConversation.value?.title
-                        ? RootStore.Get(AiStore).currentConversation.value?.title
-                        : t(base.currentTitle)
-                      : t(base.currentTitle)}
+              {!isPc && (
+                <button className="flex" onClick={() => setisOpen(!isOpen)}>
+                  <i className="ri-menu-2-line text-2xl"></i>
+                </button>
+              )}
+              <div className="flex flex-1 items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-[4px] h-[16px] bg-primary rounded-xl hidden md:block" />
+                  <div className="flex flex-row items-center gap-1">
+                    <div className="font-black select-none">
+                      {location.pathname == '/ai'
+                        ? !!RootStore.Get(AiStore).currentConversation.value?.title
+                          ? RootStore.Get(AiStore).currentConversation.value?.title
+                          : t(base.currentTitle)
+                        : t(base.currentTitle)}
+                    </div>
+                    {searchParams.get('path') != 'trash' ? (
+                      <i
+                        className="ri-refresh-line cursor-pointer hover:rotate-180 !transition-all hidden md:block text-xl"
+                        onClick={() => {
+                          lumina.refreshData();
+                          lumina.updateTicker++;
+                        }}
+                      ></i>
+                    ) : (
+                      <i
+                        className="ri-delete-bin-2-line cursor-pointer !transition-all text-red-500 text-xl"
+                        onClick={() => {
+                          showTipsDialog({
+                            size: 'sm',
+                            title: t('confirm-to-delete'),
+                            content: t('this-operation-removes-the-associated-label-and-cannot-be-restored-please-confirm'),
+                            onConfirm: async () => {
+                              await RootStore.Get(ToastPlugin).promise(api.notes.clearRecycleBin.mutate(), {
+                                loading: t('in-progress'),
+                                success: <b>{t('your-changes-have-been-saved')}</b>,
+                                error: <b>{t('operation-failed')}</b>,
+                              });
+                              lumina.refreshData();
+                              RootStore.Get(DialogStandaloneStore).close();
+                            },
+                          });
+                        }}
+                      ></i>
+                    )}
                   </div>
-                  {searchParams.get('path') != 'trash' ? (
-                    <i
-                      className="ri-refresh-line cursor-pointer hover:rotate-180 !transition-all hidden md:block text-xl"
-                      onClick={() => {
-                        lumina.refreshData();
-                        lumina.updateTicker++;
-                      }}
-                    ></i>
-                  ) : (
-                    <i
-                      className="ri-delete-bin-2-line cursor-pointer !transition-all text-red-500 text-xl"
-                      onClick={() => {
-                        showTipsDialog({
-                          size: 'sm',
-                          title: t('confirm-to-delete'),
-                          content: t('this-operation-removes-the-associated-label-and-cannot-be-restored-please-confirm'),
-                          onConfirm: async () => {
-                            await RootStore.Get(ToastPlugin).promise(api.notes.clearRecycleBin.mutate(), {
-                              loading: t('in-progress'),
-                              success: <b>{t('your-changes-have-been-saved')}</b>,
-                              error: <b>{t('operation-failed')}</b>,
-                            });
-                            lumina.refreshData();
-                            RootStore.Get(DialogStandaloneStore).close();
-                          },
-                        });
-                      }}
-                    ></i>
+                  {!base.isOnline && (
+                    <Badge color="warning" variant="flat" className="animate-pulse">
+                      <div className="flex text-sm items-center gap-1 text-yellow-500">
+                        <span>{t('offline-status')}</span>
+                      </div>
+                    </Badge>
                   )}
                 </div>
-                {!base.isOnline && (
-                  <Badge color="warning" variant="flat" className="animate-pulse">
-                    <div className="flex text-sm items-center gap-1 text-yellow-500">
-                      <span>{t('offline-status')}</span>
-                    </div>
-                  </Badge>
-                )}
-              </div>
-              <div className="flex items-center justify-center gap-2 md:gap-4 w-auto ">
-                <BarSearchInput isPc={isPc} />
-                <FilterPop />
-                {!lumina.config.value?.isCloseDailyReview && <Badge size="sm" className="shrink-0" content={lumina.dailyReviewNoteList.value?.length} color="warning">
-                  <Link to="/review">
-                    <Button
-                      className="mt-[2px]"
-                      isIconOnly
-                      size="sm"
-                      variant="light"
-                    >
-                      <Icon className="cursor-pointer text-default-600" icon="ri-lightbulb-line" width="24" height="24" />
-                    </Button>
-                  </Link>
-                </Badge>}
-                <LuminaNotification />
+                <div className="flex items-center justify-center gap-2 md:gap-4 w-auto ">
+                  <BarSearchInput isPc={isPc} />
+                  <FilterPop />
+                  {!lumina.config.value?.isCloseDailyReview && <Badge size="sm" className="shrink-0" content={lumina.dailyReviewNoteList.value?.length} color="warning">
+                    <Link to="/review">
+                      <Button
+                        className="mt-[2px]"
+                        isIconOnly
+                        size="sm"
+                        variant="light"
+                      >
+                        <Icon className="cursor-pointer text-default-600" icon="ri-lightbulb-line" width="24" height="24" />
+                      </Button>
+                    </Link>
+                  </Badge>}
+                  <LuminaNotification />
+                </div>
               </div>
             </div>
-          </div>
-          {header}
-        </header>
+            {header}
+          </header>
+        )}
 
 
 
         {/* backdrop  pt-6 -mt-6 to fix the editor tooltip position */}
         <ScrollArea onBottom={() => { }} className={`${isPc ? 'h-[calc(100%_-_70px)]' : 'h-full'} !overflow-y-auto overflow-x-hidden mt-[-4px]`}>
           <div className="relative flex h-full w-full flex-col rounded-medium layout-container">
-            <div className="hidden md:block absolute top-[-37%] right-[5%] z-[0] h-[350px] w-[350px] overflow-hidden blur-3xl ">
-              <div className="w-full h-[356px] bg-[#9936e6] opacity-20" style={{ clipPath: 'circle(50% at 50% 50%)' }} />
-            </div>
             {children}
           </div>
         </ScrollArea>

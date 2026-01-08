@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
-import { Card, Button, Progress } from '@heroui/react';
+import { Card, Button } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Objective, OKRStatus } from '@/store/module/OKRStore';
@@ -83,126 +83,125 @@ const OKRAccordionItem = observer(({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, ease: 'easeOut' }}
     >
-      <Card className="mb-3 shadow-sm hover:shadow-md transition-shadow">
-      {/* OKR标题栏 */}
-      <div
-        className="p-4 cursor-pointer flex items-center justify-between"
-        onClick={toggleExpanded}
-      >
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 mb-2">
-            <h3 className="text-lg font-semibold truncate flex-1">
-              {objective.title}
-            </h3>
-            <span className={`text-sm font-medium ${getStatusColor(objective.status)}`}>
-              {getStatusText(objective.status)}
-            </span>
+      <Card className="glass-card p-0 mb-3 overflow-hidden">
+        {/* OKR Header - Matches Prototype */}
+        <div
+          className="p-5 flex items-center gap-4 cursor-pointer hover:bg-white/40 transition-colors select-none"
+          onClick={toggleExpanded}
+        >
+          {/* Icon Container (P2-1) */}
+          <div className="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0 border border-violet-100">
+            <i className="ri-rocket-line text-lg"></i>
           </div>
 
-          <Progress
-            value={objective.progress}
-            color={objective.progress >= 80 ? 'success' : objective.progress >= 50 ? 'primary' : 'warning'}
-            className="mb-2"
-            size="sm"
-            showValueLabel={true}
-          />
-
-          <div className="flex items-center gap-4 text-sm text-gray-500">
-            <span>
-              {objective._count?.keyResults || 0} {t('key-results') || 'KR'}
-            </span>
-            <span>
-              {objective._count?.tasks || 0} {t('tasks') || '任务'}
-            </span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 ml-4">
-          {onEdit && (
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit(objective);
-              }}
-              title={t('edit') || '编辑'}
-            >
-              <i className="ri-edit-line"></i>
-            </Button>
-          )}
-          {onDelete && (
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              color="danger"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(objective.id);
-              }}
-              title={t('delete') || '删除'}
-            >
-              <i className="ri-delete-bin-line"></i>
-            </Button>
-          )}
-          <Button
-            isIconOnly
-            size="sm"
-            variant="light"
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleExpanded();
-            }}
-          >
-            <motion.i
-              className="ri-arrow-down-s-line"
-              animate={{ rotate: isExpanded ? 180 : 0 }}
-              transition={{ duration: 0.3 }}
-            ></motion.i>
-          </Button>
-        </div>
-      </div>
-
-      {/* 展开内容 */}
-      <AnimatePresence>
-        {isExpanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="border-t border-gray-200 dark:border-gray-700 overflow-hidden"
-          >
-            <div className="p-4">
-          {/* 描述 */}
-          {objective.description && (
-            <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm">
-              {objective.description}
-            </p>
-          )}
-
-          {/* KR列表 */}
-          {krList}
-
-          {/* 未关联KR的任务 */}
-          {taskList}
-
-          {/* 快速添加任务到此OKR */}
-          <div className="mt-4">
-            <QuickTaskInput
-              defaultObjectiveId={objective.id}
-              onSuccess={() => {
-                // 刷新数据
-              }}
-              placeholder={t('add-task-to-okr') || '添加任务到此OKR...'}
-            />
-          </div>
+          {/* Title & Progress */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-3">
+              <h3 className="font-bold text-gray-900 text-base truncate">
+                {objective.title}
+              </h3>
+              {/* Status Badge */}
+              <span className={`px-2 py-0.5 rounded text-[10px] font-bold border
+              ${objective.status === 'PENDING' ? 'bg-blue-50 text-blue-600 border-blue-100' :
+                  objective.status === 'ACHIEVED' ? 'bg-green-50 text-green-600 border-green-100' :
+                    objective.status === 'FAILED' ? 'bg-red-50 text-red-600 border-red-100' :
+                      'bg-gray-50 text-gray-600 border-gray-100'}`}
+              >
+                {getStatusText(objective.status)}
+              </span>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <div className="flex items-center gap-3 mt-1">
+              <div className="h-1.5 w-32 bg-gray-100 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full ${objective.progress >= 80 ? 'bg-green-500' :
+                    objective.progress >= 50 ? 'bg-gradient-to-r from-violet-500 to-indigo-500' :
+                      'bg-yellow-400'
+                    }`}
+                  style={{ width: `${objective.progress}%` }}
+                ></div>
+              </div>
+              <span className="text-xs font-mono text-gray-400">{objective.progress}%</span>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-2">
+            {onEdit && (
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(objective);
+                }}
+                title={t('edit') || 'Edit'}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <i className="ri-edit-line"></i>
+              </Button>
+            )}
+            {onDelete && (
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                color="danger"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(objective.id);
+                }}
+                title={t('delete') || 'Delete'}
+              >
+                <i className="ri-delete-bin-line"></i>
+              </Button>
+            )}
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 text-gray-400 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
+            >
+              <i className="ri-arrow-down-s-line text-xs"></i>
+            </div>
+          </div>
+        </div>
+
+        {/* 展开内容 */}
+        <AnimatePresence>
+          {isExpanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="border-t border-gray-200 dark:border-gray-700 overflow-hidden"
+            >
+              <div className="p-4">
+                {/* 描述 */}
+                {objective.description && (
+                  <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm">
+                    {objective.description}
+                  </p>
+                )}
+
+                {/* KR列表 */}
+                {krList}
+
+                {/* 未关联KR的任务 */}
+                {taskList}
+
+                {/* 快速添加任务到此OKR */}
+                <div className="mt-4">
+                  <QuickTaskInput
+                    defaultObjectiveId={objective.id}
+                    onSuccess={() => {
+                      // 刷新数据
+                    }}
+                    placeholder={t('add-task-to-okr') || '添加任务到此OKR...'}
+                  />
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </Card>
     </motion.div>
   );

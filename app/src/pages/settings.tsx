@@ -55,7 +55,7 @@ const Page = observer(() => {
   }));
 
   return (
-    <div className="h-full flex flex-col bg-gray-50">
+    <div className="h-full flex flex-col bg-transparent">
       <ImportAIDialog onSelectTab={setSelected} />
 
       {isMobile ? (
@@ -78,26 +78,26 @@ const Page = observer(() => {
           </ScrollArea>
         </div>
       ) : (
-        // Design v2.0 - 左侧导航 + 右侧表单卡片
+        // Design V6 - Glass Settings Layout
         <div className="w-full max-w-[1200px] mx-auto px-6 py-6 flex gap-6 h-full">
           {/* 左侧导航 */}
-          <div className="w-56 flex-shrink-0">
+          <div className="w-56 flex-shrink-0 pt-4">
             <nav className="space-y-1">
               {tabItems.map((item) => (
                 <button
                   key={item.key}
                   onClick={() => setSelected(item.key)}
                   className={`
-                    w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
+                    w-full flex items-center gap-3 px-4 py-3 rounded-full text-sm font-medium transition-all duration-300
                     ${selected === item.key
-                      ? 'bg-white shadow-subtle ring-1 ring-gray-200/60 text-gray-900'
-                      : 'text-gray-500 hover:bg-gray-200/50 hover:text-gray-900'
+                      ? 'bg-white shadow-subtle text-violet-700 scale-[1.02]'
+                      : 'text-gray-500 hover:bg-white/40 hover:text-gray-900'
                     }
                   `}
                 >
                   {item.icon && (
                     <i
-                      className={`${item.icon} ${selected === item.key ? 'text-blue-500' : 'text-gray-400'}`}
+                      className={`${item.icon} ${selected === item.key ? 'text-violet-600' : 'text-gray-400'}`}
                     ></i>
                   )}
                   <span>{typeof item.title === 'string' ? t(item.title) : item.title}</span>
@@ -107,7 +107,7 @@ const Page = observer(() => {
           </div>
 
           {/* 右侧表单卡片 */}
-          <div className="flex-1 bg-white rounded-2xl shadow-card ring-1 ring-gray-900/5 overflow-hidden">
+          <div className="flex-1 glass-panel overflow-hidden">
             <ScrollArea onBottom={() => { }} className="h-full">
               <div className="max-w-[800px] mx-auto p-8">
                 {getCurrentComponent()}

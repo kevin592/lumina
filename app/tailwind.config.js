@@ -19,57 +19,28 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
+        display: ['Outfit', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
       },
       colors: {
-        // Apple-inspired Greys (System Gray 6 Base)
-        apple: {
-          50: '#F5F5F7',  // Main background
-          100: '#E5E5EA', // Secondary
-          200: '#D1D1D6', // Borders
-          300: '#C7C7CC', // Disabled
-          400: '#AEAEB2', // Subtitles
-          500: '#8E8E93', // Tertiary
-          600: '#636366', // Body
-          900: '#1C1C1E', // Headings
+        violet: {
+          50: '#F5F3FF', 100: '#EDE9FE', 200: '#DDD6FE', 300: '#C4B5FD',
+          400: '#A78BFA', 500: '#8B5CF6', 600: '#7C3AED',
+          700: '#6D28D9', 800: '#5B21B6', 900: '#4C1D95',
         },
-        // Google/Material You inspired Accents
-        google: {
-          primary: '#6750A4', // M3 Purple
-          primaryContainer: '#EADDFF',
-          onPrimaryContainer: '#21005D',
-          secondary: '#625B71',
-          secondaryContainer: '#E8DEF8',
-          blue: '#D2E3FC',
-          blueDark: '#174EA6',
-          green: '#C4EED0',
-          greenDark: '#0D652D',
-          yellow: '#FEF7E0',
-        },
-        // Legacy Brand (Mapped to New Google Primary)
+        // Legacy mappings to new violet system
         brand: {
-          primary: '#6750A4',
-          primaryDark: '#21005D',
-          soft: '#F3E8FF',
-          gradientStart: '#6750A4',
-          gradientEnd: '#7C3AED',
+          primary: '#7C3AED', // Violet 600
+          primaryDark: '#5B21B6', // Violet 800
+          soft: '#F5F3FF', // Violet 50
+          gradientStart: '#8B5CF6', // Violet 500
+          gradientEnd: '#6D28D9', // Violet 700
         },
-        // Surface colors (Updated to Apple 50/White)
-        surface: {
-          main: '#F5F5F7',
-          card: '#FFFFFF',
-          input: '#E5E5EA',
-        },
-        gray: {
-          50: '#F5F5F7',
-          100: '#E5E5EA',
-          200: '#D1D1D6',
-          300: '#C7C7CC',
-          400: '#AEAEB2',
-          500: '#8E8E93',
-          600: '#636366',
-          700: '#48484A',
-          800: '#2C2C2E',
-          900: '#1C1C1E',
+        // Apple-inspired Greys (Keep for compatibility)
+        apple: {
+          50: '#F5F5F7', 100: '#E5E5EA', 200: '#D1D1D6',
+          300: '#C7C7CC', 400: '#AEAEB2', 500: '#8E8E93',
+          600: '#636366', 900: '#1C1C1E',
         },
         border: 'var(--border)',
         ignore: 'var(--ignore)',
@@ -82,12 +53,12 @@ module.exports = {
         secondbackground: 'var(--secondbackground)',
         foreground: 'var(--foreground)',
         primary: {
-          DEFAULT: 'var(--primary)',
-          foreground: 'var(--primary-foreground)',
+          DEFAULT: '#7C3AED', // Violet 600
+          foreground: '#FFFFFF',
         },
         secondary: {
-          DEFAULT: 'var(--secondary)',
-          foreground: 'var(--secondary-foreground)',
+          DEFAULT: '#F5F3FF', // Violet 50
+          foreground: '#7C3AED', // Violet 600
         },
         destructive: {
           DEFAULT: 'var(--destructive)',
@@ -119,19 +90,22 @@ module.exports = {
         md: `calc(var(--radius) - 2px)`,
         sm: 'calc(var(--radius) - 4px)',
         xl: '16px',
-        '2xl': '20px',
-        '3xl': '24px', // V8 Extra Rounded
-        '4xl': '32px',
+        '2xl': '24px',
+        '3xl': '32px',
+        '4xl': '40px',
+        full: '9999px',
       },
-      // Apple-inspired Shadow System
       boxShadow: {
-        subtle: '0 2px 10px rgba(0,0,0,0.03)',
+        'float': '0 20px 50px -12px rgba(0,0,0,0.12), 0 0 1px rgba(0,0,0,0.1)',
+        'float-hover': '0 30px 60px -12px rgba(99, 102, 241, 0.15), 0 0 1px rgba(0,0,0,0.1)',
+        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+        'glow': '0 0 60px -15px rgba(124, 58, 237, 0.5)',
+        'inner-light': 'inset 0 1px 0 0 rgba(255,255,255,0.7), inset 0 0 20px 0 rgba(255,255,255,0.1)',
+        'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
         card: '0 4px 6px -1px rgba(0, 0, 0, 0.02)',
-        float: '0 20px 40px -10px rgba(0,0,0,0.1)',
-        glass: '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
-        glow: '0 0 15px rgba(103, 80, 164, 0.3)', // Updated to Google Purple
-        soft: '0 4px 20px rgba(0, 0, 0, 0.03)',
-        hover: '0 10px 25px rgba(103, 80, 164, 0.15)', // Updated to Google Purple
+      },
+      backdropBlur: {
+        'xs': '2px',
       },
       keyframes: {
         'accordion-down': {
@@ -142,10 +116,25 @@ module.exports = {
           from: { height: 'var(--radix-accordion-content-height)' },
           to: { height: 0 },
         },
+        'fade-in': {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        'slide-up': {
+          '0%': { opacity: '0', transform: 'translateY(15px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'breath': {
+          '0%': { opacity: '0.5', transform: 'scale(0.95)' },
+          '100%': { opacity: '0.8', transform: 'scale(1.05)' }
+        }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'fade-in': 'fade-in 0.4s ease-out forwards',
+        'slide-up': 'slide-up 0.5s cubic-bezier(0.19, 1, 0.22, 1) forwards',
+        'breath': 'breath 8s ease-in-out infinite alternate',
       },
     },
   },

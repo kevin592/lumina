@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
-import { Card, Progress } from '@heroui/react';
+import { Card } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { KeyResult, KRStatus, TaskStatus } from '@/store/module/OKRStore';
@@ -74,113 +74,77 @@ const KRAccordionItem = observer(({
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.15, ease: 'easeOut' }}
     >
-      <Card className="mb-3 shadow-sm hover:shadow-md transition-all duration-200">
-      {/* KR标题栏 */}
-      <div
-        className="p-4 cursor-pointer"
-        onClick={toggleExpanded}
-      >
-        <div className="flex items-start justify-between gap-3">
-          {/* 左侧内容 */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-2">
-              <h4 className="text-base font-semibold">{kr.title}</h4>
-              <span className={`text-sm font-medium ${getStatusColor(kr.status)}`}>
-                {getStatusText(kr.status)}
-              </span>
-            </div>
+      <Card className="mb-3 glass-card p-0 overflow-hidden">
+        {/* KR Item with Left Bar (P2-2) */}
+        <div
+          className="p-4 cursor-pointer hover:bg-white/40 transition-colors"
+          onClick={toggleExpanded}
+        >
+          <div className="flex items-center gap-3">
+            {/* Left Vertical Bar */}
+            <div className="w-1 h-8 bg-gray-200 rounded-full shrink-0"></div>
 
-            {kr.description && (
-              <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-2">
-                {kr.description}
-              </p>
-            )}
-
-            {/* 进度条 */}
-            {kr.targetValue !== null && kr.targetValue > 0 && (
-              <Progress
-                value={progress}
-                color={getProgressColor(kr.currentValue, kr.targetValue)}
-                size="sm"
-                showValueLabel={false}
-                className="mb-2"
-              />
-            )}
-
-            {/* 任务统计 */}
-            <div className="flex items-center gap-4 text-sm text-gray-500">
-              <span className="flex items-center gap-1">
-                <i className="ri-task-line"></i>
-                {kr._count?.tasks || 0} {t('tasks') || '任务'}
-              </span>
-              {isExpanded && (
-                <span className="text-xs text-gray-400">
-                  {t('click-to-collapse') || '点击收起'}
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* 右侧进度显示和箭头 */}
-          <div className="flex flex-col items-end gap-2 flex-shrink-0">
-            {/* 进度数字 */}
-            {kr.targetValue !== null && kr.targetValue > 0 && (
-              <div className="text-right">
-                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                  {kr.currentValue || 0}
-                  <span className="text-sm font-normal text-gray-500">/{kr.targetValue}</span>
-                </div>
-                {kr.unit && (
-                  <div className="text-xs text-gray-500">{kr.unit}</div>
-                )}
-                <div className="text-xs text-gray-400 mt-1">{progress}%</div>
+            {/* Content */}
+            <div className="flex-1 min-w-0">
+              <div className="flex justify-between text-sm font-medium text-gray-700 mb-1">
+                <span className="truncate">{kr.title}</span>
+                <span className="shrink-0 ml-2">{progress}%</span>
               </div>
-            )}
+              <div className="w-full bg-gray-200 h-1 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full ${progress >= 100 ? 'bg-green-500' :
+                    progress >= 80 ? 'bg-violet-500' :
+                      progress >= 50 ? 'bg-yellow-400' :
+                        'bg-red-400'
+                    }`}
+                  style={{ width: `${Math.min(progress, 100)}%` }}
+                ></div>
+              </div>
+            </div>
 
-            {/* 展开/折叠箭头 */}
+            {/* Expand Arrow */}
             <motion.i
-              className="ri-arrow-down-s-line text-xl text-gray-400"
+              className="ri-arrow-down-s-line text-gray-400 shrink-0"
               animate={{ rotate: isExpanded ? 180 : 0 }}
               transition={{ duration: 0.3 }}
             ></motion.i>
           </div>
         </div>
-      </div>
 
-      {/* 展开内容 - 使用framer-motion动画 */}
-      <AnimatePresence>
-        {isExpanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: 'easeInOut' }}
-            className="overflow-hidden"
-          >
-            <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800/50">
-          {/* 任务列表 */}
-          <div className="mb-4">
-            <InlineTaskList
-              tasks={kr.tasks}
-              onStatusChange={onTaskStatusChange}
-              onDelete={onTaskDelete}
-              emptyMessage={t('no-tasks') || '暂无任务'}
-            />
-          </div>
+        {/* 展开内容 - 使用framer-motion动画 */}
+        <AnimatePresence>
+          {isExpanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
+              className="overflow-hidden"
+            >
+              <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800/50">
+                {/* 任务列表 */}
+                <div className="mb-4">
+                  <InlineTaskList
+                    tasks={kr.tasks}
+                    onStatusChange={onTaskStatusChange}
+                    onDelete={onTaskDelete}
+                    emptyMessage={t('no-tasks') || '暂无任务'}
+                  />
+                </div>
 
-          {/* 快速添加任务 */}
-          <QuickTaskInput
-            defaultObjectiveId={objectiveId}
-            defaultKeyResultId={kr.id}
-            placeholder={t('add-task-to-kr') || '添加任务到此KR...'}
-            onSuccess={() => {
-              onRefresh?.();
-            }}
-          />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                {/* 快速添加任务 */}
+                <QuickTaskInput
+                  defaultObjectiveId={objectiveId}
+                  defaultKeyResultId={kr.id}
+                  placeholder={t('add-task-to-kr') || '添加任务到此KR...'}
+                  onSuccess={() => {
+                    onRefresh?.();
+                  }}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </Card>
     </motion.div>
   );

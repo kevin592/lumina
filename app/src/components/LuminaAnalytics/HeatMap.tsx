@@ -81,9 +81,9 @@ export const HeatMap = ({ data, title, description }: HeatMapProps) => {
           color: foregroundColor
         },
         inRange: {
-          color: theme === 'dark' 
-          ? ['#161b22', '#0e4429', '#006d32', '#26a641', '#39d353'] 
-          : ['#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39'] 
+          color: theme === 'dark'
+            ? ['#161b22', '#0e4429', '#006d32', '#26a641', '#39d353']
+            : ['#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39']
         }
       },
       calendar: {
@@ -145,12 +145,20 @@ export const HeatMap = ({ data, title, description }: HeatMapProps) => {
   }, [data, isPc])
 
   return (
-    // Design v2.0 - 纯白卡片容器包裹热力图
-    <div className="bg-white rounded-2xl shadow-card ring-1 ring-gray-900/5 p-6">
+    // Design V6 - Glass Panel Container for HeatMap
+    <div className="glass-panel p-6">
       {(title || description) && (
-        <div className="mb-4">
-          {title && <h2 className="text-lg font-semibold text-gray-900">{title}</h2>}
-          {description && <p className="text-sm text-gray-500 mt-1">{description}</p>}
+        <div className="mb-6 flex items-baseline justify-between">
+          <div>
+            {title && <h2 className="text-lg font-display font-bold text-gray-900">{title}</h2>}
+            {description && <p className="text-xs font-medium text-gray-400 uppercase tracking-widest mt-1">{description}</p>}
+          </div>
+          <div className="flex gap-2">
+            <div className="w-3 h-3 rounded-sm bg-violet-100"></div>
+            <div className="w-3 h-3 rounded-sm bg-violet-300"></div>
+            <div className="w-3 h-3 rounded-sm bg-violet-500"></div>
+            <div className="w-3 h-3 rounded-sm bg-violet-700"></div>
+          </div>
         </div>
       )}
       <div className="overflow-x-auto md:overflow-x-hidden">

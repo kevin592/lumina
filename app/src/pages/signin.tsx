@@ -127,9 +127,9 @@ export default function Component() {
   return (
     <GradientBackground>
       <div className="flex h-full w-screen items-center justify-center p-2 sm:p-4 lg:p-8">
-        <div className="flex w-full max-w-sm flex-col gap-4 rounded-large glass-effect px-8 pb-10 pt-6 shadow-large">
-          <p className="pb-2 text-xl font-medium flex gap-2 items-center justiy-center">
-            Login With <Image src={theme === 'light' ? '/logo-light-title.png' : '/logo-dark-title.png'} width={100} radius="none"></Image>
+        <div className="flex w-full max-w-sm flex-col gap-4 glass-panel px-8 pb-10 pt-6">
+          <p className="pb-2 text-xl font-medium flex gap-2 items-center justify-center">
+            Login With <Image src={theme === 'light' ? '/logo-light-title.png' : '/logo-dark-title.png'} width={100} radius="lg"></Image>
           </p>
 
           {providers.length > 0 && (
@@ -138,9 +138,8 @@ export default function Component() {
                 {providers.map((provider) => (
                   <Button
                     key={provider.id}
-                    className="w-full text-primary"
-                    color="primary"
-                    variant="bordered"
+                    className="w-full text-violet-700 bg-white/50 border border-white/60 hover:bg-white/80 shadow-sm"
+                    radius="full"
                     startContent={provider.icon && <Icon icon={provider.icon} className="text-xl" />}
                     isLoading={loadingProvider === provider.id}
                     onPress={() => {
@@ -154,21 +153,24 @@ export default function Component() {
               </div>
 
               <div className="flex items-center gap-2 my-2">
-                <Divider className="flex-1" />
-                <span className="text-sm text-default-400">{t('or')}</span>
-                <Divider className="flex-1" />
+                <Divider className="flex-1 opacity-50" />
+                <span className="text-sm text-gray-500 font-medium">{t('or')}</span>
+                <Divider className="flex-1 opacity-50" />
               </div>
             </>
           )}
 
-          <form className="flex flex-col gap-3" onSubmit={(e) => e.preventDefault()}>
+          <form className="flex flex-col gap-5" onSubmit={(e) => e.preventDefault()}>
             {isTauriEnv && (
               <Input
                 label={t('Lumina-endpoint')}
                 name="endpoint"
                 placeholder={t('enter-Lumina-endpoint')}
                 type="text"
-                variant="bordered"
+                classNames={{
+                  inputWrapper: "glass-input shadow-none hover:bg-white/60 transition-colors h-12 px-4 !rounded-xl",
+                  label: "text-gray-600"
+                }}
                 value={endpoint.replace(/"/g, '')}
                 onChange={e => {
                   setEndpoint(e.target.value?.trim().replace(/"/g, ''))
@@ -181,21 +183,24 @@ export default function Component() {
               name={t('username')}
               placeholder={t('enter-your-name')}
               type="text"
-              variant="bordered"
+              classNames={{
+                inputWrapper: "glass-input shadow-none hover:bg-white/60 transition-colors h-12 px-4 !rounded-xl",
+                label: "text-gray-600"
+              }}
               value={user}
               onChange={e => setUser(e.target.value?.trim())}
             />
             <Input
               endContent={
-                <button type="button" onClick={() => setIsVisible(!isVisible)}>
+                <button type="button" onClick={() => setIsVisible(!isVisible)} className="text-gray-400 hover:text-gray-600 transition-colors">
                   {isVisible ? (
                     <Icon
-                      className="pointer-events-none text-2xl text-default-400"
+                      className="pointer-events-none text-xl"
                       icon="ri-eye-off-line"
                     />
                   ) : (
                     <Icon
-                      className="pointer-events-none text-2xl text-default-400"
+                      className="pointer-events-none text-xl"
                       icon="ri-eye-line"
                     />
                   )}
@@ -205,7 +210,10 @@ export default function Component() {
               name="password"
               placeholder={t('enter-your-password')}
               type={isVisible ? "text" : "password"}
-              variant="bordered"
+              classNames={{
+                inputWrapper: "glass-input shadow-none hover:bg-white/60 transition-colors h-12 px-4 !rounded-xl",
+                label: "text-gray-600"
+              }}
               value={password}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -214,13 +222,15 @@ export default function Component() {
               }}
               onChange={e => setPassword(e.target.value?.trim())}
             />
-            <div className="flex items-center justify-between px-1 pl-2 pr-2">
-              <Checkbox defaultSelected name="remember" size="sm">
+            <div className="flex items-center justify-between px-1">
+              <Checkbox defaultSelected name="remember" size="sm" classNames={{ wrapper: "rounded-lg" }}>
                 {t('keep-sign-in')}
               </Checkbox>
             </div>
             <Button
-              color="primary"
+              className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-500/30"
+              radius="full"
+              size="lg"
               isLoading={SignIn.loading.value}
               onPress={login}
             >

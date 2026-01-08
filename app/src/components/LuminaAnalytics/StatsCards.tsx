@@ -1,4 +1,3 @@
-import { Card, CardBody } from "@heroui/react"
 import { observer } from "mobx-react-lite"
 import { useTranslation } from "react-i18next"
 import { motion, AnimatePresence } from "framer-motion"
@@ -33,16 +32,18 @@ const gradients = [
 
 const StatCard = ({ label, value, delay = 0, gradient, icon }: StatCardProps) => {
   return (
-    // Design v2.0 - 纯白卡片容器
-    <div className="bg-white rounded-2xl shadow-card hover:shadow-float transition-shadow duration-300 ring-1 ring-gray-900/5 p-6">
+    // Design V6 - Glass Card Container
+    <div className="glass-card hover:shadow-float-hover transition-all duration-300 p-6 group">
       <div className="flex items-center gap-2 mb-2">
-        <Icon icon={icon} className="w-5 h-5 text-gray-400" />
-        <p className="text-xs uppercase font-bold text-gray-500">{label}</p>
+        <div className="p-1.5 rounded-lg bg-white/40 group-hover:bg-white/60 transition-colors">
+          <Icon icon={icon} className="w-5 h-5 text-gray-500 group-hover:text-violet-600 transition-colors" />
+        </div>
+        <p className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">{label}</p>
       </div>
       <AnimatePresence mode="wait">
         <motion.p
           key={value}
-          className={`text-4xl font-bold bg-gradient-to-r ${gradient} bg-clip-text text-transparent`}
+          className={`text-4xl font-display font-bold bg-gradient-to-r ${gradient} bg-clip-text text-transparent`}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
@@ -63,7 +64,7 @@ const StatCard = ({ label, value, delay = 0, gradient, icon }: StatCardProps) =>
 
 export const StatsCards = observer(({ stats }: StatsCardsProps) => {
   const { t } = useTranslation()
-  
+
   const randomGradients = useMemo(() => {
     const indices = Array.from({ length: gradients.length }, (_, i) => i)
     for (let i = indices.length - 1; i > 0; i--) {
@@ -75,7 +76,7 @@ export const StatsCards = observer(({ stats }: StatsCardsProps) => {
     }
     return indices.slice(0, 4).map(i => gradients[i]!)
   }, [])
-  
+
   const statItems = [
     { label: t('note-count'), value: stats?.noteCount ?? 0, delay: 0, gradient: randomGradients[0]!, icon: 'ri:file-list-3-line' },
     { label: t('total-words'), value: stats?.totalWords ?? 0, delay: 0.1, gradient: randomGradients[1]!, icon: 'ri:file-text-line' },

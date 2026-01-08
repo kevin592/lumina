@@ -42,25 +42,29 @@ export const OKRSkeletonCard = () => {
 /**
  * KR卡片骨架屏
  */
-export const KRSkeletonCard = () => {
+export const KRSkeletonCard = ({ count = 1 }: { count?: number }) => {
   return (
-    <Card className="mb-3 p-4">
-      {/* 标题和状态 */}
-      <div className="flex items-start justify-between mb-2">
-        <div className="flex-1">
-          <Skeleton className="h-5 w-3/4 mb-2" />
-          <Skeleton className="h-4 w-full mb-1" />
-          <Skeleton className="h-4 w-2/3" />
-        </div>
-        <Skeleton className="h-8 w-16 ml-4" />
-      </div>
+    <>
+      {Array.from({ length: count }).map((_, i) => (
+        <Card key={i} className="mb-3 p-4">
+          {/* 标题和状态 */}
+          <div className="flex items-start justify-between mb-2">
+            <div className="flex-1">
+              <Skeleton className="h-5 w-3/4 mb-2" />
+              <Skeleton className="h-4 w-full mb-1" />
+              <Skeleton className="h-4 w-2/3" />
+            </div>
+            <Skeleton className="h-8 w-16 ml-4" />
+          </div>
 
-      {/* 进度条 */}
-      <Skeleton className="h-2 w-full mb-2" />
+          {/* 进度条 */}
+          <Skeleton className="h-2 w-full mb-2" />
 
-      {/* 任务统计 */}
-      <Skeleton className="h-4 w-24" />
-    </Card>
+          {/* 任务统计 */}
+          <Skeleton className="h-4 w-24" />
+        </Card>
+      ))}
+    </>
   );
 };
 

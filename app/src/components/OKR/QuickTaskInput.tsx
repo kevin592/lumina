@@ -155,11 +155,10 @@ const QuickTaskInput = observer(({
             value={title}
             onValueChange={setTitle}
             onKeyDown={handleKeyDown}
-            placeholder={placeholder || t('quick-add-task-placeholder') || '+ 添加任务... (Tab切换优先级, Ctrl+Enter展开设置)'}
-            variant="bordered"
+            placeholder={placeholder || t('quick-add-task-placeholder') || '+ Add a task... (Tab for priority, Ctrl+Enter for details)'}
             classNames={{
-              input: 'text-sm',
-              inputWrapper: 'shadow-none hover:border-gray-400 transition-colors'
+              input: 'text-sm text-gray-700 placeholder:text-gray-400',
+              inputWrapper: 'glass-input shadow-none hover:bg-white/60 transition-colors h-10 px-4 !rounded-xl'
             }}
           />
           {/* 解析预览指示器 */}
@@ -199,11 +198,10 @@ const QuickTaskInput = observer(({
               <button
                 key={p}
                 onClick={() => setPriority(p)}
-                className={`px-2 py-1 rounded transition-all ${
-                  priority === p
+                className={`px-2 py-1 rounded transition-all ${priority === p
                     ? `bg-gray-900 text-white ${getPriorityColor(p).replace('text-', 'text-white')}`
                     : 'text-gray-500 hover:bg-gray-200'
-                }`}
+                  }`}
               >
                 {getPriorityText(p)}
               </button>
