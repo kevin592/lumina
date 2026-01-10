@@ -54,7 +54,7 @@ export const SettingsModal = observer(() => {
                 size="5xl"
                 classNames={{
                     base: "bg-transparent shadow-none",
-                    wrapper: "z-[9999]", // Ensure it's on top of everything
+                    wrapper: "z-[9999] items-center justify-center", // 强制居中
                     backdrop: "bg-black/20 backdrop-blur-sm"
                 }}
                 hideCloseButton
@@ -81,33 +81,35 @@ export const SettingsModal = observer(() => {
             >
                 <ModalContent className="h-[85vh] max-h-[800px] w-full max-w-5xl p-0 overflow-hidden">
                     {(onClose) => (
-                        <div className={`flex h-full w-full glass rounded-3xl shadow-float overflow-hidden ${isMobile ? 'flex-col' : 'flex-row'}`}>
+                        <div className={`flex h-full w-full glass-panel rounded-[32px] shadow-float overflow-hidden ${isMobile ? 'flex-col' : 'flex-row'}`}>
 
                             {/* Sidebar */}
                             <div className={`
-                flex flex-col bg-gray-50/50 backdrop-blur-md border-r border-white/20
+                flex flex-col bg-transparent border-r border-gray-200/50
                 ${isMobile ? 'w-full h-auto max-h-[30%] border-b border-r-0' : 'w-64 h-full shrink-0'}
               `}>
-                                <div className="p-6 pb-4 flex items-center justify-between shrink-0">
-                                    <h2 className="text-xl font-bold text-gray-900">{t('settings')}</h2>
+                                <div className="px-5 py-6 pb-4 flex items-center justify-between shrink-0">
+                                    <h2 className="font-display font-bold text-gray-900 text-xl tracking-tight">{t('settings')}</h2>
                                     {isMobile && <Button isIconOnly size="sm" variant="light" onPress={onClose}><i className="ri-close-line text-xl"></i></Button>}
                                 </div>
 
-                                <ScrollShadow className="flex-1 px-4 pb-4">
-                                    <nav className="space-y-1">
+                                <ScrollShadow className="flex-1 px-4 pb-4 hide-scrollbar">
+                                    <nav className="space-y-1.5">
                                         {getVisibleSettings().map((item) => (
                                             <button
                                                 key={item.key}
                                                 onClick={() => setSelected(item.key)}
                                                 className={`
-                          w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all duration-200
+                          w-full flex items-center gap-3.5 px-3.5 py-3 rounded-2xl text-sm font-medium transition-all duration-200 group
                           ${selected === item.key
-                                                        ? 'bg-white shadow-sm text-brand-primary'
-                                                        : 'text-gray-600 hover:bg-white/50 hover:text-gray-900'
+                                                        ? 'bg-white shadow-subtle text-gray-900'
+                                                        : 'text-gray-600 hover:bg-white/40 hover:text-gray-900'
                                                     }
                         `}
                                             >
-                                                <i className={`${item.icon} text-lg ${selected === item.key ? 'text-brand-primary' : 'text-gray-400'}`}></i>
+                                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors shrink-0 ${selected === item.key ? 'bg-violet-50 text-violet-600' : 'text-gray-400 group-hover:text-gray-600'}`}>
+                                                    <i className={`${item.icon}`}></i>
+                                                </div>
                                                 <span>{t(item.title)}</span>
                                             </button>
                                         ))}
@@ -124,17 +126,17 @@ export const SettingsModal = observer(() => {
                                             isIconOnly
                                             radius="full"
                                             variant="light"
-                                            className="hover:bg-gray-100 text-gray-500"
+                                            className="btn-icon hover:bg-gray-100"
                                             onPress={onClose}
                                         >
-                                            <i className="ri-close-line text-xl"></i>
+                                            <i className="ri-close-line text-lg"></i>
                                         </Button>
                                     </div>
                                 )}
 
                                 <div className="flex-1 overflow-hidden relative">
-                                    <ScrollShadow className="h-full">
-                                        <div className="p-6 md:p-10 max-w-3xl mx-auto pb-20">
+                                    <ScrollShadow className="h-full settings-content">
+                                        <div className="p-6 max-w-3xl mx-auto pb-20">
                                             {getCurrentComponent()}
                                         </div>
                                     </ScrollShadow>

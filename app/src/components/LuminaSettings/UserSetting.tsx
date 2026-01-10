@@ -9,7 +9,6 @@ import { Button, Chip, Input, Table, TableBody, TableCell, TableColumn, TableHea
 import { useEffect } from "react";
 import { DialogStore } from "@/store/module/Dialog";
 import { PasswordInput } from "../Common/PasswordInput";
-import { CollapsibleCard } from "../Common/CollapsibleCard";
 import { showTipsDialog } from "../Common/TipsDialog";
 import { ToastPlugin } from "@/store/module/Toast/Toast";
 import { DialogStandaloneStore } from "@/store/module/DialogStandalone";
@@ -74,10 +73,20 @@ export const UserSetting = observer(() => {
   }, [])
 
   return (
-    <CollapsibleCard
-      icon="ri-user-settings-line"
-      title={t('user-list')}
-    >
+    <div className="glass-card p-6 mb-6">
+      {/* 卡片头部 - Fortent V6.5 */}
+      <div className="flex items-center gap-3.5 mb-6">
+        <div className="w-9 h-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center">
+          <i className="ri-user-settings-line"></i>
+        </div>
+        <div>
+          <h2 className="font-display font-bold text-gray-900 text-lg tracking-tight">{t('user-list')}</h2>
+          <p className="text-sm text-default-500">管理设置</p>
+        </div>
+      </div>
+
+      {/* 设置项内容 */}
+      <div className="space-y-4">
       <Item
         leftContent={<>{t('user-list')}</>}
         rightContent={
@@ -158,6 +167,7 @@ export const UserSetting = observer(() => {
         </Table > : null
         }
       />
-    </CollapsibleCard >
+      </div>
+    </div >
   );
 });

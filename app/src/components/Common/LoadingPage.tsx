@@ -3,11 +3,11 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export const LoadingPage = () => {
   const [show, setShow] = useState(true);
-  
+
   useEffect(() => {
     const minDisplayTime = 500;
     const startTime = Date.now();
-    
+
     return () => {
       const elapsedTime = Date.now() - startTime;
       if (elapsedTime < minDisplayTime) {
@@ -22,7 +22,7 @@ export const LoadingPage = () => {
   return (
     <AnimatePresence>
       {show && (
-        <motion.div 
+        <motion.div
           className="fixed inset-0 flex items-center justify-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -31,8 +31,8 @@ export const LoadingPage = () => {
         >
           <div className="rounded-3xl overflow-hidden">
             <img
-              src="/loading.gif"
-              className="w-[70px] h-[70px] md:w-[100px] md:h-[100px] object-contain"
+              src="/loading.png"
+              className="w-[70px] h-[70px] md:w-[100px] md:h-[100px] object-contain animate-pulse"
             />
           </div>
         </motion.div>

@@ -68,16 +68,18 @@ const getCardClassName = (
   // 有图片的卡片使用 p-0，普通卡片使用 p-6 或 p-5
   const hasImage = item.attachments && item.attachments.length > 0 &&
     item.attachments.some(f => f.type?.startsWith('image/'));
-  // Design v2.0 - V8 Rounded & Shadow System -> V9 Compact Bento
-  const roundedClass = isExpanded ? '' : 'rounded-[20px] border border-transparent';
+  // Design v6 Fortent - 玻璃态效果
+  const roundedClass = isExpanded ? 'rounded-none' : 'rounded-[24px] border border-transparent';
 
-  // V9 Hover Effect: Color shadow + subtle lift
+  // 玻璃态悬停效果：提升 2px + 缩放 1.005 + 紫色光晕（展开时不应用）
   const hoverClass = isPc && !isExpanded && !item.isShare && !withoutHoverAnimation
-    ? 'hover:shadow-[0_12px_24px_-8px_rgba(99,102,241,0.12)] hover:-translate-y-1 hover:border-indigo-100/50'
+    ? 'hover:shadow-[0_15px_35px_-5px_rgba(0,0,0,0.08),0_0_0_1px_rgba(124,58,237,0.05)] hover:-translate-y-[2px] hover:scale-[1.005]'
     : 'shadow-sm';
 
-  // Base background: Glass effect default
-  const backgroundClass = glassEffect ? 'bg-transparent' : 'bg-white/90 backdrop-blur-md border border-white/50 support-backdrop-blur:bg-white/60';
+  // 玻璃态渐变背景（展开时使用纯白背景）
+  const backgroundClass = isExpanded
+    ? 'bg-white'
+    : (glassEffect ? 'bg-transparent' : 'bg-gradient-to-br from-white/60 to-white/40 backdrop-blur-xl border-t border-white/80 border border-white/50');
 
   const baseClasses = hasImage && !isExpanded
     ? 'flex flex-col p-0 !transition-all group/card overflow-hidden duration-300'

@@ -1,7 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import { Button, Select, SelectItem } from '@heroui/react';
 import { Icon } from '@/components/Common/Iconify/icons';
-import { CollapsibleCard } from '../../Common/CollapsibleCard';
 import { ModelIcon, ProviderIcon } from '@/components/LuminaSettings/AiSetting/AIIcon';
 import { useTranslation } from 'react-i18next';
 import { useEffect } from 'react';
@@ -35,7 +34,19 @@ export const DefaultModelsSection = observer(() => {
   }, []);
 
   return (
-    <CollapsibleCard icon="ri:settings-4-line" title="Default Models Configuration">
+    <div className="glass-card p-6 mb-6">
+      {/* 卡片头部 - Fortent V6.5 */}
+      <div className="flex items-center gap-3.5 mb-6">
+        <div className="w-9 h-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center">
+          <i className="ri-settings-4-line"></i>
+        </div>
+        <div>
+          <h2 className="font-display font-bold text-gray-900 text-lg tracking-tight">Default Models Configuration</h2>
+          <p className="text-sm text-default-500">配置默认 AI 模型</p>
+        </div>
+      </div>
+
+      {/* 设置项内容 */}
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Main Chat Model */}
@@ -275,6 +286,6 @@ export const DefaultModelsSection = observer(() => {
           </div>
         </div>
       </div>
-    </CollapsibleCard>
+    </div>
   );
 });

@@ -278,23 +278,25 @@ export const GlobalSearch = observer(({ isOpen, onOpenChange }: GlobalSearchProp
     <Modal
       isOpen={isOpen}
       onOpenChange={onOpenChange}
-      placement="top"
+      placement="center"
       motionProps={{
         variants: {
           enter: {
             y: 0,
             opacity: 1,
-            transition: { type: 'spring', bounce: 0.5, duration: 0.6, },
+            scale: 1,
+            transition: { type: 'spring', bounce: 0.3, duration: 0.4, },
           },
           exit: {
-            y: -20,
+            scale: 0.95,
             opacity: 0,
-            transition: { type: 'spring', bounce: 0.5, duration: 0.3, },
+            transition: { type: 'spring', bounce: 0.3, duration: 0.2, },
           },
         }
       }}
       classNames={{
-        base: 'max-w-2xl mx-auto mt-10',
+        base: 'max-w-2xl mx-auto',
+        wrapper: 'items-center justify-center',
       }}
     >
       <ModalContent>

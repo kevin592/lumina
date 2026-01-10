@@ -11,10 +11,12 @@ export * from './helpers/fileHelper';
 export * from './helpers/downloadHelper';
 export * from './helpers/envHelper';
 export * from './helpers/cronHelper';
+export * from './helpers/tagColorHelper';
 
 // Import for adding to helper object
 import { getFileExtension, getFileType } from './helpers/fileHelper';
-import { buildHashTagTreeFromDb } from './helpers/tagHelper';
+import { buildHashTagTreeFromDb, generateTagPaths } from './helpers/tagHelper';
+import { getTagColorInfo, getPrimaryTagColor } from './helpers/tagColorHelper';
 
 const valMap = {
   undefined: '',
@@ -27,11 +29,16 @@ export const helper = {
   getFileExtension,
   getFileType,
   buildHashTagTreeFromDb,
+  generateTagPaths,
+  // Tag color helper methods
+  getTagColorInfo,
+  getPrimaryTagColor,
 
   regex: {
     isEndsWithHashTag: /#[/\w\p{L}\p{N}]*$/u,
     //lookbehind assertions in ios regex is not supported
-    isContainHashTag: /#[^\s#]*(?:[*?.。]|$)/g
+    // Updated: Match tags followed by whitespace, punctuation, or end of string
+    isContainHashTag: /#[^\s#]+(?:[*?.。、,，!！?？\s]|$)/g
   },
   assemblyPageResult<T>(args: { data: T[], page: number, size: number, result: T[] }): { result: T[], isLoadAll: boolean, isEmpty: boolean } {
     const { data, page, size } = args
@@ -54,7 +61,8 @@ export const helper = {
     return { result, isLoadAll, isEmpty: data.length == 0 }
   },
   extractHashtags(input: string): string[] {
-    const hashtagRegex = /#[^\s#]*(?:[*?.。]|$)/g;
+    // Updated: Match tags followed by whitespace, punctuation, or end of string
+    const hashtagRegex = /#[^\s#]+(?:[*?.。、,，!！?？\s]|$)/g;
     const matches = input.match(hashtagRegex);
     return matches ? matches : [];
   },

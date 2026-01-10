@@ -97,13 +97,22 @@ async function main() {
   }
 }
 
-main()
-  .then(e => {
-    console.log("✨ Seed done! ✨")
-  })
-  .catch((e) => {
-    console.error(e);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+// 检查是否是直接运行此文件
+const isDirectRun = process.argv[1].endsWith('seed.ts') ||
+                    process.argv[1].endsWith('seed.js');
+
+if (isDirectRun) {
+  main()
+    .then(e => {
+      console.log("✨ Seed done! ✨")
+    })
+    .catch((e) => {
+      console.error(e);
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+}
+
+// 导出 main 函数以便在需要时手动调用
+export { main as runSeed };

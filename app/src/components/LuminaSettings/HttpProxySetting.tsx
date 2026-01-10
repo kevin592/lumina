@@ -9,7 +9,6 @@ import { useTranslation } from 'react-i18next';
 import { Item, ItemWithTooltip } from './Item';
 import { useEffect, useState } from 'react';
 import { useMediaQuery } from 'usehooks-ts';
-import { CollapsibleCard } from '../Common/CollapsibleCard';
 
 export const HttpProxySetting = observer(() => {
   const Lumina = RootStore.Get(LuminaStore);
@@ -64,7 +63,20 @@ export const HttpProxySetting = observer(() => {
   };
 
   return (
-    <CollapsibleCard icon="ri:global-line" title={t('http-proxy')}>
+    <div className="glass-card p-6 mb-6">
+      {/* 卡片头部 - Fortent V6.5 */}
+      <div className="flex items-center gap-3.5 mb-6">
+        <div className="w-9 h-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center">
+          <i className="ri-global-line"></i>
+        </div>
+        <div>
+          <h2 className="font-display font-bold text-gray-900 text-lg tracking-tight">{t('http-proxy')}</h2>
+          <p className="text-sm text-default-500">管理设置</p>
+        </div>
+      </div>
+
+      {/* 设置项内容 */}
+      <div className="space-y-4">
       <Item
         leftContent={
           <ItemWithTooltip
@@ -119,8 +131,8 @@ export const HttpProxySetting = observer(() => {
                     { autoAlert: false },
                   );
                 }}
-                onValueChange={(value) => {
-                  store.httpProxyHost = value;
+                onChange={(e) => {
+                  store.httpProxyHost = e.target.value;
                 }}
               />
             }
@@ -152,8 +164,8 @@ export const HttpProxySetting = observer(() => {
                     { autoAlert: false },
                   );
                 }}
-                onValueChange={(value) => {
-                  store.httpProxyPort = parseInt(value);
+                onChange={(e) => {
+                  store.httpProxyPort = parseInt(e.target.value);
                 }}
               />
             }
@@ -184,8 +196,8 @@ export const HttpProxySetting = observer(() => {
                     { autoAlert: false },
                   );
                 }}
-                onValueChange={(value) => {
-                  store.httpProxyUsername = value;
+                onChange={(e) => {
+                  store.httpProxyUsername = e.target.value;
                 }}
               />
             }
@@ -216,8 +228,8 @@ export const HttpProxySetting = observer(() => {
                     { autoAlert: false },
                   );
                 }}
-                onValueChange={(value) => {
-                  store.httpProxyPassword = value;
+                onChange={(e) => {
+                  store.httpProxyPassword = e.target.value;
                 }}
                 endContent={
                   <button
@@ -260,7 +272,7 @@ export const HttpProxySetting = observer(() => {
                       placeholder="https://www.google.com"
                       className="w-full"
                       value={testUrl}
-                      onValueChange={setTestUrl}
+                      onChange={(e) => setTestUrl(e.target.value)}
                       disabled={testingProxy}
                     />
                     <Button
@@ -305,6 +317,7 @@ export const HttpProxySetting = observer(() => {
           />
         </>
       )}
-    </CollapsibleCard>
+      </div>
+    </div>
   );
 });

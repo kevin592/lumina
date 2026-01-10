@@ -21,7 +21,7 @@ export const HotkeySetting = observer(() => {
   useEffect(() => {
     const initializeSettings = async () => {
       try {
-        const config = await Lumina.config.value?.desktopHotkeys;
+        const config = Lumina.config.value?.desktopHotkeys;
         if (config?.textSelectionToolbar?.enabled) {
           console.log('🎯 Initializing text selection monitoring with config:', config.textSelectionToolbar);
           // 文本选择监控的初始化逻辑已移至各个卡片组件

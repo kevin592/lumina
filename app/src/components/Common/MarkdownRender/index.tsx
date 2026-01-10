@@ -30,27 +30,66 @@ const HighlightTags = observer(({ text, }: { text: any }) => {
     const decodedText = text.replace(/&nbsp;/g, ' ');
     const lines = decodedText?.split("\n");
     return lines.map((line, lineIndex) => {
-      const parts = line.split(/\s+/);
-      const processedParts = parts.map((part, index) => {
-        if (part.startsWith('#') && part.length > 1 && part.match(helper.regex.isContainHashTag)) {
-          const isShareMode = location.pathname.includes('share')
-          if (isShareMode) return <span key={`${lineIndex}-${index}`} className={`w-fit select-none Lumina-tag px-1 font-bold cursor-pointer hover:opacity-80 !transition-all`}>{part + " "}</span>
-          return (
-            <span key={`${lineIndex}-${index}`}
-              className={`select-none Lumina-tag px-1 font-bold cursor-pointer hover:opacity-80 !transition-all ${isShareMode ? 'pointer-events-none' : ''}`}
-              onClick={async () => {
-                if (isShareMode) return;
-                navigate(`/?path=all&searchText=${encodeURIComponent(part)}`);
-                RootStore.Get(LuminaStore).forceQuery++
-              }}>
-              {part + " "}
+      // 使用正则表达式找到所有标签，而不是按空格分割
+      // 标签模式：# 后面跟中文字符、英文字母、数字、下划线或斜杠（支持层级标签）
+      const tagRegex = /#[\u4e00-\u9fa5a-zA-Z0-9_\/]{1,50}(?=[*?.。、,，!！?？\s]|$)/g;
+
+      // 查找所有标签及其位置
+      const tags: { match: string; index: number; length: number }[] = [];
+      let match;
+      while ((match = tagRegex.exec(line)) !== null) {
+        tags.push({ match: match[0], index: match.index, length: match[0].length });
+      }
+
+      // 如果没有标签，返回原文本
+      if (tags.length === 0) {
+        return <React.Fragment key={lineIndex}>{line}<br key={`br-${lineIndex}`} /></React.Fragment>;
+      }
+
+      // 构建结果数组
+      const result: React.ReactNode[] = [];
+      let lastIndex = 0;
+
+      for (const tag of tags) {
+        // 添加标签前的文本
+        if (tag.index > lastIndex) {
+          result.push(line.substring(lastIndex, tag.index));
+        }
+
+        // 添加标签元素
+        const tagText = tag.match;
+        const isShareMode = location.pathname.includes('share');
+
+        if (isShareMode) {
+          result.push(
+            <span key={`${lineIndex}-${tag.index}`} className="w-fit select-none Lumina-tag px-1 font-bold cursor-pointer hover:opacity-80 !transition-all">
+              {tagText}
             </span>
           );
         } else {
-          return part + " ";
+          result.push(
+            <span
+              key={`${lineIndex}-${tag.index}`}
+              className="select-none Lumina-tag px-1 font-bold cursor-pointer hover:opacity-80 !transition-all"
+              onClick={async () => {
+                if (isShareMode) return;
+                navigate(`/?path=all&searchText=${encodeURIComponent(tagText)}`);
+                RootStore.Get(LuminaStore).forceQuery++
+              }}>
+              {tagText}
+            </span>
+          );
         }
-      });
-      return [...processedParts, <br key={`br-${lineIndex}`} />];
+
+        lastIndex = tag.index + tag.length;
+      }
+
+      // 添加标签后的文本
+      if (lastIndex < line.length) {
+        result.push(line.substring(lastIndex));
+      }
+
+      return <React.Fragment key={lineIndex}>{result}<br key={`br-${lineIndex}`} /></React.Fragment>;
     });
   } catch (e) {
     return text

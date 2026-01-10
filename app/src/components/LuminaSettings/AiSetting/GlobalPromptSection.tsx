@@ -1,6 +1,5 @@
 import { observer } from 'mobx-react-lite';
 import { Textarea } from '@heroui/react';
-import { CollapsibleCard } from '../../Common/CollapsibleCard';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { RootStore } from '@/store';
@@ -36,7 +35,19 @@ export const GlobalPromptSection = observer(() => {
   };
 
   return (
-    <CollapsibleCard icon="ri-message-2-line" title="Global Prompt Configuration">
+    <div className="glass-card p-6 mb-6">
+      {/* 卡片头部 - Fortent V6.5 */}
+      <div className="flex items-center gap-3.5 mb-6">
+        <div className="w-9 h-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center">
+          <i className="ri-message-2-line"></i>
+        </div>
+        <div>
+          <h2 className="font-display font-bold text-gray-900 text-lg tracking-tight">Global Prompt Configuration</h2>
+          <p className="text-sm text-default-500">配置 AI 全局提示词</p>
+        </div>
+      </div>
+
+      {/* 设置项内容 */}
       <div className="space-y-4">
         <div className="flex flex-col gap-2">
           <div className="font-medium">{t('global-prompt')}</div>
@@ -59,6 +70,6 @@ Maintain a friendly and professional conversational tone.`}
           className="w-full"
         />
       </div>
-    </CollapsibleCard>
+    </div>
   );
 });

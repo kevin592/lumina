@@ -122,10 +122,10 @@ body {
 }
 
 .btn-icon {
-  width: 2.5rem;
-  /* w-10 */
-  height: 2.5rem;
-  /* h-10 */
+  width: 2.25rem;
+  /* w-9 (36px) - Fortent V6.5 */
+  height: 2.25rem;
+  /* h-9 (36px) - Fortent V6.5 */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -428,15 +428,26 @@ body {
     0 2px 4px -1px rgba(0, 0, 0, 0.1);
 }
 
-.shadow-float {
-  box-shadow:
-    0 20px 40px -10px rgba(0, 0, 0, 0.08),
-    0 0 15px rgba(255, 255, 255, 0.3);
-  /* Ambient glow */
+/* shadow-float 已在 tailwind.config.js 中定义，此处移除重复定义 */
+
+/* .dark .shadow-float - 使用 tailwind dark: 前缀 */
+
+/* 设置页面专用滚动条样式 - Fortent V6.5 */
+.settings-content::-webkit-scrollbar {
+  width: 6px;
 }
 
-.dark .shadow-float {
-  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.4);
+.settings-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.settings-content::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 99px;
+}
+
+.settings-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.1);
 }
 
 /* Glass Pill (Active State) */
@@ -488,6 +499,15 @@ body {
   display: none;
 }
 
+/* 链接文字样式 - Fortent V6.5 */
+.link-primary {
+  @apply text-sm text-violet-600 cursor-pointer hover:text-violet-700 hover:underline transition-colors;
+}
+
+.link-secondary {
+  @apply text-sm text-gray-500 cursor-pointer hover:text-gray-700 hover:underline transition-colors;
+}
+
 .mermaid-wrapper {
   display: flex;
   justify-content: center;
@@ -511,4 +531,27 @@ body {
 
 .group[data-focus-visible="true"] .group-data-\[focus-visible\=true\]\:ring-2 {
   --tw-ring-shadow: 0 !important;
+}
+
+/* 强制所有 HeroUI Modal 居中 */
+li[class*="heroui-modal-wrapper"] {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 强制弹窗容器居中 */
+[class*="z-[2001]"],
+[class*="z-[2002]"],
+[class*="z-[9999]"] {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* HeroUI Modal 特定样式 */
+.heroui-modal-wrapper {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }

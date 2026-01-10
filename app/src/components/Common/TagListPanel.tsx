@@ -17,22 +17,20 @@ import { eventBus } from "@/lib/event";
 import { DialogStore } from "@/store/module/Dialog";
 import { AiStore } from "@/store/aiStore";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { showTipsDialog } from "./TipsDialog";
 
 const Emoji = ({ icon }: { icon: string | null | undefined }) => {
-  // 判断是否为 Iconify 图标（包含冒号）
   const isIconifyIcon = icon && typeof icon === 'string' && icon.includes(':');
 
-  return <>
-    {
-      icon ? <>
-        {
-          isIconifyIcon ?
-            <i className={icon as string}></i> :
-            icon
-        }
-      </> : <i className="ri-hashtag-line"></i>
-    }
-  </>
+  if (!icon || icon === '') {
+    return <i className="ri-hashtag-line"></i>;
+  }
+
+  if (isIconifyIcon) {
+    return <i className={icon}></i>;
+  }
+
+  return <span className="text-base">{icon}</span>;
 }
 
 const ShowEmojiPicker = (element, theme) => {
@@ -77,6 +75,49 @@ const ShowCustomIconPicker = (element, theme) => {
   })
 }
 
+const ShowCreateChildTagDialog = ({ parentId, parentName, onSave, t }: {
+  parentId: number;
+  parentName: string;
+  onSave: (tag: { name: string; icon: string; parentId: number }) => Promise<void>;
+  t: (key: string) => string;
+}) => {
+  const [name, setName] = useState('');
+  const [icon, setIcon] = useState('');
+
+  RootStore.Get(DialogStore).setData({
+    isOpen: true,
+    title: t('create-child-tag'),
+    content: (
+      <div className="flex flex-col gap-4">
+        <Input
+          label={t('tag-name')}
+          value={name}
+          onValueChange={setName}
+          placeholder={`${parentName}/`}
+        />
+        <Input
+          label={t('tag-icon')}
+          value={icon}
+          onValueChange={setIcon}
+          placeholder="emoji or ri:icon-name"
+        />
+        <div className="flex justify-end gap-2">
+          <Button
+            color="primary"
+            onPress={async () => {
+              if (!name.trim()) return;
+              await onSave({ name: name.trim(), icon: icon.trim(), parentId })
+              RootStore.Get(DialogStore).close()
+            }}
+          >
+            {t('create')}
+          </Button>
+        </div>
+      </div>
+    )
+  })
+}
+
 export const TagListPanel = observer(() => {
   const Lumina = RootStore.Get(LuminaStore);
   const base = RootStore.Get(BaseStore);
@@ -88,10 +129,35 @@ export const TagListPanel = observer(() => {
   const isSelected = (id) => {
     return Lumina.noteListFilterConfig.tagId == id && searchParams.get('path') == 'all'
   }
+
+  const handleCreateTopLevelTag = () => {
+    ShowCreateChildTagDialog({
+      parentId: 0,
+      parentName: '',
+      onSave: async (tag) => {
+        await PromiseCall(api.tags.createTag.mutate(tag))
+        await Lumina.tagList.call()
+      },
+      t
+    })
+  }
+
   useEffect(() => { }, [Lumina.noteListFilterConfig.tagId])
   return (
     <>
-      <div className="ml-2 my-2 text-xs font-bold text-primary">{t('total-tags')}</div>
+      <div className="flex items-center justify-between px-2 py-2">
+        <div className="text-xs font-bold text-primary">{t('total-tags')}</div>
+        <div className="flex items-center gap-1">
+          <Button
+            isIconOnly
+            size="sm"
+            variant="light"
+            onPress={handleCreateTopLevelTag}
+          >
+            <i className="ri-add-line"></i>
+          </Button>
+        </div>
+      </div>
       <TreeView
         className="mb-4"
         data={flattenTree({
@@ -122,19 +188,17 @@ export const TagListPanel = observer(() => {
               }}
             >
               {isBranch ? (
-                <div className="flex items-center justify-center h-[24px]">
-                  <div className="flex items-center justify-center group-hover:opacity-100 opacity-0 w-0 h-0 group-hover:w-[24px] group-hover:h-[24px] !transition-all" >
+                <div className="flex items-center gap-1">
+                  <div className="flex items-center justify-center w-[16px] h-[16px] opacity-40 hover:opacity-100 !transition-all">
                     {isExpanded ?
-                      <i className="ri-arrow-down-s-line !transition-all"></i>
-                      : <i className="ri-arrow-right-s-line !transition-all"></i>
+                      <i className="ri-arrow-down-s-line"></i>
+                      : <i className="ri-arrow-right-s-line"></i>
                     }
                   </div>
-                  <div className="group-hover:opacity-0 opacity-100 w-[24px] group-hover:w-0 !transition-all">
-                    {
-                      element.metadata?.icon ? <Emoji icon={element.metadata?.icon as string} />
-                        : <i className="ri-hashtag-line"></i>
-                    }
-                  </div>
+                  {
+                    element.metadata?.icon ? <Emoji icon={element.metadata?.icon as string} />
+                      : <i className="ri-hashtag-line"></i>
+                  }
                 </div>
               ) : (
                 <div>
@@ -154,31 +218,8 @@ export const TagListPanel = observer(() => {
                     <i className="ri-more-fill"></i>
                   </div>
                 </DropdownTrigger>
-                <DropdownMenu aria-label="Static Actions">
-                  {
-                    Lumina.showAi ? <DropdownItem key="aiEmoji" onPress={async () => {
-                      if (!isPc) {
-                        eventBus.emit('close-sidebar')
-                      }
-                      await RootStore.Get(AiStore).autoEmoji.call(Number(element.id!), element.name)
-                    }}>
-                      <div className="flex items-center gap-2">
-                        <i className="ri-robot-line"></i>
-                        {t('ai-emoji')}
-                      </div>
-                    </DropdownItem> : <></>
-                  }
-                  <DropdownItem key="aiEmoji" onPress={async () => {
-                    if (!isPc) {
-                      eventBus.emit('close-sidebar')
-                    }
-                    ShowCustomIconPicker(element, theme)
-                  }}>
-                    <div className="flex items-center gap-2">
-                      <i className="ri-star-smile-line"></i>
-                      {t('custom-icon')}
-                    </div>
-                  </DropdownItem>
+                <DropdownMenu aria-label="Tag Actions">
+                  {/* 1. 更新图标 - 合并所有图标选项 */}
                   <DropdownItem key="updateIcon" onPress={async () => {
                     if (!isPc) {
                       eventBus.emit('close-sidebar')
@@ -190,7 +231,9 @@ export const TagListPanel = observer(() => {
                       {t('update-tag-icon')}
                     </div>
                   </DropdownItem>
-                  <DropdownItem key="Update" onPress={async () => {
+
+                  {/* 2. 重命名 */}
+                  <DropdownItem key="rename" onPress={async () => {
                     if (!isPc) {
                       eventBus.emit('close-sidebar')
                     }
@@ -205,96 +248,74 @@ export const TagListPanel = observer(() => {
                         navigate('/?path=all')
                       }
                     })
-                  }}  >
+                  }}>
                     <div className="flex items-center gap-2">
                       <i className="ri-edit-line"></i>
-                      {t('update-name')}
+                      {t('rename')}
                     </div>
                   </DropdownItem>
-                  <DropdownItem key="moveUp" onPress={async () => {
+
+                  {/* 3. 创建子标签 */}
+                  <DropdownItem key="createChild" onPress={async () => {
                     if (!isPc) {
                       eventBus.emit('close-sidebar')
                     }
-                    const findSiblings = (tags: any[], targetId: number) => {
-                      for (const tag of tags) {
-                        if (tag.id === targetId) {
-                          return tags;
-                        }
-                        if (tag.children) {
-                          const result = findSiblings(tag.children, targetId);
-                          if (result) return result;
-                        }
-                      }
-                      return null;
-                    };
+                    ShowCreateChildTagDialog({
+                      parentId: element.id as number,
+                      parentName: element.name,
+                      onSave: async (tag) => {
+                        await PromiseCall(api.tags.createTag.mutate(tag))
+                        await Lumina.tagList.call()
+                      },
+                      t
+                    })
+                  }}>
+                    <div className="flex items-center gap-2">
+                      <i className="ri-add-circle-line"></i>
+                      {t('create-child-tag')}
+                    </div>
+                  </DropdownItem>
 
-                    const siblings = findSiblings(Lumina.tagList.value?.listTags || [], element.id as number);
-                    if (siblings) {
-                      const currentIndex = siblings.findIndex(t => t.id === element.id);
-                      if (currentIndex > 0 && siblings[currentIndex - 1]) {
-                        const prevTag = siblings[currentIndex - 1];
-                        await PromiseCall(api.tags.updateTagOrder.mutate({
-                          id: element.id as number,
-                          sortOrder: prevTag.sortOrder - 1
-                        }));
-                        await Lumina.tagList.call();
-                      }
-                    }
-                  }}>
-                    <div className="flex items-center gap-2">
-                      <i className="ri-arrow-up-line"></i>
-                      {t('move-up')}
-                    </div>
-                  </DropdownItem>
-                  <DropdownItem key="moveDown" onPress={async () => {
-                    if (!isPc) {
-                      eventBus.emit('close-sidebar')
-                    }
-                    const findSiblings = (tags: any[], targetId: number) => {
-                      for (const tag of tags) {
-                        if (tag.id === targetId) {
-                          return tags;
-                        }
-                        if (tag.children) {
-                          const result = findSiblings(tag.children, targetId);
-                          if (result) return result;
-                        }
-                      }
-                      return null;
-                    };
+                  <DropdownMenu divider />
 
-                    const siblings = findSiblings(Lumina.tagList.value?.listTags || [], element.id as number);
-                    if (siblings) {
-                      const currentIndex = siblings.findIndex(t => t.id === element.id);
-                      if (currentIndex >= 0 && currentIndex < siblings.length - 1 && siblings[currentIndex + 1]) {
-                        const nextTag = siblings[currentIndex + 1];
-                        await PromiseCall(api.tags.updateTagOrder.mutate({
-                          id: element.id as number,
-                          sortOrder: nextTag.sortOrder + 1
-                        }));
-                        await Lumina.tagList.call();
-                      }
-                    }
-                  }}>
-                    <div className="flex items-center gap-2">
-                      <i className="ri-arrow-down-line"></i>
-                      {t('move-down')}
-                    </div>
-                  </DropdownItem>
-                  <DropdownItem key="deletetag" className="text-danger" color="danger" onPress={async () => {
-                    PromiseCall(api.tags.deleteOnlyTag.mutate(({ id: element.id as number })))
-                  }}>
-                    <div className="flex items-center gap-2">
-                      <i className="ri-delete-bin-line"></i>
-                      {t('delete-only-tag')}
-                    </div>
-                  </DropdownItem>
+                  {/* 4. 删除 */}
                   <DropdownItem key="delete" className="text-danger" color="danger" onPress={async () => {
-                    PromiseCall(api.tags.deleteTagWithAllNote.mutate(({ id: element.id as number })))
+                    if (!isPc) {
+                      eventBus.emit('close-sidebar')
+                    }
+                    showTipsDialog({
+                      title: t('delete-tag'),
+                      content: t('delete-tag-confirm'),
+                      buttonSlot: (
+                        <div className="flex gap-2">
+                          <Button
+                            color="warning"
+                            variant="flat"
+                            onPress={async () => {
+                              await PromiseCall(api.tags.deleteTagWithAllNote.mutate({ id: element.id as number }))
+                              await Lumina.tagList.call()
+                              RootStore.Get(DialogStore).close()
+                            }}
+                          >
+                            {t('delete-tag-with-note')}
+                          </Button>
+                          <Button
+                            color="danger"
+                            onPress={async () => {
+                              await PromiseCall(api.tags.deleteOnlyTag.mutate({ id: element.id as number }))
+                              await Lumina.tagList.call()
+                              RootStore.Get(DialogStore).close()
+                            }}
+                          >
+                            {t('delete-only-tag')}
+                          </Button>
+                        </div>
+                      )
+                    })
                   }}>
                     <div className="flex items-center gap-2">
                       <i className="ri-delete-bin-line"></i>
-                      {t('delete-tag-with-note')}
+                      {t('delete')}
                     </div>
                   </DropdownItem>
                 </DropdownMenu>

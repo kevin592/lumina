@@ -348,7 +348,7 @@ export class LuminaStore {
   // 清空数据
   private clear() {
     this.config.clearAllStorage();
-    this.offline.clear();
+    this.offline.clearAllOfflineNotes();
   }
 }
 

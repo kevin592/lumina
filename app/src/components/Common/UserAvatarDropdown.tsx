@@ -26,25 +26,44 @@ export const UserAvatarDropdown = observer(({ onItemClick, collapsed = false, sh
       }}
     >
       <DropdownTrigger>
-        <div className={`cursor-pointer transition-all duration-300 ease-in-out ${collapsed ? 'flex justify-center' : 'flex items-center gap-3 p-2 rounded-2xl hover:bg-gray-100/50'}`}>
-          <div className="relative group shrink-0">
+        {collapsed ? (
+          // Simple avatar when collapsed
+          <div className="relative group shrink-0 cursor-pointer">
             {user.image ? (
-              <img src={getluminaEndpoint(`${user.image}?token=${user.tokenData.value?.token}`)} alt="avatar" className={`${collapsed ? 'w-10 h-10' : 'w-10 h-10'} rounded-full object-cover border border-white shadow-sm transition-all duration-300 ease-in-out`} />
+              <img
+                src={getluminaEndpoint(`${user.image}?token=${user.tokenData.value?.token}`)}
+                alt="avatar"
+                className="w-10 h-10 rounded-full bg-white border-2 border-white shadow-sm cursor-pointer hover:scale-110 transition-transform"
+              />
             ) : (
-              <Image src="/logo.png" width={collapsed ? 40 : 40} className="rounded-full shadow-sm" />
+              <Image
+                src="/logo.png"
+                width={40}
+                height={40}
+                className="rounded-full bg-white border-2 border-white shadow-sm cursor-pointer hover:scale-110 transition-transform"
+              />
             )}
-            <div className={`absolute inset-0 bg-black/30 rounded-full flex items-center justify-center transition-opacity duration-200 ease-out ${showOverlay ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-              <i className="ri-settings-3-line text-base text-white"></i>
-            </div>
           </div>
+        ) : (
+          // Full avatar with details when expanded
+          <div className="cursor-pointer transition-all duration-300 ease-in-out flex items-center gap-3 p-2 rounded-2xl hover:bg-gray-100/50">
+            <div className="relative group shrink-0">
+              {user.image ? (
+                <img src={getluminaEndpoint(`${user.image}?token=${user.tokenData.value?.token}`)} alt="avatar" className="w-10 h-10 rounded-full object-cover border border-white shadow-sm transition-all duration-300 ease-in-out" />
+              ) : (
+                <Image src="/logo.png" width={40} className="rounded-full shadow-sm" />
+              )}
+              <div className={`absolute inset-0 bg-black/30 rounded-full flex items-center justify-center transition-opacity duration-200 ease-out ${showOverlay ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                <i className="ri-settings-3-line text-base text-white"></i>
+              </div>
+            </div>
 
-          {!collapsed && (
             <div className="flex flex-col min-w-0 transition-opacity duration-200 ease-out text-left">
               <span className="font-bold text-sm text-gray-800 truncate leading-tight">{user.nickname || user.name || 'User'}</span>
               <span className="text-[10px] font-medium text-brand-primary truncate uppercase tracking-wide mt-0.5">Free Plan</span>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </DropdownTrigger>
       <DropdownMenu aria-label="User Actions">
         <>

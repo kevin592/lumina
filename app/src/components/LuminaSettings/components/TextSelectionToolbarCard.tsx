@@ -1,6 +1,5 @@
 import { Switch, Select, SelectItem } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
-import { CollapsibleCard } from '@/components/Common/CollapsibleCard';
 import { Item, ItemWithTooltip } from '../Item';
 import { useHotkeyConfig } from '../hooks/useHotkeyConfig';
 import { DEFAULT_TEXT_SELECTION_TOOLBAR_CONFIG } from '@shared/lib/types';
@@ -31,12 +30,20 @@ export const TextSelectionToolbarCard = () => {
   };
 
   return (
-    <CollapsibleCard
-      icon="ri:drag-move-2-line"
-      title={t('text-selection-toolbar')}
-      className="w-full my-6"
-    >
-      <div className="flex flex-col gap-4">
+    <div className="glass-card p-6 mb-6">
+      {/* 卡片头部 - Fortent V6.5 */}
+      <div className="flex items-center gap-3.5 mb-6">
+        <div className="w-9 h-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center">
+          <i className="ri-drag-move-2-line"></i>
+        </div>
+        <div>
+          <h2 className="font-display font-bold text-gray-900 text-lg tracking-tight">{t('text-selection-toolbar')}</h2>
+          <p className="text-sm text-default-500">配置快捷键</p>
+        </div>
+      </div>
+
+      {/* 设置项内容 */}
+      <div className="space-y-4">
         {/* Text selection toolbar enable switch */}
         <Item
           leftContent={
@@ -48,7 +55,7 @@ export const TextSelectionToolbarCard = () => {
           rightContent={
             <Switch
               isSelected={toolbarConfig.enabled}
-              onValueChange={(enabled) => updateToolbarConfig({ enabled })}
+              onChange={(e) => updateToolbarConfig({ enabled: e.target.checked })}
             />
           }
         />
@@ -120,6 +127,6 @@ export const TextSelectionToolbarCard = () => {
           type="col"
         />
       </div>
-    </CollapsibleCard>
+    </div>
   );
 };

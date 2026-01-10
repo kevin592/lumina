@@ -53,7 +53,7 @@ export const Sidebar = observer(({ onItemClick }: SidebarProps) => {
     >
       {!base.isSidebarCollapsed && (
         <div
-          className={`absolute right-0 top-0 h-full w-1 cursor-col-resize z-50 hover:bg-brand-primary/50 transition-colors
+          className={`absolute right-0 top-0 h-full w-1 cursor-col-resize z-40 hover:bg-brand-primary/50 transition-colors pointer-events-auto
             ${base.isResizing ? 'bg-brand-primary' : ''}`}
           onMouseDown={base.startResizing}
           onClick={(e) => e.stopPropagation()}
@@ -61,27 +61,30 @@ export const Sidebar = observer(({ onItemClick }: SidebarProps) => {
         />
       )}
 
+      {/* Toggle Button - Outside sidebar like prototype */}
+      {isPc && (
+        <button
+          onClick={base.toggleSidebar}
+          className="absolute -right-3 top-8 w-6 h-6 bg-white border border-gray-100 rounded-full shadow-sm flex items-center justify-center text-gray-400 hover:text-violet-600 text-xs z-50 transition-colors cursor-pointer hover:scale-110 active:scale-95"
+          title={base.isSidebarCollapsed ? t('expand') : t('collapse')}
+        >
+          <i className={`${base.isSidebarCollapsed ? 'ri-arrow-right-s-line' : 'ri-arrow-left-s-line'}`}></i>
+        </button>
+      )}
+
       {/* Header / Logo Area */}
       {isPc ? (
-        <div className={`flex shrink-0 transition-all duration-300 relative ${base.isSidebarCollapsed ? 'justify-center pt-6 pb-2' : 'justify-between px-5 pt-6 pb-2'}`}>
+        <div className={`flex shrink-0 transition-all duration-300 relative ${base.isSidebarCollapsed ? 'justify-center pt-6 pb-2' : 'px-5 pt-6 pb-2'}`}>
           {/* Brand - Show when expanded */}
-          <div className={`flex items-center gap-3 transition-opacity duration-300 ${base.isSidebarCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'}`}>
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-indigo-600 shadow-glow flex items-center justify-center text-white text-xs shrink-0 border border-white/20">
+          <div className={`flex items-center gap-3.5 transition-opacity duration-300 ${base.isSidebarCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'}`}>
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 shadow-glow flex items-center justify-center text-white text-lg shrink-0 border border-white/20">
               <i className="ri-flashlight-fill"></i>
             </div>
             <div className="whitespace-nowrap">
-              <h1 className="font-display font-bold text-gray-900 text-lg tracking-tight leading-none">Lumina</h1>
-              <p className="text-[10px] font-bold text-violet-500 uppercase tracking-widest leading-tight">Brain OS</p>
+              <h1 className="font-display font-bold text-gray-900 text-xl tracking-tight leading-none">Lumina</h1>
+              <p className="text-[10px] font-bold text-violet-500 uppercase tracking-widest leading-tight mt-0.5">Brain OS</p>
             </div>
           </div>
-
-          <button
-            onClick={base.toggleSidebar}
-            className={`w-6 h-6 flex items-center justify-center rounded-full bg-white border border-gray-100 shadow-sm text-gray-400 hover:text-violet-600 transition-all z-10`}
-            title={base.isSidebarCollapsed ? t('expand') : t('collapse')}
-          >
-            <i className={`${base.isSidebarCollapsed ? 'ri-arrow-right-s-line' : 'ri-arrow-left-s-line'} text-sm`}></i>
-          </button>
         </div>
       ) : (
         <div className="flex justify-end p-4">
@@ -99,12 +102,12 @@ export const Sidebar = observer(({ onItemClick }: SidebarProps) => {
 
       {/* Capture Button (Premium) */}
       {isPc && (
-        <div className={`px-4 mb-2 mt-4 transition-all duration-300 ${base.isSidebarCollapsed ? 'px-2' : ''}`}>
+        <div className={`px-5 mb-8 transition-all duration-300 ${base.isSidebarCollapsed ? 'px-2' : ''}`}>
           <button
             onClick={() => { navigate('/'); }}
             className={`
-               group relative overflow-hidden bg-gray-900 hover:bg-black text-white rounded-full transition-all duration-300 shadow-lg shadow-gray-900/10 active:scale-95 flex items-center justify-center
-               ${base.isSidebarCollapsed ? 'w-10 h-10 p-0 mx-auto' : 'w-full h-[48px] gap-2'}
+               group relative overflow-hidden bg-gray-900 hover:bg-black text-white rounded-full transition-all duration-300 shadow-xl shadow-gray-900/10 active:scale-95 flex items-center justify-center
+               ${base.isSidebarCollapsed ? 'w-[52px] h-[52px] p-0 mx-auto' : 'w-full h-[52px] px-6 gap-2'}
              `}
             title="Capture"
           >
@@ -112,7 +115,7 @@ export const Sidebar = observer(({ onItemClick }: SidebarProps) => {
             <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
 
             <i className={`ri-add-line transition-transform duration-300 ${base.isSidebarCollapsed ? '' : 'group-hover:rotate-90'}`}></i>
-            {!base.isSidebarCollapsed && <span className="font-semibold tracking-wide">Capture</span>}
+            {!base.isSidebarCollapsed && <span className="font-display font-semibold tracking-wide whitespace-nowrap">Capture</span>}
           </button>
         </div>
       )}
@@ -126,7 +129,7 @@ export const Sidebar = observer(({ onItemClick }: SidebarProps) => {
           paddingBottom: '16px'
         }}
       >
-        <div className="flex flex-col space-y-2 px-4">
+        <div className="flex flex-col space-y-1.5 w-full px-5">
           {base.routerList
             .filter((i) => !i.hiddenSidebar && !(i as any).isBottomSection)
             .map((i) => {
@@ -157,7 +160,7 @@ export const Sidebar = observer(({ onItemClick }: SidebarProps) => {
                   {/* Icon Container */}
                   <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors
                     ${isActive ? 'bg-violet-50 text-violet-600' : 'text-gray-400 group-hover:text-gray-600'}`}>
-                    <i className={`${i.icon} text-lg`}></i>
+                    <i className={`${i.icon}`}></i>
                   </div>
 
                   {/* Label */}
@@ -176,7 +179,7 @@ export const Sidebar = observer(({ onItemClick }: SidebarProps) => {
 
                   {/* Active Dot for Collapsed State */}
                   {isActive && base.isSidebarCollapsed && (
-                    <div className="absolute right-1.5 top-1.5 w-1.5 h-1.5 bg-violet-600 rounded-full shadow-glow"></div>
+                    <div className="absolute right-2 top-2 w-1.5 h-1.5 bg-violet-600 rounded-full shadow-glow"></div>
                   )}
                 </Link>
               );
@@ -185,9 +188,15 @@ export const Sidebar = observer(({ onItemClick }: SidebarProps) => {
       </ScrollShadow>
 
       {/* Footer / User Profile */}
-      <div className="p-4 mt-auto border-t border-gray-100/50 bg-transparent z-10">
-        <UserAvatarDropdown onItemClick={onItemClick} collapsed={base.isSidebarCollapsed} showOverlay={isHovering} />
-      </div>
+      {isPc ? (
+        <div className="mt-auto pt-4 border-t border-gray-200/50 w-full flex justify-center">
+          <UserAvatarDropdown onItemClick={onItemClick} collapsed={base.isSidebarCollapsed} showOverlay={isHovering} />
+        </div>
+      ) : (
+        <div className="p-4 mt-auto border-t border-gray-100/50 bg-transparent z-10">
+          <UserAvatarDropdown onItemClick={onItemClick} collapsed={base.isSidebarCollapsed} showOverlay={isHovering} />
+        </div>
+      )}
     </aside>
   );
 });

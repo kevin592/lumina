@@ -1,11 +1,10 @@
 import { Switch } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
-import { CollapsibleCard } from '@/components/Common/CollapsibleCard';
 import { Item, ItemWithTooltip } from '../Item';
 import { HotkeyRecorder } from './HotkeyRecorder';
 import { useHotkeyConfig } from '../hooks/useHotkeyConfig';
 import { useHotkeyRecording } from '../hooks/useHotkeyRecording';
-import { useHotkeyRegistration } from '../hooks/useHotkeyRegistration';
+import { useHotkeyRegistration, useAutoStart } from '../hooks/useHotkeyRegistration';
 import { RootStore } from '@/store';
 import { ToastPlugin } from '@/store/module/Toast/Toast';
 
@@ -28,7 +27,7 @@ export const DesktopHotkeyCard = () => {
 
   const { isRecording, recordedKeys, recordingRef, toggleRecording, handleKeyDown } = useHotkeyRecording();
   const { getRegisteredShortcuts, updateHotkeyRegistration } = useHotkeyRegistration(hotkeyConfig);
-  const { autoStartEnabled, getAutoStartStatus, toggleAutoStart } = useHotkeyRegistration(hotkeyConfig);
+  const { autoStartEnabled, getAutoStartStatus, toggleAutoStart } = useAutoStart();
 
   // Initialize
   const initialize = async () => {
@@ -58,12 +57,20 @@ export const DesktopHotkeyCard = () => {
   };
 
   return (
-    <CollapsibleCard
-      icon="ri:desktop-line"
-      title="Desktop & Hotkeys"
-      className="w-full"
-    >
-      <div className="flex flex-col gap-4">
+    <div className="glass-card p-6 mb-6">
+      {/* 卡片头部 - Fortent V6.5 */}
+      <div className="flex items-center gap-3.5 mb-6">
+        <div className="w-9 h-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center">
+          <i className="ri-desktop-line"></i>
+        </div>
+        <div>
+          <h2 className="font-display font-bold text-gray-900 text-lg tracking-tight">Desktop & Hotkeys</h2>
+          <p className="text-sm text-default-500">配置快捷键</p>
+        </div>
+      </div>
+
+      {/* 设置项内容 */}
+      <div className="space-y-4">
         {/* Autostart switch */}
         <Item
           leftContent={
@@ -75,7 +82,7 @@ export const DesktopHotkeyCard = () => {
           rightContent={
             <Switch
               isSelected={autoStartEnabled}
-              onValueChange={toggleAutoStart}
+              onChange={(e) => toggleAutoStart(e.target.checked)}
             />
           }
         />
@@ -91,7 +98,7 @@ export const DesktopHotkeyCard = () => {
           rightContent={
             <Switch
               isSelected={hotkeyConfig.enabled}
-              onValueChange={(enabled) => handleSaveConfig({ enabled })}
+              onChange={(e) => handleSaveConfig({ enabled: e.target.checked })}
             />
           }
         />
@@ -114,6 +121,6 @@ export const DesktopHotkeyCard = () => {
           type="col"
         />
       </div>
-    </CollapsibleCard>
+    </div>
   );
 };

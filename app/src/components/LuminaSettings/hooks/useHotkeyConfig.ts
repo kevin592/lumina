@@ -20,7 +20,7 @@ export const useHotkeyConfig = () => {
   // Get current configuration
   const getCurrentConfig = async () => {
     try {
-      const config = await Lumina.config.value?.desktopHotkeys;
+      const config = Lumina.config.value?.desktopHotkeys;
       const finalConfig = {
         ...DEFAULT_HOTKEY_CONFIG,
         ...config,

@@ -1,6 +1,5 @@
 import { observer } from 'mobx-react-lite';
 import { Input, Slider } from '@heroui/react';
-import { CollapsibleCard } from '../../Common/CollapsibleCard';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { RootStore } from '@/store';
@@ -39,7 +38,19 @@ export const AiToolsSection = observer(() => {
   };
 
   return (
-    <CollapsibleCard icon="ri:test-tube-line" title={t('ai-tools')}>
+    <div className="glass-card p-6 mb-6">
+      {/* 卡片头部 - Fortent V6.5 */}
+      <div className="flex items-center gap-3.5 mb-6">
+        <div className="w-9 h-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center">
+          <i className="ri-test-tube-line"></i>
+        </div>
+        <div>
+          <h2 className="font-display font-bold text-gray-900 text-lg tracking-tight">{t('ai-tools')}</h2>
+          <p className="text-sm text-default-500">配置 AI 工具集成</p>
+        </div>
+      </div>
+
+      {/* 设置项内容 */}
       <Item
         leftContent={<>{t('tavily-api-key')}</>}
         rightContent={
@@ -90,6 +101,6 @@ export const AiToolsSection = observer(() => {
           </div>
         }
       />
-    </CollapsibleCard>
+    </div>
   );
 });

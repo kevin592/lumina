@@ -223,7 +223,7 @@ function AppRoutes() {
           <Routes>
             <Route path="/" element={<ProtectedRoute><HomeRedirect /></ProtectedRoute>} />
             <Route path="/signin" element={<SignInPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/signup" element={<SignInPage />} />
             <Route path="/color-preview" element={<ColorPreviewPage />} />
             <Route path="/hub" element={<ProtectedRoute><HubPage /></ProtectedRoute>} />
             <Route path="/ai" element={<ProtectedRoute><AIPage /></ProtectedRoute>} />

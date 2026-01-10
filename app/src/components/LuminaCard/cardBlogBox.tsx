@@ -5,6 +5,7 @@ import { RootStore } from '@/store/root';
 import { useNavigate } from 'react-router-dom';
 import { LuminaStore } from '@/store/luminaStore';
 import { useEffect, useRef, useState, useMemo } from 'react';
+import { MarkdownRender } from '@/components/Common/MarkdownRender';
 
 interface BlogContentProps {
   LuminaItem: Note & {
@@ -66,7 +67,7 @@ export const CardBlogBox = ({ LuminaItem, isExpanded }: BlogContentProps) => {
         </div>
         <div className={`text-desc flex-1 ${isExpanded ? 'text-sm' : 'text-sm'} line-clamp-4`}
         >
-          {LuminaItem.content?.replace(LuminaItem.title ?? '', '').replace(/#/g, '').replace(/\*/g, '')}
+          <MarkdownRender content={LuminaItem.content?.replace(LuminaItem.title ?? '', '') || ''} />
         </div>
         {
           !!LuminaItem?.tags?.length && LuminaItem?.tags?.length > 0 && (

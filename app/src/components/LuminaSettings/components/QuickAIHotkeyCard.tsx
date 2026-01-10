@@ -1,6 +1,5 @@
 import { Switch } from '@heroui/react';
 import { useTranslation } from 'react-i18next';
-import { CollapsibleCard } from '@/components/Common/CollapsibleCard';
 import { Item, ItemWithTooltip } from '../Item';
 import { HotkeyRecorder } from './HotkeyRecorder';
 import { useHotkeyConfig } from '../hooks/useHotkeyConfig';
@@ -48,12 +47,20 @@ export const QuickAIHotkeyCard = () => {
   };
 
   return (
-    <CollapsibleCard
-      icon="ri-openai-fill"
-      title="Quick AI"
-      className="w-full mt-6"
-    >
-      <div className="flex flex-col gap-4">
+    <div className="glass-card p-6 mb-6">
+      {/* 卡片头部 - Fortent V6.5 */}
+      <div className="flex items-center gap-3.5 mb-6">
+        <div className="w-9 h-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center">
+          <i className="ri-openai-fill"></i>
+        </div>
+        <div>
+          <h2 className="font-display font-bold text-gray-900 text-lg tracking-tight">Quick AI</h2>
+          <p className="text-sm text-default-500">配置快捷键</p>
+        </div>
+      </div>
+
+      {/* 设置项内容 */}
+      <div className="space-y-4">
         {/* AI hotkey enable switch */}
         <Item
           leftContent={
@@ -65,7 +72,7 @@ export const QuickAIHotkeyCard = () => {
           rightContent={
             <Switch
               isSelected={hotkeyConfig.aiEnabled}
-              onValueChange={(enabled) => handleSaveConfig({ aiEnabled: enabled })}
+              onChange={(e) => handleSaveConfig({ aiEnabled: e.target.checked })}
             />
           }
         />
@@ -88,6 +95,6 @@ export const QuickAIHotkeyCard = () => {
           type="col"
         />
       </div>
-    </CollapsibleCard>
+    </div>
   );
 };

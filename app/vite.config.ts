@@ -166,7 +166,8 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    force: true,
+    // 移除 force: true 以避免每次启动都重新优化依赖
+    // 只在依赖变化时才重新优化，大幅提升启动速度
     include: ['react', 'react-dom', 'react-router-dom'],
     exclude: []
   },

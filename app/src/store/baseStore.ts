@@ -21,7 +21,7 @@ export class BaseStore implements Store {
       isPlaceholder: true,
     },
     {
-      title: 'Lumina',
+      title: 'flash',
       href: '/',
       shallow: true,
       icon: 'ri-lightbulb-flash-line',
@@ -170,7 +170,7 @@ export class BaseStore implements Store {
       } else if (searchParams.get('path') == 'trash') {
         this.currentTitle = 'trash';
       } else if (location.pathname == '/') {
-        this.currentTitle = 'Lumina';
+        this.currentTitle = 'flash';
       } else {
         this.currentTitle = this.currentRouter?.title ?? '';
       }

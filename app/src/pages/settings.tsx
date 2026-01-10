@@ -88,18 +88,17 @@ const Page = observer(() => {
                   key={item.key}
                   onClick={() => setSelected(item.key)}
                   className={`
-                    w-full flex items-center gap-3 px-4 py-3 rounded-full text-sm font-medium transition-all duration-300
+                    w-full flex items-center gap-3.5 px-3.5 py-3 rounded-2xl text-sm font-medium transition-all duration-200 group
                     ${selected === item.key
-                      ? 'bg-white shadow-subtle text-violet-700 scale-[1.02]'
+                      ? 'bg-white shadow-subtle text-gray-900'
                       : 'text-gray-500 hover:bg-white/40 hover:text-gray-900'
                     }
                   `}
                 >
-                  {item.icon && (
-                    <i
-                      className={`${item.icon} ${selected === item.key ? 'text-violet-600' : 'text-gray-400'}`}
-                    ></i>
-                  )}
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors shrink-0 
+                    ${selected === item.key ? 'bg-violet-50 text-violet-600' : 'text-gray-400 group-hover:text-gray-600'}`}>
+                    {item.icon && <i className={item.icon}></i>}
+                  </div>
                   <span>{typeof item.title === 'string' ? t(item.title) : item.title}</span>
                 </button>
               ))}

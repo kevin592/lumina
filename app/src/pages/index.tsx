@@ -81,7 +81,8 @@ const Home = observer(() => {
     // ============================================
     // FOCUS MODE LAYOUT (Google Homepage Style)
     // ============================================
-    if (isFocusMode && isPc && !Lumina.config.value?.hidePcEditor) {
+    // Note: Focus mode should always be visible on PC, hidePcEditor only affects the small editor in Library mode
+    if (isFocusMode && isPc) {
         return (
             <div
                 style={{

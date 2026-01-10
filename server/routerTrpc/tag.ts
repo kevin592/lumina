@@ -22,6 +22,52 @@ export const tagRouter = router({
       return tags;
     }),
 
+  createTag: authProcedure
+    .meta({
+      openapi: {
+        method: 'POST',
+        path: '/v1/tags/create',
+        summary: 'Create a new tag',
+        description: 'Create a new tag with optional icon and parent',
+        protect: true,
+        tags: ['Tag']
+      }
+    })
+    .input(z.object({
+      name: z.string(),
+      icon: z.string().optional(),
+      parentId: z.number().optional(),
+    }))
+    .output(tagSchema)
+    .mutation(async function ({ input, ctx }) {
+      const { name, icon, parentId } = input;
+
+      // 获取最大的 sortOrder 值，新标签排在最后
+      const maxSortOrder = await prisma.tag.findFirst({
+        where: {
+          accountId: Number(ctx.id)
+        },
+        orderBy: {
+          sortOrder: 'desc'
+        },
+        select: {
+          sortOrder: true
+        }
+      });
+
+      const nextSortOrder = (maxSortOrder?.sortOrder ?? -1) + 1;
+
+      return await prisma.tag.create({
+        data: {
+          name,
+          icon: icon ?? '',
+          parent: parentId ?? 0,
+          accountId: Number(ctx.id),
+          sortOrder: nextSortOrder,
+        }
+      });
+    }),
+
   fullTagNameById: authProcedure
     .input(z.object({
       id: z.number()
