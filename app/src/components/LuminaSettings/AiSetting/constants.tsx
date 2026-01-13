@@ -1,6 +1,55 @@
 import { Icon } from '@/components/Common/Iconify/icons';
 import { ModelCapabilities } from '@server/aiServer/types';
 
+/**
+ * 过滤错误信息中的敏感数据（API Key、Token、Secret 等）
+ * @param error - 原始错误对象或错误信息
+ * @returns 过滤后的安全错误信息
+ */
+export function sanitizeErrorMessage(error: unknown): string {
+  let message = '';
+
+  if (error instanceof Error) {
+    message = error.message;
+  } else if (typeof error === 'string') {
+    message = error;
+  } else {
+    message = String(error);
+  }
+
+  // 使用正则表达式替换敏感信息
+  // 匹配常见的敏感信息模式：token、key、secret、authorization、bearer 等
+  const sensitivePatterns = [
+    /token['"]:?\s*['"][^'"]{8,}['"]/gi,
+    /key['"]:?\s*['"][^'"]{8,}['"]/gi,
+    /secret['"]:?\s*['"][^'"]{8,}['"]/gi,
+    /authorization['"]:?\s*['"][^'"]{8,}['"]/gi,
+    /bearer\s+[a-zA-Z0-9._-]{8,}/gi,
+    /api[_-]?key['"]:?\s*['"][^'"]{8,}['"]/gi,
+    /sk-[a-zA-Z0-9]{20,}/gi,  // OpenAI key pattern
+    /gh[pousr]_[a-zA-Z0-9]{36,}/gi,  // GitHub token pattern
+  ];
+
+  for (const pattern of sensitivePatterns) {
+    message = message.replace(pattern, (match) => {
+      // 保留字段名，只替换值部分
+      const colonIndex = match.indexOf(':') ?? match.indexOf('=');
+      if (colonIndex > 0) {
+        const fieldName = match.substring(0, colonIndex + 1);
+        return `${fieldName} ***`;
+      }
+      return '***';
+    });
+  }
+
+  // 如果错误信息为空或只包含敏感信息，返回通用错误消息
+  if (!message || message.trim() === '***') {
+    return '连接失败，请检查配置';
+  }
+
+  return message;
+}
+
 export const CAPABILITY_ICONS = {
   inference: <Icon icon="ri:chat-3-line" width="16" height="16" />,
   tools: <Icon icon="ri:magic-line" width="16" height="16" />,

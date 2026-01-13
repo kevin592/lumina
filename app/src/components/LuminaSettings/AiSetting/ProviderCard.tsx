@@ -9,7 +9,7 @@ import ProviderDialogContent from './ProviderDialogContent';
 import ModelDialogContent from './ModelDialogContent';
 import { ProviderIcon, ModelIcon } from '@/components/LuminaSettings/AiSetting/AIIcon';
 import { useMediaQuery } from 'usehooks-ts';
-import { CAPABILITY_ICONS, CAPABILITY_LABELS, CAPABILITY_COLORS, PROVIDER_TEMPLATES } from './constants';
+import { CAPABILITY_ICONS, CAPABILITY_LABELS, CAPABILITY_COLORS, PROVIDER_TEMPLATES, sanitizeErrorMessage } from './constants';
 import { showTipsDialog } from '@/components/Common/TipsDialog';
 import { DialogStandaloneStore } from '@/store/module/DialogStandalone';
 import { ToastPlugin } from '@/store/module/Toast/Toast';
@@ -136,6 +136,7 @@ export default observer(function ProviderCard({ provider }: ProviderCardProps) {
               size="sm"
               variant="flat"
               isIconOnly
+              className="min-w-[44px] min-h-[44px]"
               startContent={<Icon icon="ri:settings-4-line" width="16" height="16" />}
               onPress={() => {
                 RootStore.Get(DialogStore).setData({
@@ -152,6 +153,7 @@ export default observer(function ProviderCard({ provider }: ProviderCardProps) {
               color="danger"
               isIconOnly
               variant="flat"
+              className="min-w-[44px] min-h-[44px]"
               startContent={<Icon icon="ri:delete-bin-line" width="16" height="16" />}
               onPress={() => handleDeleteProvider(provider.id)}
             >
@@ -208,6 +210,7 @@ export default observer(function ProviderCard({ provider }: ProviderCardProps) {
                 size="sm"
                 variant="flat"
                 isIconOnly
+                className="min-w-[44px] min-h-[44px]"
                 startContent={<Icon icon={isModelsCollapsed ? "ri:arrow-down-s-line" : "ri:arrow-up-s-line"} width="14" height="14" />}
                 onPress={toggleModelsCollapse}
               />
@@ -278,6 +281,7 @@ export default observer(function ProviderCard({ provider }: ProviderCardProps) {
                               size="sm"
                               variant="flat"
                               isIconOnly
+                              className="min-w-[44px] min-h-[44px]"
                               startContent={<Icon icon="ri:link" width="12" height="12" />}
                               onPress={() => {
                                 RootStore.Get(ToastPlugin).promise(
@@ -289,7 +293,7 @@ export default observer(function ProviderCard({ provider }: ProviderCardProps) {
                                   {
                                     loading: t('loading'),
                                     success: (result: any) => formatTestResults(result, t),
-                                    error: (error: any) => `${t('check-connect-error')}: ${error.message}`,
+                                    error: (error: any) => `${t('check-connect-error')}: ${sanitizeErrorMessage(error)}`,
                                   }
                                 );
                               }}
@@ -298,6 +302,7 @@ export default observer(function ProviderCard({ provider }: ProviderCardProps) {
                               size="sm"
                               variant="flat"
                               isIconOnly
+                              className="min-w-[44px] min-h-[44px]"
                               startContent={<Icon icon="ri:settings-4-line" width="12" height="12" />}
                               onPress={() => {
                                 RootStore.Get(DialogStore).setData({
@@ -313,6 +318,7 @@ export default observer(function ProviderCard({ provider }: ProviderCardProps) {
                               color="danger"
                               variant="flat"
                               isIconOnly
+                              className="min-w-[44px] min-h-[44px]"
                               startContent={<Icon icon="ri:delete-bin-line" width="12" height="12" />}
                               onPress={() => handleDeleteModel(model.id, model.providerId)}
                             />
@@ -347,6 +353,7 @@ export default observer(function ProviderCard({ provider }: ProviderCardProps) {
                             size="sm"
                             variant="flat"
                             isIconOnly
+                            className="min-w-[44px] min-h-[44px]"
                             startContent={<Icon icon="ri:link" width="12" height="12" />}
                             onPress={() => {
                               RootStore.Get(ToastPlugin).promise(
@@ -358,7 +365,7 @@ export default observer(function ProviderCard({ provider }: ProviderCardProps) {
                                 {
                                   loading: t('loading'),
                                   success: (result: any) => formatTestResults(result, t),
-                                  error: (error: any) => `${t('check-connect-error')}: ${error.message}`,
+                                  error: (error: any) => `${t('check-connect-error')}: ${sanitizeErrorMessage(error)}`,
                                 }
                               );
                             }}
@@ -367,6 +374,7 @@ export default observer(function ProviderCard({ provider }: ProviderCardProps) {
                             size="sm"
                             variant="flat"
                             isIconOnly
+                            className="min-w-[44px] min-h-[44px]"
                             startContent={<Icon icon="ri:settings-4-line" width="12" height="12" />}
                             onPress={() => {
                               RootStore.Get(DialogStore).setData({
@@ -382,6 +390,7 @@ export default observer(function ProviderCard({ provider }: ProviderCardProps) {
                             color="danger"
                             variant="flat"
                             isIconOnly
+                            className="min-w-[44px] min-h-[44px]"
                             startContent={<Icon icon="ri:delete-bin-line" width="12" height="12" />}
                             onPress={() => handleDeleteModel(model.id, model.providerId)}
                           />

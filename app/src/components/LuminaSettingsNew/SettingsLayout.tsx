@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { isDesktop } from "@/lib/tauriHelper";
 import { ImportAIDialog } from "@/components/LuminaSettings/ImportAIDialog";
+import { ZIndexLayer } from "@/core/zIndexManager";
 
 export interface SettingsConfig {
   key: string;
@@ -109,7 +110,8 @@ export const SettingsLayout = observer(({ config }: SettingsLayoutProps) => {
 
   return (
     <motion.div
-      className="fixed inset-0 z-[9999] flex items-center justify-center"
+      style={{ zIndex: ZIndexLayer.SETTINGS_PANEL }}
+      className="fixed inset-0 flex items-center justify-center"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

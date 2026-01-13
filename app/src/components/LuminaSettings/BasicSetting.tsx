@@ -24,7 +24,7 @@ import { glassInputStyles, glassButtonStyles } from "./glassStyles";
 
 export const BasicSetting = observer(() => {
   const user = RootStore.Get(UserStore)
-  const CODE = `curl -X 'POST' '${getluminaEndpoint() ?? window.location.origin}api/v1/note/upsert' \\\n      -H 'Content-Type: application/json' \\\n      -H 'Authorization: Bearer ${user.userInfo.value?.token}' \\\n      -d '{ "content": "🎉Hello,Lumina! --send from api ", "type":0 }'\n`
+  const CODE = `curl -X 'POST' '${getluminaEndpoint() ?? window.location.origin}api/v1/note/upsert' \\\n      -H 'Content-Type: application/json' \\\n      -H 'Authorization: Bearer YOUR_TOKEN_HERE' \\\n      -d '{ "content": "🎉Hello,Lumina! --send from api ", "type":0 }'\n`
   const CODE_SNIPPET = `\`\`\`javascript\n //Lumina api document:${getluminaEndpoint() ?? window.location.origin}/api-doc\n ${CODE} \`\`\``
   const { t } = useTranslation()
   const Lumina = RootStore.Get(LuminaStore)
@@ -297,6 +297,14 @@ export const BasicSetting = observer(() => {
               <div className="relative">
                 <Copy size={18} content={CODE} className="absolute top-4 right-4 z-10" />
                 <MarkdownRender content={CODE_SNIPPET} />
+              </div>
+              {/* 安全提示 */}
+              <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
+                <i className="ri-shield-keyhole-line text-amber-600 mt-0.5 flex-shrink-0"></i>
+                <p className="text-xs text-amber-800">
+                  <strong>安全提示：</strong>请将 <code className="px-1 py-0.5 bg-amber-100 rounded text-amber-900">YOUR_TOKEN_HERE</code> 替换为您的实际访问令牌。
+                  您的令牌可在上方"显示令牌"按钮中查看。
+                </p>
               </div>
             </div>
           </motion.div>

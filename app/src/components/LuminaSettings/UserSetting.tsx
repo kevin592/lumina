@@ -152,8 +152,11 @@ export const UserSetting = observer(() => {
                   </TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-2">
-                      <button
-                        className="text-gray-400 hover:text-violet-600 transition-colors"
+                      <Button
+                        isIconOnly
+                        size="sm"
+                        variant="light"
+                        className="min-w-[44px] min-h-[44px] text-gray-400 hover:text-violet-600 transition-colors"
                         onPress={(e: any) => {
                           e?.stopPropagation?.()
                           RootStore.Get(DialogStore).setData({
@@ -164,9 +167,13 @@ export const UserSetting = observer(() => {
                         }}
                       >
                         <i className="ri-edit-line text-lg"></i>
-                      </button>
-                      <button
-                        className="text-gray-400 hover:text-red-500 transition-colors"
+                      </Button>
+                      <Button
+                        isIconOnly
+                        size="sm"
+                        variant="light"
+                        color="danger"
+                        className="min-w-[44px] min-h-[44px] text-gray-400 hover:text-red-500 transition-colors"
                         onPress={(e: any) => {
                           e?.stopPropagation?.()
                           showTipsDialog({
@@ -195,7 +202,7 @@ export const UserSetting = observer(() => {
                         }}
                       >
                         <i className="ri-delete-bin-line text-lg"></i>
-                      </button>
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>

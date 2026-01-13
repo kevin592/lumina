@@ -6,6 +6,7 @@ import { RootStore } from '@/store';
 import { DialogStore } from '@/store/module/Dialog';
 import { LuminaStore } from '@/store/luminaStore';
 import { UserStore } from '@/store/user';
+import { ToastPlugin } from '@/store/module/Toast/Toast';
 import ProviderCard from './ProviderCard';
 import ProviderDialogContent from './ProviderDialogContent';
 import { DefaultModelsSection } from './DefaultModelsSection';
@@ -119,7 +120,14 @@ export default observer(function AiSetting() {
                                 readOnly
                                 type="password"
                                 className="mt-1"
-                                endContent={<Copy size={20} content={user.userInfo.value?.token ?? ''} />}
+                                onCopy={(e) => {
+                                    e.preventDefault();
+                                    RootStore.Get(ToastPlugin).warn('出于安全考虑，Token 无法复制');
+                                }}
+                                onCut={(e) => {
+                                    e.preventDefault();
+                                    RootStore.Get(ToastPlugin).warn('出于安全考虑，Token 无法复制');
+                                }}
                             />
                         </div>
 

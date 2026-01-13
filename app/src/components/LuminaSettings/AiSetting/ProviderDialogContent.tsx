@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { RootStore } from '@/store';
 import { DialogStore } from '@/store/module/Dialog';
+import { ToastPlugin } from '@/store/module/Toast/Toast';
 import { ProviderIcon } from '@/components/LuminaSettings/AiSetting/AIIcon';
 import { AiProvider, AiSettingStore } from '@/store/aiSettingStore';
 import { PROVIDER_TEMPLATES } from './constants';
@@ -200,7 +201,14 @@ export default observer(function ProviderDialogContent({ provider }: ProviderDia
           onValueChange={(value) => {
             setEditingProvider(prev => ({ ...prev, apiKey: value }));
           }}
-          endContent={<Copy size={20} content={editingProvider.apiKey ?? ''} />}
+          onCopy={(e) => {
+            e.preventDefault();
+            RootStore.Get(ToastPlugin).warn('出于安全考虑，API Key 无法复制');
+          }}
+          onCut={(e) => {
+            e.preventDefault();
+            RootStore.Get(ToastPlugin).warn('出于安全考虑，API Key 无法复制');
+          }}
         />
 
         {(editingProvider.provider === 'azure' || editingProvider.provider === 'azureopenai') && (

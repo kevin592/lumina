@@ -7,7 +7,7 @@ import { RootStore } from '@/store';
 import { AiSettingStore, AiModel, ModelCapabilities, ProviderModel } from '@/store/aiSettingStore';
 import { DialogStore } from '@/store/module/Dialog';
 import { ToastPlugin } from '@/store/module/Toast/Toast';
-import { CAPABILITY_ICONS, CAPABILITY_LABELS, CAPABILITY_COLORS, DEFAULT_MODEL_TEMPLATES } from './constants';
+import { CAPABILITY_ICONS, CAPABILITY_LABELS, CAPABILITY_COLORS, DEFAULT_MODEL_TEMPLATES, sanitizeErrorMessage } from './constants';
 import { ProviderIcon, ModelIcon } from '@/components/LuminaSettings/AiSetting/AIIcon';
 import { api } from '@/lib/trpc';
 
@@ -17,17 +17,17 @@ const formatTestResults = (result: any, t: (key: string) => string): string => {
 
   if (result?.capabilities?.inference?.success) {
     const response = result.capabilities.inference.response || '';
-    details.push(`Chat: âœ?${response}`);
+    details.push(`Chat: ï¿½?${response}`);
   }
 
   if (result?.capabilities?.embedding?.success) {
     const dimensions = result.capabilities.embedding.dimensions || 0;
-    details.push(`Embedding: âœ?${dimensions} dimensions`);
+    details.push(`Embedding: ï¿½?${dimensions} dimensions`);
   }
 
   if (result?.capabilities?.audio?.success) {
     const message = result.capabilities.audio.message || '';
-    details.push(`Audio: âœ?${message}`);
+    details.push(`Audio: ï¿½?${message}`);
   }
 
   return `${t('check-connect-success')} - ${details.join(', ')}`;
@@ -172,7 +172,7 @@ export default observer(function ModelDialogContent({ model }: ModelDialogConten
             return formatTestResults(result, t);
           },
           error: (error: any) => {
-            return `${t('check-connect-error')}: ${error.message}`;
+            return `${t('check-connect-error')}: ${sanitizeErrorMessage(error)}`;
           },
         }
       );

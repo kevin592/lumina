@@ -3,6 +3,8 @@ import { observer } from "mobx-react-lite";
 import { Input } from "@heroui/react";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
+import { RootStore } from "@/store";
+import { ToastPlugin } from "@/store/module/Toast/Toast";
 
 export const PasswordInput = observer(({
   value,
@@ -22,6 +24,13 @@ export const PasswordInput = observer(({
   const { t } = useTranslation()
   const [isConfirmVisible, setIsConfirmVisible] = useState(false)
   const toggleConfirmVisibility = () => setIsConfirmVisible(!isConfirmVisible)
+
+  // 防止复制密码
+  const handleCopy = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    RootStore.Get(ToastPlugin).warn(t('password-cannot-be-copied') || '出于安全考虑，密码无法复制');
+  };
+
   return <Input
     className={className}
     isRequired
@@ -43,5 +52,7 @@ export const PasswordInput = observer(({
     value={value}
     onChange={onChange}
     onBlur={onBlur}
+    onCopy={handleCopy}
+    onCut={handleCopy}
   />
 })

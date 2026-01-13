@@ -5,12 +5,15 @@ import { RootStore } from "@/store/root";
 import { useHistoryBack } from "@/lib/hooks";
 import { motion } from "motion/react";
 import { CancelIcon } from "@/components/Common/Icons";
+import { ZIndexLayer } from "@/core/zIndexManager";
+import { BaseStore } from "@/store/baseStore";
 
-const CloseButton = ({ onClose }: { onClose: () => void }) => (
+const CloseButton = ({ onClose, zIndex }: { onClose: () => void; zIndex: number }) => (
   <motion.div
     onClick={onClose}
+    style={{ zIndex: zIndex + 1 }}
     className={`cursor-pointer absolute
-    md:top-[-12px] md:right-[-12px] top-[-20px] right-[calc(50%-17.5px)] bg-background border-2 border-border z-[2002] text-foreground p-2 rounded-full
+    md:top-[-12px] md:right-[-12px] top-[-20px] right-[calc(50%-17.5px)] bg-background border-2 border-border text-foreground p-2 rounded-full
     !w-[35px] !h-[35px] flex items-center justify-center shadow-lg`}
     whileTap={{
       scale: 0.85,
@@ -38,8 +41,14 @@ const CloseButton = ({ onClose }: { onClose: () => void }) => (
 
 const Dialog = observer(() => {
   const modal = RootStore.Get(DialogStore);
+  const base = RootStore.Get(BaseStore);
   const { isOpen, title, size, content, isDismissable, onlyContent = false, noPadding = false, showOnlyContentCloseButton = false } = modal;
   const Content = typeof content === 'function' ? content : () => content;
+
+  // 如果设置面板打开，对话框使用更高的 z-index
+  const shouldUseHigherZIndex = base.isSettingsOpen;
+  const modalZIndex = shouldUseHigherZIndex ? ZIndexLayer.SETTINGS_PANEL + 1 : ZIndexLayer.MODAL_OVERLAY;
+  const contentZIndex = shouldUseHigherZIndex ? ZIndexLayer.SETTINGS_PANEL + 2 : ZIndexLayer.MODAL_CONTENT;
 
   useHistoryBack({
     state: isOpen,
@@ -70,7 +79,7 @@ const Dialog = observer(() => {
     <>
       {/* 遮罩层 */}
       <motion.div
-        style={{ position: 'fixed', inset: 0, zIndex: 2000 }}
+        style={{ position: 'fixed', inset: 0, zIndex: modalZIndex }}
         className="bg-black/50 backdrop-blur-sm"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -83,7 +92,7 @@ const Dialog = observer(() => {
       />
 
       {/* 弹窗内容 - 使用内联样式强制居中 */}
-      <div style={{ position: 'fixed', inset: 0, zIndex: 2001, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+      <div style={{ position: 'fixed', inset: 0, zIndex: contentZIndex, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
         <motion.div
           style={{ maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}
           className={`${modalWidthClass} w-full mx-auto bg-background rounded-lg shadow-lg pointer-events-auto overflow-hidden font-sans antialiased`}
@@ -109,7 +118,7 @@ const Dialog = observer(() => {
           )}
           {onlyContent && (
             <div className="relative" style={{ maxHeight: '90vh', overflow: 'auto' }}>
-              {showOnlyContentCloseButton && <CloseButton onClose={() => modal.close()} />}
+              {showOnlyContentCloseButton && <CloseButton onClose={() => modal.close()} zIndex={contentZIndex} />}
               <Content />
             </div>
           )}

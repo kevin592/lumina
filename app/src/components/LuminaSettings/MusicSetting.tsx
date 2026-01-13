@@ -9,6 +9,7 @@ import { api } from "@/lib/trpc";
 import { CollapsibleCard } from "../Common/CollapsibleCard";
 import { useMediaQuery } from "usehooks-ts";
 import { glassInputStyles } from "./glassStyles";
+import { ToastPlugin } from "@/store/module/Toast/Toast";
 
 export const MusicSetting = observer(() => {
   const { t } = useTranslation();
@@ -57,6 +58,14 @@ export const MusicSetting = observer(() => {
                 key: 'spotifyConsumerSecret',
                 value: e.target.value
               }), { autoAlert: false })
+            }}
+            onCopy={(e) => {
+              e.preventDefault();
+              RootStore.Get(ToastPlugin).warn('出于安全考虑，密钥无法复制');
+            }}
+            onCut={(e) => {
+              e.preventDefault();
+              RootStore.Get(ToastPlugin).warn('出于安全考虑，密钥无法复制');
             }}
             placeholder={t('enter-spotify-consumer-secret')}
           />
