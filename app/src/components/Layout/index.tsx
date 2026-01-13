@@ -11,7 +11,6 @@ import { eventBus } from '@/lib/event';
 import AiWritePop from '../Common/PopoverFloat/aiWritePop';
 import { Sidebar } from './Sidebar';
 import { MobileNavBar } from './MobileNavBar';
-import { SettingsModal } from '../Settings/SettingsModal';
 import { useLocation } from 'react-router-dom';
 import { useUserInit } from '@/hooks/useUserInit';
 import { useLuminaInit, useLuminaQuery } from '@/hooks/useLuminaInit';
@@ -77,7 +76,6 @@ export const CommonLayout = observer(({ children }: { children?: React.ReactNode
     >
       {/* Background is now handled by body in globals.css - Aurora Mesh Gradient */}
       <AiWritePop />
-      <SettingsModal />
 
       <Menu style={{
         bmMenuWrap: {

@@ -90,7 +90,7 @@ export const Sidebar = observer(({ onItemClick }: SidebarProps) => {
         <div className="flex justify-end p-4">
           <button
             onClick={() => {
-              base.toggleSettings(true);
+              navigate('/settings');
               eventBus.emit('close-sidebar');
             }}
             className="p-2 rounded-full hover:bg-gray-100"

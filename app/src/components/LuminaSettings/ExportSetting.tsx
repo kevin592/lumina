@@ -114,10 +114,9 @@ export const ExportSetting = observer(() => {
 
         <div className="flex justify-end">
           <Button
-            className="mt-4"
-            color="primary"
+            className="mt-4 px-5 py-2 bg-gray-900 text-white rounded-lg text-sm font-bold shadow-lg hover:bg-black transition-all flex items-center gap-2"
             onPress={handleExport}
-            startContent={<Icon icon="ri:arrow-right-up-line" width="24" height="24" />}
+            startContent={<Icon icon="ri:download-line" width="20" height="20" />}
           >
             {t('export')}
           </Button>

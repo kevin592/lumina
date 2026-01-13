@@ -11,6 +11,7 @@ import { useMediaQuery } from "usehooks-ts";
 import { useEffect } from "react";
 import { PasswordInput } from "@/components/Common/PasswordInput";
 import { CollapsibleCard } from "@/components/Common/CollapsibleCard";
+import { glassInputStyles, glassButtonStyles } from "./glassStyles";
 
 
 export const StorageSetting = observer(() => {
@@ -49,7 +50,7 @@ export const StorageSetting = observer(() => {
       rightContent={<div>
         <Dropdown>
           <DropdownTrigger>
-            <Button startContent={<Icon icon="ri:database-2-line" width="20" height="20" />} color='primary' >
+            <Button startContent={<Icon icon="ri:database-2-line" width="20" height="20" />} className={glassButtonStyles.primary}>
               {Lumina.config.value?.objectStorage ?? t('local-file-system')}
             </Button>
           </DropdownTrigger>
@@ -73,6 +74,7 @@ export const StorageSetting = observer(() => {
           <div>{t('custom-path')}</div>
         </>}
         rightContent={<Input
+          classNames={glassInputStyles}
           value={store.localCustomPath}
           onChange={e => store.localCustomPath = e.target.value}
           placeholder="/custom/path/"
@@ -113,33 +115,49 @@ export const StorageSetting = observer(() => {
             }} />} />
         <Item
           leftContent={<>{t('endpoint')}</>}
-          rightContent={<Input value={store.s3Endpoint} onChange={e => store.s3Endpoint = e.target.value} placeholder="Endpoint" onBlur={async (e) => {
-            await PromiseCall(api.config.update.mutate({
-              key: 's3Endpoint',
-              value: e.target.value
-            }), { autoAlert: false })
-          }} />} />
+          rightContent={<Input
+            classNames={glassInputStyles}
+            value={store.s3Endpoint}
+            onChange={e => store.s3Endpoint = e.target.value}
+            placeholder="Endpoint"
+            onBlur={async (e) => {
+              await PromiseCall(api.config.update.mutate({
+                key: 's3Endpoint',
+                value: e.target.value
+              }), { autoAlert: false })
+            }} />} />
         <Item
           leftContent={<>{t('region')}</>}
-          rightContent={<Input value={store.s3Region} onChange={e => store.s3Region = e.target.value} placeholder="Region" onBlur={async (e) => {
-            await PromiseCall(api.config.update.mutate({
-              key: 's3Region',
-              value: e.target.value
-            }), { autoAlert: false })
-          }} />} />
+          rightContent={<Input
+            classNames={glassInputStyles}
+            value={store.s3Region}
+            onChange={e => store.s3Region = e.target.value}
+            placeholder="Region"
+            onBlur={async (e) => {
+              await PromiseCall(api.config.update.mutate({
+                key: 's3Region',
+                value: e.target.value
+              }), { autoAlert: false })
+            }} />} />
         <Item
           leftContent={<>{t('bucket')}</>}
-          rightContent={<Input value={store.s3Bucket} onChange={e => store.s3Bucket = e.target.value} placeholder="Bucket" onBlur={async (e) => {
-            await PromiseCall(api.config.update.mutate({
-              key: 's3Bucket',
-              value: e.target.value
-            }), { autoAlert: false })
-          }} />} />
+          rightContent={<Input
+            classNames={glassInputStyles}
+            value={store.s3Bucket}
+            onChange={e => store.s3Bucket = e.target.value}
+            placeholder="Bucket"
+            onBlur={async (e) => {
+              await PromiseCall(api.config.update.mutate({
+                key: 's3Bucket',
+                value: e.target.value
+              }), { autoAlert: false })
+            }} />} />
         <Item
           leftContent={<>
             <div>{t('custom-path')}</div>
           </>}
           rightContent={<Input
+            classNames={glassInputStyles}
             value={store.s3CustomPath}
             onChange={e => store.s3CustomPath = e.target.value}
             placeholder="/custom/path/"

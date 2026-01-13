@@ -75,12 +75,8 @@ export const UserAvatarDropdown = observer(({ onItemClick, collapsed = false, sh
                 className='font-bold'
                 startContent={<i className={i.icon}></i>}
                 onPress={() => {
-                  if (i.href === '/settings') {
-                    base.toggleSettings(true);
-                  } else {
-                    navigate(i.href);
-                    base.currentRouter = i;
-                  }
+                  navigate(i.href);
+                  base.currentRouter = i;
                   onItemClick?.();
                 }}
               >

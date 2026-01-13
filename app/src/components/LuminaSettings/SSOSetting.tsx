@@ -16,6 +16,7 @@ import { ZOAuth2ProviderSchema } from "@shared/lib/types"
 import { z } from "zod"
 import { PasswordInput } from "../Common/PasswordInput"
 import { Select, SelectItem } from "@heroui/react"
+import { glassInputStyles, glassButtonStyles, glassTableStyles } from "./glassStyles"
 
 const OAUTH_TEMPLATES = {
   custom: {
@@ -264,8 +265,7 @@ const UpdateSSOProvider = observer(({ provider }: { provider?: z.infer<typeof ZO
     <div className="flex w-full mt-2">
       <Button
         isLoading={store.upsertProvider.loading.value}
-        className="ml-auto"
-        color='primary'
+        className="ml-auto px-5 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-lg text-sm font-bold shadow-glow hover:shadow-lg hover:scale-105 transition-all"
         onPress={async () => {
           await store.upsertProvider.call()
         }}
@@ -291,7 +291,7 @@ export const SSOSetting = observer(() => {
         rightContent={
           <Button
             size="sm"
-            color="primary"
+            className={glassButtonStyles.primary}
             startContent={<Icon icon="ri:add-line" width="18" height="18" />}
             onPress={() => {
               RootStore.Get(DialogStore).setData({
@@ -309,7 +309,7 @@ export const SSOSetting = observer(() => {
 
       <Item
         leftContent={
-          <Table shadow="none" className="mb-2">
+          <Table shadow="none" className="mb-2" classNames={glassTableStyles}>
             <TableHeader>
               <TableColumn>{t('provider-id')}</TableColumn>
               <TableColumn>{t('provider-name')}</TableColumn>

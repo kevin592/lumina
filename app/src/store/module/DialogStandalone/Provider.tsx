@@ -72,7 +72,7 @@ const Dialog = observer(() => {
     <>
       {/* 遮罩层 */}
       <motion.div
-        style={{ position: 'fixed', inset: 0, zIndex: 2000 }}
+        style={{ position: 'fixed', inset: 0, zIndex: 10000 }}
         className="bg-black/50 backdrop-blur-sm"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -85,7 +85,7 @@ const Dialog = observer(() => {
       />
 
       {/* 弹窗内容 - 使用内联样式强制居中 */}
-      <div style={{ position: 'fixed', inset: 0, zIndex: 2001, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 10001, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
         <motion.div
           style={{ maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}
           className={`${modalWidthClass} w-full mx-auto bg-background rounded-lg shadow-lg pointer-events-auto overflow-hidden font-sans antialiased`}

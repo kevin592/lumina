@@ -8,6 +8,7 @@ import { PromiseCall } from "@/store/standard/PromiseState";
 import { api } from "@/lib/trpc";
 import { CollapsibleCard } from "../Common/CollapsibleCard";
 import { useMediaQuery } from "usehooks-ts";
+import { glassInputStyles } from "./glassStyles";
 
 export const MusicSetting = observer(() => {
   const { t } = useTranslation();
@@ -27,6 +28,7 @@ export const MusicSetting = observer(() => {
         </div>}
         rightContent={
           <Input
+            classNames={glassInputStyles}
             className="w-full md:w-[400px]"
             type="text"
             value={Lumina.config.value?.spotifyConsumerKey}
@@ -46,6 +48,7 @@ export const MusicSetting = observer(() => {
         leftContent={<>{t('spotify-consumer-secret')}</>}
         rightContent={
           <Input
+            classNames={glassInputStyles}
             type="password"
             className="w-full md:w-[400px]"
             value={Lumina.config.value?.spotifyConsumerSecret}

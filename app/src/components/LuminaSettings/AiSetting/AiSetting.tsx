@@ -18,6 +18,7 @@ import { AiSettingStore } from '@/store/aiSettingStore';
 import { Copy } from '../../Common/Copy';
 import { MarkdownRender } from '../../Common/MarkdownRender';
 import { getluminaEndpoint } from '@/lib/luminaEndpoint';
+import { glassInputStyles, glassButtonStyles } from '../glassStyles';
 
 
 export default observer(function AiSetting() {
@@ -50,8 +51,7 @@ export default observer(function AiSetting() {
                     <div className="flex justify-between items-center">
                         <Button
                             size='md'
-                            className='ml-auto'
-                            color="primary"
+                            className={`ml-auto ${glassButtonStyles.primary}`}
                             startContent={<i className="ri-add-circle-line text-lg"></i>}
                             onPress={() => {
                                 RootStore.Get(DialogStore).setData({

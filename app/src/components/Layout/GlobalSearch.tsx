@@ -196,9 +196,7 @@ export const GlobalSearch = observer(({ isOpen, onOpenChange }: GlobalSearchProp
   };
 
   const navigateToSetting = (settingKey: string) => {
-    base.toggleSettings(true);
-    // You might want to pass the selected tab to the modal if supported
-    // base.setSelectedSetting(settingKey); 
+    navigate(`/settings?tab=${settingKey}`);
     onOpenChange(false);
   };
 

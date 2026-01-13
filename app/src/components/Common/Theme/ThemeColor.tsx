@@ -22,19 +22,22 @@ interface Props {
 export const ThemeColor = observer(({ onChange, value = colors[0]?.background }: Props) => {
   return (
     <div className="flex gap-1 flex-wrap w-[250px] md:w-auto">
-      {colors.map((color) => (
-        <Button
-          key={color.name}
-          isIconOnly
-          className={`w-8 h-8 min-w-8 rounded-full border-2 border-foreground`}
-          style={{
-            background: color.background || 'gray',
-            backgroundImage: color.background.includes('gradient') ? color.background : 'none',
-            border: value === color.background ? '2px solid var(--foreground)' : 'none'
-          }}
-          onPress={() => onChange?.(color.background, color.foreground)}
-        />
-      ))}
+      {colors.map((color) => {
+        const isSelected = value === color.background;
+        return (
+          <Button
+            key={color.name}
+            isIconOnly
+            className={`w-8 h-8 min-w-8 rounded-full border-2 transition-all ${
+              isSelected ? 'border-foreground ring-2 ring-foreground/30' : 'border-gray-300'
+            }`}
+            style={{
+              backgroundColor: color.background || '#9333ea',
+            }}
+            onPress={() => onChange?.(color.background, color.foreground)}
+          />
+        );
+      })}
     </div>
   );
 });

@@ -30,8 +30,8 @@ export const CollapsibleCard = ({
   };
 
   return (
-    // Design v2.0 - 纯白卡片样式，移除装饰性图案
-    <div className={`flex flex-col p-8 bg-white rounded-2xl shadow-card ring-1 ring-gray-900/5 relative ${className}`}>
+    // Design v3.0 - 玻璃态卡片样式
+    <div className={`flex flex-col p-8 glass-card rounded-2xl shadow-card ring-1 ring-white/30 relative ${className}`}>
       <div className='flex items-center justify-between mb-6'>
         <div>
           <h2 className="text-xl font-bold text-gray-900 mb-1">{title}</h2>

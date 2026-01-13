@@ -976,5 +976,6 @@
     "quick-actions": "快速操作",
     "view-switch": "视图切换",
     "task-shortcuts": "任务快捷键",
-    "shortcuts-hint": "提示: 在输入框中按 Esc 退出输入模式可使用所有快捷键"
+    "shortcuts-hint": "提示: 在输入框中按 Esc 退出输入模式可使用所有快捷键",
+    "select-file": "选择文件"
 }

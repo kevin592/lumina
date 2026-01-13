@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { Item, ItemWithTooltip } from './Item';
 import { useEffect, useState } from 'react';
 import { useMediaQuery } from 'usehooks-ts';
+import { glassInputStyles, glassButtonStyles } from './glassStyles';
 
 export const HttpProxySetting = observer(() => {
   const Lumina = RootStore.Get(LuminaStore);
@@ -116,6 +117,7 @@ export const HttpProxySetting = observer(() => {
             }
             rightContent={
               <Input
+                classNames={glassInputStyles}
                 radius="lg"
                 type="text"
                 placeholder="127.0.0.1"
@@ -148,6 +150,7 @@ export const HttpProxySetting = observer(() => {
             }
             rightContent={
               <Input
+                classNames={glassInputStyles}
                 radius="lg"
                 type="number"
                 placeholder="8080"
@@ -181,6 +184,7 @@ export const HttpProxySetting = observer(() => {
             }
             rightContent={
               <Input
+                classNames={glassInputStyles}
                 radius="lg"
                 type="text"
                 placeholder={t('optional')}
@@ -213,6 +217,7 @@ export const HttpProxySetting = observer(() => {
             }
             rightContent={
               <Input
+                classNames={glassInputStyles}
                 radius="lg"
                 type={store.isProxyPasswordVisible ? 'text' : 'password'}
                 placeholder={t('optional')}
@@ -267,6 +272,7 @@ export const HttpProxySetting = observer(() => {
                 <div className="flex flex-col gap-3 mt-2 w-full">
                   <div className="flex gap-2 w-full">
                     <Input
+                      classNames={glassInputStyles}
                       radius="lg"
                       type="text"
                       placeholder="https://www.google.com"
@@ -276,7 +282,7 @@ export const HttpProxySetting = observer(() => {
                       disabled={testingProxy}
                     />
                     <Button
-                      color="primary"
+                      className={glassButtonStyles.primary}
                       isLoading={testingProxy}
                       onPress={testHttpProxy}
                       disabled={!store.isUseHttpProxy || !store.httpProxyHost || testingProxy}
