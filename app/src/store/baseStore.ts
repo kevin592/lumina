@@ -255,12 +255,17 @@ export class BaseStore implements Store {
 
   // Settings Modal State
   isSettingsOpen = false;
+  settingsTab = 'basic';
+  settingsTriggerRef: any = null;
 
-  toggleSettings = (open?: boolean) => {
+  toggleSettings = (open?: boolean, tab?: string) => {
     if (open !== undefined) {
       this.isSettingsOpen = open;
     } else {
       this.isSettingsOpen = !this.isSettingsOpen;
+    }
+    if (tab) {
+      this.settingsTab = tab;
     }
   };
 }

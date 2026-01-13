@@ -1,9 +1,11 @@
 import { observer } from "mobx-react-lite";
-import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { RootStore } from "@/store";
 import { UserStore } from "@/store/user";
 import { LuminaStore } from "@/store/luminaStore";
+import { BaseStore } from "@/store/baseStore";
+import { DialogStandaloneStore } from "@/store/module/DialogStandalone";
 import { useTranslation } from "react-i18next";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { isDesktop } from "@/lib/tauriHelper";
@@ -23,17 +25,43 @@ interface SettingsLayoutProps {
 }
 
 export const SettingsLayout = observer(({ config }: SettingsLayoutProps) => {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const base = RootStore.Get(BaseStore);
   const user = RootStore.Get(UserStore);
   const lumina = RootStore.Get(LuminaStore);
   const { t } = useTranslation();
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const modalRef = useRef<HTMLDivElement>(null);
 
-  // Get current tab from URL parameter or default to 'basic'
-  const currentTab = searchParams.get('tab') || 'basic';
+  // Use MobX state for current tab
+  const [currentTab, setCurrentTab] = useState(base.settingsTab || 'basic');
+
+  // Sync tab state with BaseStore
+  useEffect(() => {
+    if (base.settingsTab && base.settingsTab !== currentTab) {
+      setCurrentTab(base.settingsTab);
+    }
+  }, [base.settingsTab]);
+
+  // ESC key handler
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Focus management
+  useEffect(() => {
+    if (base.isSettingsOpen && modalRef.current) {
+      modalRef.current.focus();
+    }
+  }, [base.isSettingsOpen]);
+
   const setSelected = (tab: string) => {
-    navigate(`/settings?tab=${tab}`, { replace: true });
+    setCurrentTab(tab);
   };
 
   const getVisibleSettings = () => {
@@ -74,32 +102,42 @@ export const SettingsLayout = observer(({ config }: SettingsLayoutProps) => {
   };
 
   const handleClose = () => {
-    navigate(-1);
+    // Return focus to trigger button
+    base.settingsTriggerRef?.current?.focus();
+    base.toggleSettings(false);
   };
 
-  // Handle browser back button
-  useEffect(() => {
-    const handlePopState = () => {
-      // Navigate to home if going back from settings
-      if (window.location.pathname === '/settings') {
-        navigate('/');
-      }
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, [navigate]);
-
   return (
-    <>
+    <motion.div
+      className="fixed inset-0 z-[9999] flex items-center justify-center"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+    >
       <ImportAIDialog onSelectTab={setSelected} />
-      {/* Full-screen container */}
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center">
-        {/* Backdrop blur */}
-        <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={handleClose} />
 
-        {/* Main container - Glass panel */}
-        <div className="glass-panel w-[1200px] h-[85vh] flex relative z-10 overflow-hidden animate-slide-up rounded-[28px]">
+      {/* Backdrop blur */}
+      <div
+        className="absolute inset-0 bg-black/20 backdrop-blur-sm"
+        onClick={handleClose}
+      />
+
+      {/* Main container - Glass panel with animation */}
+      <motion.div
+        ref={modalRef}
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        transition={{
+          type: 'spring',
+          damping: 25,
+          stiffness: 300,
+          duration: 0.3
+        }}
+        tabIndex={-1}
+        className="glass-panel w-[1200px] max-w-[95vw] h-[85vh] flex relative z-10 overflow-hidden rounded-[28px] shadow-2xl"
+      >
           {/* Sidebar */}
           <aside className={`
             flex flex-col bg-white/20 border-r border-white/30
@@ -168,6 +206,7 @@ export const SettingsLayout = observer(({ config }: SettingsLayoutProps) => {
               <button
                 onClick={handleClose}
                 className="w-8 h-8 rounded-full bg-gray-200/50 hover:bg-gray-300/50 flex items-center justify-center text-gray-500 transition-colors"
+                aria-label="关闭设置"
               >
                 <i className="ri-close-line"></i>
               </button>
@@ -178,8 +217,7 @@ export const SettingsLayout = observer(({ config }: SettingsLayoutProps) => {
               {getCurrentComponent()}
             </div>
           </main>
-        </div>
-      </div>
-    </>
+        </motion.div>
+      </motion.div>
   );
 });

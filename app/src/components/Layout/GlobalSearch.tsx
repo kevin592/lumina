@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { RootStore } from '@/store';
 import { LuminaStore } from '@/store/luminaStore';
 import { AiStore } from '@/store/aiStore';
+import { DialogStandaloneStore } from '@/store/module/DialogStandalone';
 import { observer } from 'mobx-react-lite';
 import { _ } from '@/lib/lodash';
 import { cn } from '@/lib/utils';
@@ -196,7 +197,10 @@ export const GlobalSearch = observer(({ isOpen, onOpenChange }: GlobalSearchProp
   };
 
   const navigateToSetting = (settingKey: string) => {
-    navigate(`/settings?tab=${settingKey}`);
+    // Close other dialogs
+    RootStore.Get(DialogStandaloneStore)?.close();
+    // Open settings with specific tab
+    base.toggleSettings(true, settingKey);
     onOpenChange(false);
   };
 

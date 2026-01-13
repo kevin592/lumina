@@ -14,6 +14,9 @@ import { MobileNavBar } from './MobileNavBar';
 import { useLocation } from 'react-router-dom';
 import { useUserInit } from '@/hooks/useUserInit';
 import { useLuminaInit, useLuminaQuery } from '@/hooks/useLuminaInit';
+import { SettingsLayout } from '@/components/LuminaSettingsNew/SettingsLayout';
+import { settingsConfig } from '@/components/LuminaSettingsNew/settingsConfig';
+import { AnimatePresence } from 'motion/react';
 
 export const SideBarItem = 'p-2 flex flex-row items-center cursor-pointer gap-2 hover:bg-hover rounded-xl !transition-all';
 
@@ -50,6 +53,16 @@ export const CommonLayout = observer(({ children }: { children?: React.ReactNode
       setisOpen(false);
     });
   }, []);
+
+  // 滚动锁定 - 设置弹窗打开时禁用背景滚动
+  useEffect(() => {
+    if (base.isSettingsOpen) {
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = '';
+      };
+    }
+  }, [base.isSettingsOpen]);
 
 
   if (!isClient) return <></>;
@@ -115,6 +128,13 @@ export const CommonLayout = observer(({ children }: { children?: React.ReactNode
         <MobileNavBar onItemClick={() => setisOpen(false)} />
         <LuminaRightClickMenu />
       </main>
+
+      {/* 设置弹窗 */}
+      <AnimatePresence>
+        {base.isSettingsOpen && (
+          <SettingsLayout config={settingsConfig} />
+        )}
+      </AnimatePresence>
     </div>
   );
 });

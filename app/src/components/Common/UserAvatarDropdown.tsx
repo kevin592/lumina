@@ -2,6 +2,7 @@ import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Image } from '@h
 import { observer } from 'mobx-react-lite';
 import { RootStore } from '@/store';
 import { BaseStore } from '@/store/baseStore';
+import { DialogStandaloneStore } from '@/store/module/DialogStandalone';
 import { UserStore } from '@/store/user';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -74,8 +75,18 @@ export const UserAvatarDropdown = observer(({ onItemClick, collapsed = false, sh
                 key={i.title}
                 className='font-bold'
                 startContent={<i className={i.icon}></i>}
-                onPress={() => {
-                  navigate(i.href);
+                onPress={(e) => {
+                  // Special handling for settings
+                  if (i.href === '/settings') {
+                    // Close other dialogs
+                    RootStore.Get(DialogStandaloneStore)?.close();
+                    // Save trigger button reference
+                    base.settingsTriggerRef = e.currentTarget;
+                    // Open settings
+                    base.toggleSettings(true);
+                  } else {
+                    navigate(i.href);
+                  }
                   base.currentRouter = i;
                   onItemClick?.();
                 }}

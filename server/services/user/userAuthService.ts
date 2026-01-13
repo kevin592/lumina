@@ -6,6 +6,34 @@ import { userRepository } from '../../repositories/userRepository';
 import { tokenService } from './tokenService';
 import { RegisterParams, LoginParams, UserInfo } from './userTypes';
 
+// 默认头像列表
+const DEFAULT_AVATARS = [
+  '/avatars/generated_avatars/Aneka.png',
+  '/avatars/generated_avatars/Bandit.png',
+  '/avatars/generated_avatars/Coco.png',
+  '/avatars/generated_avatars/Felix.png',
+  '/avatars/generated_avatars/Gizmo.png',
+  '/avatars/generated_avatars/Jasper.png',
+  '/avatars/generated_avatars/Leo.png',
+  '/avatars/generated_avatars/Lola.png',
+  '/avatars/generated_avatars/Luna.png',
+  '/avatars/generated_avatars/Midnight.png',
+  '/avatars/generated_avatars/Milo.png',
+  '/avatars/generated_avatars/Oliver.png',
+  '/avatars/generated_avatars/Pepper.png',
+  '/avatars/generated_avatars/Rocky.png',
+  '/avatars/generated_avatars/Sasha.png',
+  '/avatars/generated_avatars/Zoe.png',
+];
+
+/**
+ * 随机获取一个默认头像
+ */
+function getRandomAvatar(): string {
+  const randomIndex = Math.floor(Math.random() * DEFAULT_AVATARS.length);
+  return DEFAULT_AVATARS[randomIndex];
+}
+
 /**
  * 用户认证服务
  * 负责用户注册、登录、2FA 等认证相关功能
@@ -43,6 +71,7 @@ export class UserAuthService {
             password: passwordHash,
             nickname: name,
             role,
+            image: getRandomAvatar(), // 分配随机默认头像
           });
 
           // 生成 API Token
@@ -89,6 +118,7 @@ export class UserAuthService {
             password: passwordHash,
             nickname: name,
             role,
+            image: getRandomAvatar(), // 分配随机默认头像
           });
 
           // 生成 API Token
@@ -225,7 +255,12 @@ export class UserAuthService {
     user: any;
     created: boolean;
   }> {
-    return await userRepository.findOrCreateOAuthUser(params);
+    // 如果 OAuth 没有提供头像，使用默认头像
+    const userImage = params.image || getRandomAvatar();
+    return await userRepository.findOrCreateOAuthUser({
+      userName: params.userName,
+      image: userImage,
+    });
   }
 }
 

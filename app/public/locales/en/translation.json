@@ -11,8 +11,18 @@
   "create-password": "Create Password",
   "create-account": "Create Account",
   "keep-me-signed-in": "Keep me signed in",
+  "forgot-password": "Forgot Password",
   "dont-have-account-prefix": "Don't have an account? ",
   "already-have-account-prefix": "Already have an account? ",
+  "hero": {
+    "title": "Capture your ideas at lightspeed.",
+    "description": "Join thousands of creators who use Lumina to organize their thoughts, tasks, and knowledge in one beautiful space.",
+    "social-proof": "Trusted by <1>{{count}}+</1> thinkers"
+  },
+  "placeholder": {
+    "server-url": "https://your-server.com",
+    "username-example": "e.g. johndoe"
+  },
   "protected-by-recaptcha": "Protected by reCAPTCHA and subject to the",
   "privacy-policy": "Privacy Policy",
   "terms-of-service": "Terms of Service",

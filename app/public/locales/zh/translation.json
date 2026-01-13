@@ -25,8 +25,18 @@
     "create-password": "创建密码",
     "create-account": "创建账户",
     "keep-me-signed-in": "保持登录状态",
+    "forgot-password": "忘记密码",
     "dont-have-account-prefix": "还没有账户？ ",
     "already-have-account-prefix": "已有账户？ ",
+    "hero": {
+        "title": "以光速捕捉你的想法。",
+        "description": "加入成千上万的创作者，使用 Lumina 在一个优雅的空间中组织思想、任务和知识。",
+        "social-proof": "深受 <1>{{count}}+</1> 思考者的信赖"
+    },
+    "placeholder": {
+        "server-url": "https://your-server.com",
+        "username-example": "例如 johndoe"
+    },
     "protected-by-recaptcha": "受 reCAPTCHA 保护并遵守",
     "privacy-policy": "隐私政策",
     "terms-of-service": "服务条款",

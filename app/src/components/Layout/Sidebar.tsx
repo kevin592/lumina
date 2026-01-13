@@ -89,8 +89,13 @@ export const Sidebar = observer(({ onItemClick }: SidebarProps) => {
       ) : (
         <div className="flex justify-end p-4">
           <button
-            onClick={() => {
-              navigate('/settings');
+            onClick={(e) => {
+              // Close other dialogs
+              RootStore.Get(DialogStandaloneStore)?.close();
+              // Save trigger button reference
+              base.settingsTriggerRef = e.currentTarget;
+              // Open settings
+              base.toggleSettings(true);
               eventBus.emit('close-sidebar');
             }}
             className="p-2 rounded-full hover:bg-gray-100"
