@@ -57,13 +57,6 @@ export class BaseStore implements Store {
       hiddenMobile: true,
     },
     {
-      title: 'plugin',
-      href: '/plugin',
-      hiddenSidebar: true,
-      hiddenMobile: true,
-      icon: 'ri-plug-line',
-    },
-    {
       title: 'settings',
       href: '/settings',
       hiddenSidebar: true,

@@ -9,21 +9,6 @@ import { useLocation } from "react-router-dom";
 import { useNoteMenuHandlers } from "./hooks/useNoteMenuHandlers";
 import { ShowEditTimeModel } from "./components/EditTimeDialog";
 
-// 类型定义
-declare global {
-  interface Window {
-    pluginApi?: {
-      customRightClickMenus: Array<{
-        name: string;
-        label: string;
-        icon?: string;
-        onClick: (note: any) => void;
-      }>;
-    };
-  };
-}
-
-const pluginApi = typeof window !== 'undefined' ? ((window as any).pluginApi ?? { customRightClickMenus: [] }) : { customRightClickMenus: [] };
 import {
   EditItem,
   MutiSelectItem,
@@ -209,19 +194,6 @@ export const LeftCickMenu = observer(({ onTrigger, className }: { onTrigger: () 
           <DropdownItem key="RelatedNotesItem" onPress={handlers.handleRelatedNotes}>
             <RelatedNotesItem />
           </DropdownItem>
-        ) : null}
-
-        {pluginApi.customRightClickMenus.length > 0 ? (
-          <>
-            {pluginApi.customRightClickMenus.map((menu) => (
-              <DropdownItem key={menu.name} onPress={() => menu.onClick(Lumina.curSelectedNote!)}>
-                <div className="flex items-start gap-2">
-                  {menu.icon && <i className={menu.icon} style={{ fontSize: '20px' }} />}
-                  <div>{menu.label}</div>
-                </div>
-              </DropdownItem>
-            ))}
-          </>
         ) : null}
 
         {!Lumina.curSelectedNote?.isRecycle ? (

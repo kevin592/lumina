@@ -8,7 +8,6 @@ import i18n from './i18n'
 import { UserStore } from '@/store/user'
 import { download } from '@tauri-apps/plugin-upload'
 import { downloadDir, publicDir } from '@tauri-apps/api/path'
-// import { setStatusBarColor } from 'tauri-plugin-Lumina-api' // 插件已移除
 import { useEffect, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 
@@ -132,7 +131,7 @@ export async function downloadFromLink(uri: string, filename?: string) {
 export async function setTauriTheme(theme: any) {
     if (isAndroid()) {
         try {
-            // 插件已移除，使用动态导入
+            // 使用动态导入避免 Web 环境加载错误
             const luminaApi = await import('tauri-plugin-Lumina-api');
             const lightColor = '#f8f8f8';
             const darkColor = '#000000';

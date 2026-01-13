@@ -209,30 +209,6 @@ export const LuminaCard = observer(({ LuminaItem, account, isShareMode = false, 
 
                 {(!LuminaItem.isBlog || isExpanded) && <NoteContent LuminaItem={LuminaItem} Lumina={Lumina} isExpanded={isExpanded} />}
 
-                {/* Custom Footer Slots */}
-                {pluginApi.customCardFooterSlots
-                  .filter(slot => {
-                    if (slot.isHidden) return false;
-                    if (slot.showCondition && !slot.showCondition(LuminaItem)) return false;
-                    if (slot.hideCondition && slot.hideCondition(LuminaItem)) return false;
-                    return true;
-                  })
-                  .sort((a, b) => (a.order || 0) - (b.order || 0))
-                  .map((slot) => (
-                    <div
-                      key={slot.name}
-                      className={`mt-4 ${slot.className || ''}`}
-                      style={slot.style}
-                      onClick={slot.onClick}
-                      onMouseEnter={slot.onHover}
-                      onMouseLeave={slot.onLeave}
-                    >
-                      <div style={{ maxWidth: slot.maxWidth }}>
-                        <PluginRender content={slot.content} data={LuminaItem} />
-                      </div>
-                    </div>
-                  ))}
-
                 <CardFooter LuminaItem={LuminaItem} Lumina={Lumina} isShareMode={isShareMode} />
 
                 {!Lumina.config.value?.isHideCommentInCard && LuminaItem.comments && LuminaItem.comments.length > 0 && (

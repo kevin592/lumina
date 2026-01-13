@@ -32,4 +32,5 @@ dev-dist
 .claude/*
 .claude/settings.local.json
 target
-server/public
+server/public**/tmpclaude*
+**/tmpclaude*

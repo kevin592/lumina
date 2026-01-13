@@ -147,32 +147,6 @@ const Editor = observer(({ content, onChange, onSend, isSendLoading, originFiles
             <ReferenceRender store={store} />
           </div>
 
-          {/* Editor Footer Slots */}
-          {/* TODO: Restore plugin system when available
-          {pluginApi?.customEditorFooterSlots
-            .filter(slot => {
-              if (slot.isHidden) return false;
-              if (slot.showCondition && !slot.showCondition(mode)) return false;
-              if (slot.hideCondition && slot.hideCondition(mode)) return false;
-              return true;
-            })
-            .sort((a, b) => (a.order || 0) - (b.order || 0))
-            .map((slot) => (
-              <div
-                key={slot.name}
-                className={`mb-2 ${slot.className || ''}`}
-                style={slot.style}
-                onClick={slot.onClick}
-                onMouseEnter={slot.onHover}
-                onMouseLeave={slot.onLeave}
-              >
-                <div style={{ maxWidth: slot.maxWidth }}>
-                  <PluginRender content={slot.content} data={mode} />
-                </div>
-              </div>
-            ))}
-          */}
-
           <div className='flex w-full items-center gap-1 mt-auto'>
             {!hiddenToolbar && (
               <>
