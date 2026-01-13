@@ -7,6 +7,34 @@ import { getNextAuthSecret } from "@server/lib/helper";
 import { createSeed } from '@prisma/seedData';
 import jwt from 'jsonwebtoken';
 
+// 默认头像列表
+const DEFAULT_AVATARS = [
+  '/avatars/generated_avatars/Aneka.png',
+  '/avatars/generated_avatars/Bandit.png',
+  '/avatars/generated_avatars/Coco.png',
+  '/avatars/generated_avatars/Felix.png',
+  '/avatars/generated_avatars/Gizmo.png',
+  '/avatars/generated_avatars/Jasper.png',
+  '/avatars/generated_avatars/Leo.png',
+  '/avatars/generated_avatars/Lola.png',
+  '/avatars/generated_avatars/Luna.png',
+  '/avatars/generated_avatars/Midnight.png',
+  '/avatars/generated_avatars/Milo.png',
+  '/avatars/generated_avatars/Oliver.png',
+  '/avatars/generated_avatars/Pepper.png',
+  '/avatars/generated_avatars/Rocky.png',
+  '/avatars/generated_avatars/Sasha.png',
+  '/avatars/generated_avatars/Zoe.png',
+];
+
+/**
+ * 随机获取一个默认头像
+ */
+function getRandomAvatar(): string {
+  const randomIndex = Math.floor(Math.random() * DEFAULT_AVATARS.length);
+  return DEFAULT_AVATARS[randomIndex];
+}
+
 const genToken = async ({ id, name, role, permissions }: { id: number, name: string, role: string, permissions?: string[] }) => {
   const secret = await getNextAuthSecret();
   return jwt.sign(
@@ -73,6 +101,7 @@ export const userAuthRoutes = {
               password: passwordHash,
               nickname: name,
               role: 'superadmin',
+              image: getRandomAvatar(), // 分配随机默认头像
             }
           });
           await prisma.accounts.update({
@@ -106,7 +135,15 @@ export const userAuthRoutes = {
                 message: 'Username already exists'
               });
             }
-            const res = await prisma.accounts.create({ data: { name, password: passwordHash, nickname: name, role: 'user' } });
+            const res = await prisma.accounts.create({
+              data: {
+                name,
+                password: passwordHash,
+                nickname: name,
+                role: 'user',
+                image: getRandomAvatar(), // 分配随机默认头像
+              }
+            });
             await prisma.accounts.update({ where: { id: res.id }, data: { apiToken: await genToken({ id: res.id, name, role: 'user' }) } });
             return true;
           }

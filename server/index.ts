@@ -218,6 +218,10 @@ async function bootstrap() {
     const publicPath = path.resolve(appRootProd, 'public');
     app.use(express.static(publicPath, staticOptions));
 
+    // 添加根目录 avatars 文件夹的静态服务
+    const avatarsPath = path.resolve(appRootProd, '../avatars');
+    app.use('/avatars', express.static(avatarsPath, staticOptions));
+
     // Add body parsers for JSON and form data
     app.use(express.json({ limit: '50mb' }));
     app.use(express.urlencoded({ extended: true, limit: '50mb' }));

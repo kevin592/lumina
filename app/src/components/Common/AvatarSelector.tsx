@@ -4,22 +4,22 @@ import { useState } from "react";
 
 // 默认头像列表
 const DEFAULT_AVATARS = [
-  'Aneka.svg',
-  'Bandit.svg',
-  'Coco.svg',
-  'Felix.svg',
-  'Gizmo.svg',
-  'Jasper.svg',
-  'Leo.svg',
-  'Lola.svg',
-  'Luna.svg',
-  'Midnight.svg',
-  'Milo.svg',
-  'Oliver.svg',
-  'Pepper.svg',
-  'Rocky.svg',
-  'Sasha.svg',
-  'Zoe.svg',
+  'generated_avatars/Aneka.png',
+  'generated_avatars/Bandit.png',
+  'generated_avatars/Coco.png',
+  'generated_avatars/Felix.png',
+  'generated_avatars/Gizmo.png',
+  'generated_avatars/Jasper.png',
+  'generated_avatars/Leo.png',
+  'generated_avatars/Lola.png',
+  'generated_avatars/Luna.png',
+  'generated_avatars/Midnight.png',
+  'generated_avatars/Milo.png',
+  'generated_avatars/Oliver.png',
+  'generated_avatars/Pepper.png',
+  'generated_avatars/Rocky.png',
+  'generated_avatars/Sasha.png',
+  'generated_avatars/Zoe.png',
 ];
 
 interface AvatarSelectorProps {
@@ -69,7 +69,7 @@ export const AvatarSelector = observer(({ isOpen, onClose, onSelect, currentAvat
                     removeWrapper
                   />
                   <div className="text-center text-xs mt-2 text-foreground-600">
-                    {avatar.replace('.svg', '')}
+                    {avatar.replace('generated_avatars/', '').replace('.png', '')}
                   </div>
                 </div>
               );
