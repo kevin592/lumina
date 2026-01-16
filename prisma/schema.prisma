@@ -35,17 +35,7 @@ model accounts {
   notifications notifications[]
   conversations conversation[]
   sharedNotes   noteInternalShare[]
-  okrObjectives okrObjectives[]
-  okrTasks      okrTasks[]
-  okrTimeEntries okrTimeEntries[]
-  okrComments   okrComments[]
-  okrActivityLogs okrActivityLog[]
-  okrShares     okrShares[]
-
-  @@index([name])
-  @@index([role])
-  @@index([loginType])
-  @@index([linkAccountId])
+  todoGroups    todoGroup[]
 }
 
 model attachments {
@@ -67,10 +57,6 @@ model attachments {
 
   note    notes?    @relation(fields: [noteId], references: [id])
   account accounts? @relation(fields: [accountId], references: [id])
-
-  @@index([noteId])
-  @@index([accountId])
-  @@index([type])
 }
 
 model config {
@@ -101,11 +87,22 @@ model notes {
   createdAt         DateTime        @default(now()) @db.Timestamptz(6)
   updatedAt         DateTime        @updatedAt @db.Timestamptz(6)
 
+  // 层级关系（子任务支持）
+  parentId         Int?
+  depth            Int              @default(0)
+  path             String?          @default("")
+
   // 来源追踪（卡片整合）
   sourceCardIds    Int[]            @default([])
 
   // Wiki-Link 支持
   wikiLinks        Json?
+
+  // 关系
+  parent           notes?           @relation("NoteHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children         notes[]          @relation("NoteHierarchy")
+  groupId          Int?
+  group            todoGroup?       @relation(fields: [groupId], references: [id])
 
   attachments       attachments[]
   tags              tagsToNote[]
@@ -114,17 +111,13 @@ model notes {
   references        noteReference[] @relation("ReferencingNote")
   comments          comments[]      @relation("NoteComments")
   histories         noteHistory[]
+  recurrences       todoRecurrence?
   internalShares    noteInternalShare[]
-  okrRelations      okrNoteRelations[]
 
   @@index([accountId])
-  @@index([accountId, isRecycle])
-  @@index([accountId, isArchived])
-  @@index([isRecycle])
-  @@index([isArchived])
-  @@index([isTop])
-  @@index([createdAt])
+  @@index([parentId])
   @@index([sourceCardIds])
+  @@index([groupId])
 }
 
 model comments {
@@ -143,10 +136,6 @@ model comments {
   account accounts?  @relation(fields: [accountId], references: [id])
   parent  comments?  @relation("CommentReplies", fields: [parentId], references: [id])
   replies comments[] @relation("CommentReplies")
-
-  @@index([noteId])
-  @@index([accountId])
-  @@index([createdAt])
 }
 
 model tag {
@@ -160,10 +149,6 @@ model tag {
   tagsToNote tagsToNote[]
   sortOrder  Int          @default(0)
   account    accounts?    @relation(fields: [accountId], references: [id])
-
-  @@index([accountId])
-  @@index([accountId, parent])
-  @@index([parent])
 }
 
 model tagsToNote {
@@ -190,7 +175,7 @@ model noteReference {
   id             Int      @id @default(autoincrement())
   fromNoteId     Int
   toNoteId       Int
-  referenceType  String   @default("manual") @db.VarChar // manual | wiki_link | integration
+  referenceType  String   @default("manual") @db.VarChar // manual | wiki_link | integration | todo_parent
   createdAt      DateTime @default(now()) @db.Timestamptz(6)
 
   fromNote notes @relation("ReferencingNote", fields: [fromNoteId], references: [id])
@@ -213,9 +198,6 @@ model follows {
 
   accountId Int
   account   accounts @relation(fields: [accountId], references: [id])
-
-  @@index([accountId])
-  @@index([followType])
 }
 
 model notifications {
@@ -230,11 +212,6 @@ model notifications {
   updatedAt DateTime @updatedAt @db.Timestamptz(6)
 
   account accounts @relation(fields: [accountId], references: [id])
-
-  @@index([accountId])
-  @@index([accountId, isRead])
-  @@index([isRead])
-  @@index([createdAt])
 }
 
 model cache {
@@ -355,255 +332,35 @@ model aiModels {
   @@index([providerId])
 }
 
-// ============================================
-// OKR System Models
-// ============================================
+// 任务循环规则表
+model todoRecurrence {
+  id              Int       @id @default(autoincrement())
+  noteId          Int       @unique
+  rrule           String    @db.VarChar(500) // RRULE 格式的循环规则
+  nextDueDate     DateTime? @db.Timestamptz(6)
+  endDate         DateTime? @db.Timestamptz(6)
+  maxOccurrences  Int?
+  createdAt       DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime  @updatedAt @db.Timestamptz(6)
 
-enum OKRStatus {
-  PENDING
-  ACHIEVED
-  FAILED
-  ARCHIVED
+  note            notes     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  @@index([nextDueDate])
 }
 
-enum OKRPeriod {
-  WEEKLY
-  MONTHLY
-  QUARTERLY
-  YEARLY
-  CUSTOM
-}
+// 任务分组表
+model todoGroup {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(100)
+  color     String   @default("#3b82f6") @db.VarChar(20)
+  icon      String   @default("solar:folder-bold") @db.VarChar(50)
+  sortOrder Int      @default(0)
+  accountId Int
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
 
-enum KRStatus {
-  PENDING
-  IN_PROGRESS
-  ACHIEVED
-  FAILED
-}
+  notes     notes[]
+  account   accounts @relation(fields: [accountId], references: [id])
 
-enum TaskStatus {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
-  BLOCKED
-}
-
-enum TaskPriority {
-  LOW
-  MEDIUM
-  HIGH
-  URGENT
-}
-
-enum TaskType {
-  DAILY
-  CREATIVE
-  SUBTASK
-  FLASH
-}
-
-enum RelationType {
-  OBJECTIVE_NOTE
-  KR_NOTE
-  TASK_NOTE
-  FLASH_NOTE
-}
-
-enum EntityType {
-  OBJECTIVE
-  KEY_RESULT
-  TASK
-}
-
-enum ActionType {
-  CREATED
-  UPDATED
-  DELETED
-  STATUS_CHANGED
-  PROGRESS_UPDATED
-  COMMENT_ADDED
-  SHARED
-}
-
-enum Permission {
-  VIEW
-  COMMENT
-  EDIT
-}
-
-model okrObjectives {
-  id          Int             @id @default(autoincrement())
-  title       String          @db.VarChar(255)
-  description String?         @db.Text
-  status      OKRStatus       @default(PENDING)
-  period      OKRPeriod       @default(CUSTOM)
-  startDate   DateTime        @db.Timestamptz(6)
-  endDate     DateTime?       @db.Timestamptz(6)
-  progress    Decimal         @default(0) @db.Decimal(5, 2)
-  accountId   Int
-  sortOrder   Int             @default(0)
-  createdAt   DateTime        @default(now()) @db.Timestamptz(6)
-  updatedAt   DateTime        @updatedAt @db.Timestamptz(6)
-
-  keyResults  okrKeyResults[]
-  tasks       okrTasks[]
-  noteRelations okrNoteRelations[]
-  shares      okrShares[]
-  activityLogs okrActivityLog[]
-  account     accounts        @relation(fields: [accountId], references: [id])
-
-  @@index([accountId, status])
-  @@index([accountId, startDate])
-  @@index([status])
-}
-
-model okrKeyResults {
-  id           Int             @id @default(autoincrement())
-  title        String          @db.VarChar(255)
-  description  String?         @db.Text
-  status       KRStatus        @default(PENDING)
-  targetValue  Decimal?        @db.Decimal(10, 2)
-  currentValue Decimal?        @db.Decimal(10, 2)
-  unit         String?         @db.VarChar(50)
-  objectiveId  Int
-  sortOrder    Int             @default(0)
-  createdAt    DateTime        @default(now()) @db.Timestamptz(6)
-  updatedAt    DateTime        @updatedAt @db.Timestamptz(6)
-
-  tasks        okrTasks[]
-  noteRelations okrNoteRelations[]
-  objective    okrObjectives   @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
-
-  @@index([objectiveId, status])
-  @@index([status])
-}
-
-model okrTasks {
-  id            Int             @id @default(autoincrement())
-  title         String          @db.VarChar(255)
-  description   String?         @db.Text
-  status        TaskStatus      @default(PENDING)
-  priority      TaskPriority    @default(MEDIUM)
-  taskType      TaskType        @default(DAILY)
-  objectiveId   Int?
-  keyResultId   Int?
-  dueDate       DateTime?       @db.Timestamptz(6)
-  estimatedHours Decimal?       @db.Decimal(5, 2)
-  actualHours   Decimal?        @db.Decimal(5, 2)
-  accountId     Int
-  sortOrder     Int             @default(0)
-  createdAt     DateTime        @default(now()) @db.Timestamptz(6)
-  updatedAt     DateTime        @updatedAt @db.Timestamptz(6)
-  completedAt   DateTime?       @db.Timestamptz(6)
-
-  objective     okrObjectives?  @relation(fields: [objectiveId], references: [id], onDelete: SetNull)
-  keyResult     okrKeyResults?  @relation(fields: [keyResultId], references: [id], onDelete: SetNull)
-  noteRelations okrNoteRelations[]
-  timeEntries   okrTimeEntries[]
-  account       accounts        @relation(fields: [accountId], references: [id])
-
-  @@index([accountId, status, dueDate])
-  @@index([objectiveId])
-  @@index([keyResultId])
-  @@index([status])
-  @@index([taskType])
-}
-
-model okrTimeEntries {
-  id          Int      @id @default(autoincrement())
-  taskId      Int
-  accountId   Int
-  startTime   DateTime @db.Timestamptz(6)
-  endTime     DateTime? @db.Timestamptz(6)
-  duration    Decimal  @default(0) @db.Decimal(10, 2)
-  description String?  @db.Text
-  createdAt   DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
-
-  task    okrTasks  @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  account accounts  @relation(fields: [accountId], references: [id])
-
-  @@index([taskId, startTime])
-  @@index([accountId, startTime])
-}
-
-model okrNoteRelations {
-  id            Int          @id @default(autoincrement())
-  relationType  RelationType @default(TASK_NOTE)
-  objectiveId   Int?
-  keyResultId   Int?
-  taskId        Int?
-  noteId        Int
-  metadata      Json?        @db.Json
-  createdAt     DateTime     @default(now()) @db.Timestamptz(6)
-  updatedAt     DateTime     @updatedAt @db.Timestamptz(6)
-
-  objective     okrObjectives? @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
-  keyResult     okrKeyResults? @relation(fields: [keyResultId], references: [id], onDelete: Cascade)
-  task          okrTasks?      @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  note          notes          @relation(fields: [noteId], references: [id], onDelete: Cascade)
-  comments      okrComments[]
-
-  @@index([noteId])
-  @@index([taskId])
-  @@index([objectiveId])
-  @@index([keyResultId])
-  @@index([relationType])
-}
-
-// OKR评论模型
-model okrComments {
-  id          Int      @id @default(autoincrement())
-  content     String   @db.Text
-  relationId  Int      // 关联的noteRelation ID
-  accountId   Int
-  parentId    Int?     // 父评论ID（用于回复）
-  createdAt   DateTime @default(now()) @db.Timestamptz(6)
-  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
-
-  relation    okrNoteRelations @relation(fields: [relationId], references: [id], onDelete: Cascade)
-  account     accounts         @relation(fields: [accountId], references: [id])
-  parent      okrComments?     @relation("CommentReplies", fields: [parentId], references: [id])
-  replies     okrComments[]    @relation("CommentReplies")
-
-  @@index([relationId])
-  @@index([accountId])
-  @@index([parentId])
-  @@index([createdAt])
-}
-
-// OKR活动历史模型
-model okrActivityLog {
-  id          Int          @id @default(autoincrement())
-  entityType  EntityType   // OBJECTIVE | KEY_RESULT | TASK
-  entityId    Int
-  actionType  ActionType   // CREATED | UPDATED | DELETED | STATUS_CHANGED | PROGRESS_UPDATED
-  accountId   Int
-  objectiveId Int?         // 关联的OKR ID
-  changes     Json?        @db.Json // 变更详情
-  createdAt   DateTime     @default(now()) @db.Timestamptz(6)
-
-  account     accounts     @relation(fields: [accountId], references: [id])
-  objective   okrObjectives? @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
-
-  @@index([entityType, entityId])
-  @@index([accountId])
-  @@index([objectiveId])
-  @@index([createdAt])
-}
-
-// OKR共享模型
-model okrShares {
-  id          Int          @id @default(autoincrement())
-  objectiveId Int
-  accountId   Int          // 被共享的用户
-  permission  Permission   // VIEW | COMMENT | EDIT
-  createdAt   DateTime     @default(now()) @db.Timestamptz(6)
-
-  objective   okrObjectives @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
-  account     accounts      @relation(fields: [accountId], references: [id])
-
-  @@unique([objectiveId, accountId])
   @@index([accountId])
 }
