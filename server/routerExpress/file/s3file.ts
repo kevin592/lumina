@@ -2,10 +2,23 @@ import express, { Request, Response } from 'express';
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { FileService } from "../../lib/files";
-import sharp from "sharp";
 import mime from "mime-types";
 
 const router = express.Router();
+
+// 延迟加载 sharp 模块，避免启动时因缺少原生模块而失败
+let sharpModule: any = null;
+async function getSharp() {
+  if (!sharpModule) {
+    try {
+      sharpModule = await import('sharp');
+    } catch (e) {
+      console.warn('Sharp module not available, thumbnail generation will be disabled');
+      sharpModule = null;
+    }
+  }
+  return sharpModule;
+}
 
 const MAX_PRESIGNED_URL_EXPIRY = 604800 - (60 * 60 * 24);
 const CACHE_DURATION = MAX_PRESIGNED_URL_EXPIRY;
@@ -16,6 +29,11 @@ function isImage(filename: string): boolean {
 }
 
 async function generateThumbnail(s3ClientInstance: any, config: any, fullPath: string) {
+  const sharp = await getSharp();
+  if (!sharp) {
+    throw new Error('Sharp module not available');
+  }
+
   try {
     const command = new GetObjectCommand({
       Bucket: config.s3Bucket,
@@ -29,7 +47,7 @@ async function generateThumbnail(s3ClientInstance: any, config: any, fullPath: s
     }
     const buffer = Buffer.concat(chunks);
 
-    const metadata = await sharp(buffer).metadata();
+    const metadata = await sharp.default(buffer).metadata();
     const { width = 0, height = 0 } = metadata;
 
     let resizeWidth = width;
@@ -44,7 +62,7 @@ async function generateThumbnail(s3ClientInstance: any, config: any, fullPath: s
       resizeWidth = Math.round(width * (maxDimension / height));
     }
 
-    const thumbnail = await sharp(buffer, {
+    const thumbnail = await sharp.default(buffer, {
       failOnError: false,
       limitInputPixels: false
     })

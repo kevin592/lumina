@@ -166,10 +166,10 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    // 移除 force: true 以避免每次启动都重新优化依赖
-    // 只在依赖变化时才重新优化，大幅提升启动速度
+    // 强制重新优化依赖以修复 504 错误
+    force: true,
     include: ['react', 'react-dom', 'react-router-dom'],
-    exclude: []
+    exclude: ['tauri-plugin-Lumina-api']
   },
   css: {
     devSourcemap: false

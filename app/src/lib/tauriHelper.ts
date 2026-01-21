@@ -13,9 +13,9 @@ import { invoke } from '@tauri-apps/api/core';
 
 // 扩展 Window 接口以支持 Tauri 全局对象
 declare global {
-  interface Window {
-    __TAURI__?: any;
-  }
+    interface Window {
+        __TAURI__?: any;
+    }
 }
 
 export interface PermissionStatus {
@@ -37,7 +37,7 @@ export function isAndroid() {
 
 export function isDesktop() {
     try {
-       return platform() === 'macos' || platform() === 'windows' || platform() === 'linux';
+        return platform() === 'macos' || platform() === 'windows' || platform() === 'linux';
     } catch (error) {
         return false
     }
@@ -130,15 +130,8 @@ export async function downloadFromLink(uri: string, filename?: string) {
 
 export async function setTauriTheme(theme: any) {
     if (isAndroid()) {
-        try {
-            // 使用动态导入避免 Web 环境加载错误
-            const luminaApi = await import('tauri-plugin-Lumina-api');
-            const lightColor = '#f8f8f8';
-            const darkColor = '#000000';
-            luminaApi.setStatusBarColor?.(theme === 'light' ? lightColor : darkColor);
-        } catch (error) {
-            console.warn('setStatusBarColor not available:', error);
-        }
+        // Android 状态栏颜色设置功能暂时禁用 (tauri-plugin-lumina 已移除)
+        console.log('Android theme setting - plugin not available');
     } else if (isDesktop()) {
         try {
             await invoke('set_desktop_theme', { theme });
@@ -162,9 +155,9 @@ export const requestMicrophonePermission = async (): Promise<boolean> => {
 
         // Check current platform
         const currentPlatform = isInTauri() ? platform() : 'web';
-        
+
         // Try to request permission first
-        const stream = await navigator.mediaDevices.getUserMedia({ 
+        const stream = await navigator.mediaDevices.getUserMedia({
             audio: {
                 echoCancellation: true,
                 noiseSuppression: true,
@@ -174,7 +167,7 @@ export const requestMicrophonePermission = async (): Promise<boolean> => {
             console.error('getUserMedia error:', error);
             return null;
         });
-        
+
         if (stream) {
             // Permission granted, stop the stream immediately
             stream.getTracks().forEach(track => track.stop());
@@ -182,7 +175,7 @@ export const requestMicrophonePermission = async (): Promise<boolean> => {
             localStorage.setItem('microphone_permission_granted', 'true');
             return true;
         }
-        
+
         // Handle platform-specific permission denied scenarios
         if (isAndroid()) {
             const shouldShowSettings = confirm(
@@ -190,16 +183,10 @@ export const requestMicrophonePermission = async (): Promise<boolean> => {
                 'Please grant microphone permission in the app settings.\n\n' +
                 'Would you like to open settings now?'
             );
-            
+
             if (shouldShowSettings) {
-                try {
-                    const { openAppSettings } = await import('tauri-plugin-Lumina-api');
-                    await openAppSettings();
-                } catch (error) {
-                    console.error('Failed to open app settings:', error);
-                    // Fallback: Show instructions
-                    alert('Please go to Settings > Apps > Lumina > Permissions and enable Microphone access.');
-                }
+                // 直接显示设置提示 (tauri-plugin-lumina 已移除)
+                alert('Please go to Settings > Apps > Lumina > Permissions and enable Microphone access.');
             }
         } else if (currentPlatform === 'macos') {
             // macOS specific handling
@@ -222,7 +209,7 @@ export const requestMicrophonePermission = async (): Promise<boolean> => {
                 'Please ensure your microphone is properly configured and permissions are granted.'
             );
         }
-        
+
         // Clear cache when permission denied
         localStorage.removeItem('microphone_permission_granted');
         return false;
@@ -289,10 +276,10 @@ export const usePermissions = () => {
     useEffect(() => {
         const checkPermissions = async () => {
             setLoading(true);
-            
+
             try {
                 const audioPermission = await checkMicrophonePermission();
-                
+
                 setPermissions({
                     audio: audioPermission,
                     camera: false, // Camera permission check can be added later

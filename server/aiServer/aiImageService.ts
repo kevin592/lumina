@@ -1,7 +1,20 @@
 import fs from 'fs';
 import path from 'path';
-import sharp from 'sharp';
 import { AiModelFactory } from './aiModelFactory';
+
+// 延迟加载 sharp 模块，避免启动时因缺少原生模块而失败
+let sharpModule: any = null;
+async function getSharp() {
+  if (!sharpModule) {
+    try {
+      sharpModule = await import('sharp');
+    } catch (e) {
+      console.warn('Sharp module not available, image compression will be disabled');
+      sharpModule = null;
+    }
+  }
+  return sharpModule;
+}
 
 /**
  * AI 图像服务
@@ -16,8 +29,14 @@ export class AiImageService {
     options?: { maxEdge?: number; quality?: number; toJPEG?: boolean; background?: string },
   ): Promise<{ dataUrl: string; mime: string }> {
     const { maxEdge = 1024, quality = 70, toJPEG = true, background = '#ffffff' } = options || {};
+    const sharp = await getSharp();
+    if (!sharp) {
+      // Sharp not available, use fallback
+      const fallbackMime = path.extname(imagePath).toLowerCase() === '.png' ? 'image/png' : 'image/jpeg';
+      return { dataUrl: `data:${fallbackMime};base64,${fs.readFileSync(imagePath, 'base64')}`, mime: fallbackMime };
+    }
     try {
-      let pipeline = sharp(imagePath).rotate();
+      let pipeline = sharp.default(imagePath).rotate();
       pipeline = pipeline.resize({ width: maxEdge, height: maxEdge, fit: 'inside', withoutEnlargement: true });
       if (toJPEG) {
         // Remove alpha channel when converting to JPEG

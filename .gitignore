@@ -34,3 +34,7 @@ dev-dist
 target
 server/public**/tmpclaude*
 **/tmpclaude*
+
+nul
+prisma/nul
+server/nul

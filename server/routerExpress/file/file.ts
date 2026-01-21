@@ -5,9 +5,22 @@ import { stat, readFile, mkdir } from 'fs/promises';
 import mime from 'mime-types';
 import { UPLOAD_FILE_PATH } from '../../../shared/lib/pathConstant';
 import crypto from 'crypto';
-import sharp from 'sharp';
 import { prisma } from '../../prisma';
 import { getTokenFromRequest } from '../../lib/helper';
+
+// 延迟加载 sharp 模块，避免启动时因缺少原生模块而失败
+let sharpModule: any = null;
+async function getSharp() {
+  if (!sharpModule) {
+    try {
+      sharpModule = await import('sharp');
+    } catch (e) {
+      console.warn('Sharp module not available, thumbnail generation will be disabled');
+      sharpModule = null;
+    }
+  }
+  return sharpModule;
+}
 
 const router = express.Router();
 const STREAM_THRESHOLD = 5 * 1024 * 1024;
@@ -140,36 +153,43 @@ router.get(/.*/, async (req, res) => {
     }
 
     if (isImage(fullPath) && needThumbnail) {
-      let processingTimeout = setTimeout(() => {
-        return res.status(408).json({ message: "Image processing timeout" });
-      }, IMAGE_PROCESSING_TIMEOUT);
+      const sharp = await getSharp();
+      if (!sharp) {
+        // Sharp not available, fall back to original image
+        console.warn('Sharp not available, returning original image');
+        // Continue to send original image below
+      } else {
+        let processingTimeout = setTimeout(() => {
+          return res.status(408).json({ message: "Image processing timeout" });
+        }, IMAGE_PROCESSING_TIMEOUT);
 
-      try {
-        const thumbnailStream = sharp()
-          .rotate()
-          .resize(500, 500, {
-            fit: 'inside',
-            withoutEnlargement: true
+        try {
+          const thumbnailStream = sharp.default()
+            .rotate()
+            .resize(500, 500, {
+              fit: 'inside',
+              withoutEnlargement: true
+            });
+
+          createReadStream(filePath).pipe(thumbnailStream);
+
+          const thumbnail = await thumbnailStream.toBuffer();
+
+          const filename = path.basename(fullPath);
+          const safeFilename = Buffer.from(filename).toString('base64');
+
+          clearTimeout(processingTimeout);
+          res.set({
+            "Content-Type": mime.lookup(filePath) || "image/jpeg",
+            "Cache-Control": "public, max-age=31536000",
+            "Content-Disposition": `inline; filename="${safeFilename}"`
           });
-
-        createReadStream(filePath).pipe(thumbnailStream);
-
-        const thumbnail = await thumbnailStream.toBuffer();
-
-        const filename = path.basename(fullPath);
-        const safeFilename = Buffer.from(filename).toString('base64');
-
-        clearTimeout(processingTimeout);
-        res.set({
-          "Content-Type": mime.lookup(filePath) || "image/jpeg",
-          "Cache-Control": "public, max-age=31536000",
-          "Content-Disposition": `inline; filename="${safeFilename}"`
-        });
-        return res.send(thumbnail);
-      } catch (error) {
-        clearTimeout(processingTimeout);
-        console.error('Error processing thumbnail:', error);
-        return res.status(500).json({ message: "Error processing thumbnail" });
+          return res.send(thumbnail);
+        } catch (error) {
+          clearTimeout(processingTimeout);
+          console.error('Error processing thumbnail:', error);
+          // Fall back to original image on error
+        }
       }
     }
 
