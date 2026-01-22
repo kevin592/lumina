@@ -34,6 +34,7 @@ const HubPage = lazy(() => import('./pages/hub'));
 const AIPage = lazy(() => import('./pages/ai'));
 const ResourcesPage = lazy(() => import('./pages/resources'));
 const SettingsPage = lazy(() => import('./pages/settings'));
+const NotesPage = lazy(() => import('./pages/notes'));
 
 const NotesAnalyticsPage = lazy(() => import('./pages/analytics'));
 const AllPage = lazy(() => import('./pages/all'));
@@ -232,6 +233,7 @@ function AppRoutes() {
 
             <Route path="/analytics" element={<ProtectedRoute><NotesAnalyticsPage /></ProtectedRoute>} />
             <Route path="/all" element={<ProtectedRoute><AllPage /></ProtectedRoute>} />
+            <Route path="/notes" element={<ProtectedRoute><NotesPage /></ProtectedRoute>} />
             <Route path="/okr" element={<ProtectedRoute><Navigate to="/dashboard" replace /></ProtectedRoute>} />
             <Route path="/okr/:id" element={<ProtectedRoute><Navigate to="/dashboard" replace /></ProtectedRoute>} />
             <Route path="/tasks" element={<ProtectedRoute><Navigate to="/dashboard" replace /></ProtectedRoute>} />

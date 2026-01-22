@@ -21,12 +21,14 @@ import { analyticsRouter } from './analytics';
 import { messageRouter } from './message';
 import { taskRouter } from './task';
 import { okrRouter } from './okr';
+import { docRouter } from './doc';
 
 // Force reload
 
 export const appRouter = router({
   ai: aiRouter,
   notes: noteRouter,
+  docs: docRouter,
   tags: tagRouter,
   users: userRouter,
   attachments: attachmentsRouter,

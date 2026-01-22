@@ -36,6 +36,9 @@ model accounts {
   conversations conversation[]
   sharedNotes   noteInternalShare[]
   todoGroups    todoGroup[]
+  docs          docs[]
+  okrObjectives okrObjectives[]
+  okrTasks      okrTasks[]
 }
 
 model attachments {
@@ -47,6 +50,7 @@ model attachments {
   size          Decimal  @default(0) @db.Decimal
   type          String   @default("") @db.VarChar
   noteId        Int?
+  docId         Int?
   accountId     Int?
   sortOrder     Int      @default(0)
   createdAt     DateTime @default(now()) @db.Timestamptz(6)
@@ -56,6 +60,7 @@ model attachments {
   metadata      Json?           @db.Json
 
   note    notes?    @relation(fields: [noteId], references: [id])
+  doc     docs?     @relation(fields: [docId], references: [id])
   account accounts? @relation(fields: [accountId], references: [id])
 }
 
@@ -113,6 +118,7 @@ model notes {
   histories         noteHistory[]
   recurrences       todoRecurrence?
   internalShares    noteInternalShare[]
+  okrNoteRelations  okrNoteRelations[]
 
   @@index([accountId])
   @@index([parentId])
@@ -147,6 +153,7 @@ model tag {
   createdAt  DateTime     @default(now()) @db.Timestamptz(6)
   updatedAt  DateTime     @updatedAt @db.Timestamptz(6)
   tagsToNote tagsToNote[]
+  tagsToDoc  tagsToDoc[]
   sortOrder  Int          @default(0)
   account    accounts?    @relation(fields: [accountId], references: [id])
 }
@@ -364,3 +371,183 @@ model todoGroup {
 
   @@index([accountId])
 }
+
+// 长笔记/文档表
+model docs {
+  id            Int        @id @default(autoincrement())
+  title         String     @default("") @db.VarChar(255)
+  content       String     @default("") @db.Text
+  icon          String?    @db.VarChar(50)
+
+  // 层级结构
+  parentId      Int?
+  depth         Int        @default(0)
+  path          String?    @default("") @db.VarChar(1000)
+  sortOrder     Int        @default(0)
+
+  // 状态
+  isPinned      Boolean    @default(false)
+  isLocked      Boolean    @default(false)
+
+  // 闪念合并追踪
+  sourceCardIds Int[]      @default([])
+
+  metadata      Json?      @db.Json
+  accountId     Int
+  createdAt     DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime   @updatedAt @db.Timestamptz(6)
+
+  parent        docs?      @relation("DocHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children      docs[]     @relation("DocHierarchy")
+  account       accounts   @relation(fields: [accountId], references: [id])
+  attachments   attachments[]
+  tags          tagsToDoc[]
+  histories     docHistory[]
+
+  @@index([accountId])
+  @@index([parentId])
+  @@index([sourceCardIds])
+}
+
+// 文档历史记录表
+model docHistory {
+  id        Int      @id @default(autoincrement())
+  docId     Int
+  content   String   @db.Text
+  title     String   @db.VarChar(255)
+  metadata  Json?    @db.Json
+  version   Int
+  accountId Int?
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  doc       docs     @relation(fields: [docId], references: [id], onDelete: Cascade)
+
+  @@index([docId])
+  @@index([accountId])
+}
+
+// 文档-标签关联表
+model tagsToDoc {
+  id    Int @default(autoincrement())
+  docId Int @default(0)
+  tagId Int @default(0)
+
+  doc   docs @relation(fields: [docId], references: [id])
+  tag   tag  @relation(fields: [tagId], references: [id])
+
+  @@id([docId, tagId])
+}
+
+// OKR 目标表
+model okrObjectives {
+  id            Int        @id @default(autoincrement())
+  title         String     @db.VarChar(255)
+  description   String?    @db.Text
+  status        String     @default("PENDING") @db.VarChar(20) // PENDING, ACHIEVED, FAILED, ARCHIVED
+  period        String     @default("MONTHLY") @db.VarChar(20) // WEEKLY, MONTHLY, QUARTERLY, YEARLY, CUSTOM
+  startDate     DateTime   @db.Timestamptz(6)
+  endDate       DateTime?  @db.Timestamptz(6)
+  progress      Decimal    @default(0) @db.Decimal
+  sortOrder     Int        @default(0)
+  accountId     Int
+  createdAt     DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime   @updatedAt @db.Timestamptz(6)
+
+  account       accounts       @relation(fields: [accountId], references: [id])
+  keyResults    okrKeyResults[]
+  tasks         okrTasks[]
+  noteRelations okrNoteRelations[]
+
+  @@index([accountId])
+  @@index([status])
+  @@index([startDate])
+}
+
+// OKR 关键结果表
+model okrKeyResults {
+  id            Int        @id @default(autoincrement())
+  objectiveId   Int
+  title         String     @db.VarChar(255)
+  description   String?    @db.Text
+  status        String     @default("PENDING") @db.VarChar(20) // PENDING, IN_PROGRESS, ACHIEVED, FAILED
+  targetValue   Decimal?   @db.Decimal
+  currentValue  Decimal    @default(0) @db.Decimal
+  unit          String?    @db.VarChar(50)
+  sortOrder     Int        @default(0)
+  createdAt     DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime   @updatedAt @db.Timestamptz(6)
+
+  objective     okrObjectives @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+  tasks         okrTasks[]
+
+  @@index([objectiveId])
+  @@index([status])
+}
+
+// OKR 任务表
+model okrTasks {
+  id              Int        @id @default(autoincrement())
+  title           String     @db.VarChar(255)
+  description     String?    @db.Text
+  status          String     @default("PENDING") @db.VarChar(20) // PENDING, IN_PROGRESS, COMPLETED, CANCELLED, BLOCKED
+  taskType        String     @default("DAILY") @db.VarChar(20) // DAILY, CREATIVE, SUBTASK, FLASH
+  priority        String     @default("MEDIUM") @db.VarChar(20) // LOW, MEDIUM, HIGH, URGENT
+  objectiveId     Int?
+  keyResultId     Int?
+  dueDate         DateTime?  @db.Timestamptz(6)
+  completedAt     DateTime?  @db.Timestamptz(6)
+  estimatedHours  Decimal?   @db.Decimal
+  actualHours     Decimal    @default(0) @db.Decimal
+  sortOrder       Int        @default(0)
+  accountId       Int
+  createdAt       DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime   @updatedAt @db.Timestamptz(6)
+
+  account         accounts        @relation(fields: [accountId], references: [id])
+  objective       okrObjectives?  @relation(fields: [objectiveId], references: [id], onDelete: SetNull)
+  keyResult       okrKeyResults?  @relation(fields: [keyResultId], references: [id], onDelete: SetNull)
+  timeEntries     okrTimeEntries[]
+  noteRelations   okrNoteRelations[]
+
+  @@index([accountId])
+  @@index([objectiveId])
+  @@index([keyResultId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+// OKR 时间记录表
+model okrTimeEntries {
+  id            Int        @id @default(autoincrement())
+  taskId        Int
+  hours         Decimal    @db.Decimal
+  description   String?    @db.Text
+  date          DateTime   @db.Timestamptz(6)
+  createdAt     DateTime   @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime   @updatedAt @db.Timestamptz(6)
+
+  task          okrTasks   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@index([date])
+}
+
+// OKR 笔记关联表
+model okrNoteRelations {
+  id            Int        @id @default(autoincrement())
+  noteId        Int
+  objectiveId   Int?
+  keyResultId   Int?
+  taskId        Int?
+  relationType  String     @default("TASK_NOTE") @db.VarChar(30) // OBJECTIVE_NOTE, KR_NOTE, TASK_NOTE, FLASH_NOTE
+  createdAt     DateTime   @default(now()) @db.Timestamptz(6)
+
+  note          notes          @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  objective     okrObjectives? @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
+  task          okrTasks?      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([noteId])
+  @@index([objectiveId])
+  @@index([taskId])
+}
+

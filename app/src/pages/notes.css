@@ -1,0 +1,165 @@
+/**
+ * NotesPage 样式
+ * 三栏布局页面样式
+ */
+
+.notes-page {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  background: var(--heroui-content1);
+  overflow: hidden;
+}
+
+/* 左侧面板 */
+.notes-page-left-panel {
+  width: 280px;
+  min-width: 200px;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  background: var(--heroui-content1);
+  border-right: 1px solid var(--heroui-divider);
+}
+
+/* 右侧面板 */
+.notes-page-right-panel {
+  width: 320px;
+  min-width: 240px;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  background: var(--heroui-content1);
+  border-left: 1px solid var(--heroui-divider);
+}
+
+/* 中间编辑器面板 */
+.notes-page-editor-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--heroui-content1);
+}
+
+/* 面板头部 */
+.notes-page-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid var(--heroui-divider);
+}
+
+.notes-page-panel-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* 面板内容 */
+.notes-page-panel-content {
+  flex: 1;
+  overflow: hidden;
+}
+
+/* 编辑器头部 */
+.notes-page-editor-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--heroui-divider);
+}
+
+.notes-page-editor-header input {
+  flex: 1;
+}
+
+/* 编辑器内容 */
+.notes-page-editor-content {
+  flex: 1;
+  overflow: hidden;
+  padding: 20px;
+}
+
+/* 编辑器空状态 */
+.notes-page-editor-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+}
+
+.notes-page-editor-empty-icon {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--heroui-content2);
+  border-radius: 50%;
+  margin-bottom: 20px;
+  color: var(--heroui-content3-foreground);
+}
+
+.notes-page-editor-empty h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.notes-page-editor-empty p {
+  color: var(--heroui-content3-foreground);
+  margin-bottom: 20px;
+}
+
+/* 折叠按钮 */
+.notes-page-left-toggle,
+.notes-page-right-toggle {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background: var(--heroui-content1);
+  border: 1px solid var(--heroui-divider);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.notes-page-left-toggle {
+  left: 8px;
+}
+
+.notes-page-right-toggle {
+  right: 8px;
+}
+
+/* 响应式调整 */
+@media (max-width: 1024px) {
+  .notes-page-right-panel {
+    width: 280px;
+  }
+}
+
+@media (max-width: 768px) {
+  .notes-page-left-panel {
+    width: 240px;
+  }
+
+  .notes-page-right-panel {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 20;
+    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .notes-page-editor-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

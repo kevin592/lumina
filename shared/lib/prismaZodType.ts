@@ -406,3 +406,56 @@ export const aiModelsSchema = z.object({
 
 export type aiModels = z.infer<typeof aiModelsSchema>
 
+/////////////////////////////////////////
+// DOCS SCHEMA
+/////////////////////////////////////////
+
+export const docsSchema = z.object({
+  id: z.number().int(),
+  title: z.string(),
+  content: z.string(),
+  icon: z.string().nullable().optional(),
+  parentId: z.number().int().nullable().optional(),
+  depth: z.number().int(),
+  path: z.string().nullable().optional(),
+  sortOrder: z.number().int(),
+  isPinned: z.boolean(),
+  isLocked: z.boolean(),
+  sourceCardIds: z.array(z.number().int()),
+  metadata: z.any().nullable().optional(),
+  accountId: z.number().int(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+})
+
+export type docs = z.infer<typeof docsSchema>
+
+/////////////////////////////////////////
+// DOC HISTORY SCHEMA
+/////////////////////////////////////////
+
+export const docHistorySchema = z.object({
+  id: z.number().int(),
+  docId: z.number().int(),
+  content: z.string(),
+  title: z.string(),
+  metadata: z.any().nullable().optional(),
+  version: z.number().int(),
+  accountId: z.number().int().nullable().optional(),
+  createdAt: z.coerce.date(),
+})
+
+export type docHistory = z.infer<typeof docHistorySchema>
+
+/////////////////////////////////////////
+// TAGS TO DOC SCHEMA
+/////////////////////////////////////////
+
+export const tagsToDocSchema = z.object({
+  id: z.number().int(),
+  docId: z.number().int(),
+  tagId: z.number().int(),
+})
+
+export type tagsToDoc = z.infer<typeof tagsToDocSchema>
+

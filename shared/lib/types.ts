@@ -13,6 +13,10 @@ export type Conversation = NonNullable<RouterOutput['conversation']['list']>[0]
 export type Message = NonNullable<RouterOutput['message']['list']>[0]
 export type PublicUser = NonNullable<RouterOutput['users']['publicUserList']>[0]
 
+// Document types
+export type Doc = Partial<NonNullable<RouterOutput['docs']['list'][0]>>
+export type DocHistory = NonNullable<RouterOutput['docs']['getDocHistory']>[0]
+
 export const ZUserPerferConfigKey = z.union([
   z.literal('textFoldLength'),
   z.literal('smallDeviceCardColumns'),

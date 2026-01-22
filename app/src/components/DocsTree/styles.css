@@ -1,0 +1,166 @@
+/**
+ * DocsTree 样式
+ * 可折叠文档树组件样式
+ */
+
+.docs-tree {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  user-select: none;
+}
+
+/* 空状态 */
+.docs-tree-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+/* 树节点 */
+.docs-tree-node {
+  width: 100%;
+}
+
+.docs-tree-node-content {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+  gap: 6px;
+}
+
+.docs-tree-node-content:hover {
+  background: var(--heroui-content2);
+}
+
+.docs-tree-node-selected {
+  background: var(--heroui-primary) !important;
+  color: white;
+}
+
+.docs-tree-node-selected .docs-tree-node-title {
+  color: white;
+}
+
+/* 展开/折叠按钮 */
+.docs-tree-expand-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.docs-tree-expand-button:hover {
+  background: var(--heroui-content3);
+}
+
+.docs-tree-expand-placeholder {
+  width: 20px;
+  flex-shrink: 0;
+}
+
+/* 节点图标 */
+.docs-tree-node-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* 节点标题 */
+.docs-tree-node-title {
+  flex: 1;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 节点计数 */
+.docs-tree-node-count {
+  font-size: 12px;
+  color: var(--heroui-content3-foreground);
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: var(--heroui-content2);
+}
+
+.docs-tree-node-selected .docs-tree-node-count {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+/* 子节点容器 */
+.docs-tree-children {
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 层级缩进 */
+.docs-tree-node-level-0 {
+  padding-left: 8px;
+}
+
+.docs-tree-node-level-1 {
+  padding-left: 24px;
+}
+
+.docs-tree-node-level-2 {
+  padding-left: 40px;
+}
+
+.docs-tree-node-level-3 {
+  padding-left: 56px;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .docs-tree-node-content {
+    padding: 8px 6px;
+  }
+
+  .docs-tree-node-title {
+    font-size: 13px;
+  }
+}
+
+/* 滚动条样式 */
+.docs-tree::-webkit-scrollbar {
+  width: 6px;
+}
+
+.docs-tree::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.docs-tree::-webkit-scrollbar-thumb {
+  background: var(--heroui-content3);
+  border-radius: 3px;
+}
+
+.docs-tree::-webkit-scrollbar-thumb:hover {
+  background: var(--heroui-content4);
+}

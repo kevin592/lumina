@@ -12,6 +12,7 @@
  * - TaskStore: 后台任务
  * - ConfigStore: 配置管理
  * - OfflineStore: 离线笔记
+ * - DocsStore: 长笔记/文档管理
  */
 
 import { makeAutoObservable } from 'mobx';
@@ -28,6 +29,7 @@ import { ResourceStore } from './module/ResourceStore';
 import { SearchStore } from './module/SearchStore';
 import { TaskStore } from './module/TaskStore';
 import { ConfigStore } from './module/ConfigStore';
+import { DocsStore } from './module/DocsStore';
 import { StorageListState } from './standard/StorageListState';
 
 // 重新导出类型，保持向后兼容
@@ -54,6 +56,7 @@ export class LuminaStore {
   readonly tasks: TaskStore;
   readonly config: ConfigStore;
   readonly offline: OfflineStore;
+  readonly docs: DocsStore;
 
   // ===== 向后兼容的属性 =====
 
@@ -280,6 +283,7 @@ export class LuminaStore {
     this.search = new SearchStore();
     this.tasks = new TaskStore();
     this.config = new ConfigStore();
+    this.docs = new DocsStore();
 
     // 同步离线笔记
     this.syncOfflineNotes = this.syncOfflineNotes.bind(this);

@@ -246,7 +246,12 @@ async function bootstrap() {
       server.keepAliveTimeout = 5 * 60 * 1000;
       server.headersTimeout = 5 * 60 * 1000;
 
-      ViteExpress.bind(app, server); // the server binds to all network interfaces
+      // 只有非 API_ONLY 模式才绑定 ViteExpress
+      if (process.env.API_ONLY !== '1') {
+        ViteExpress.bind(app, server); // the server binds to all network interfaces
+      } else {
+        console.log('🚀 Running in API-only mode (ViteExpress disabled)');
+      }
     } else {
       console.log(`API routes updated - env: ${process.env.NODE_ENV || 'development'}`);
     }

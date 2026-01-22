@@ -35,8 +35,6 @@ export class BaseStore implements Store {
       title: 'notes',
       href: '/notes',
       icon: 'ri-file-list-3-line',
-      disabled: true,
-      isPlaceholder: true,
     },
     {
       title: 'analytics',

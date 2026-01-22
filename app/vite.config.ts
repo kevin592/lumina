@@ -3,6 +3,28 @@ import react from "@vitejs/plugin-react";
 import path from 'path';
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { createFilter } from 'vite'
+
+// Custom plugin to fix BlockSuite icon import typos
+function fixBlockSuiteIcons() {
+  const filter = createFilter(['**/node_modules/@blocksuite/**'], ['**/node_modules/.vite/**']);
+
+  return {
+    name: 'fix-blocksuite-icons',
+    transform(code, id) {
+      if (!filter(id)) return null;
+
+      // Fix the typo in BlockSuite icon imports
+      if (code.includes('CheckBoxCkeckSolidIcon')) {
+        return {
+          code: code.replace(/CheckBoxCkeckSolidIcon/g, 'CheckBoxCheckSolidIcon'),
+          map: null
+        };
+      }
+      return null;
+    }
+  };
+}
 
 const host = process.env.TAURI_DEV_HOST || '0.0.0.0';
 const EXPRESS_PORT = 1111;
@@ -13,6 +35,7 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    fixBlockSuiteIcons(),
     // PWA: Only enabled in production, disabled in development to avoid caching issues
     ...(!isDev && !process.env.DISABLE_PWA ? [
       VitePWA({
@@ -157,19 +180,53 @@ export default defineConfig({
   },
   clearScreen: false,
   server: {
-    port: EXPRESS_PORT,
+    port: 5173, // 前端使用独立端口
     strictPort: false,
     host: host || false,
     allowedHosts: true,
     watch: {
       ignored: ["**/src-tauri/**", "**/node_modules/**", "**/.git/**"],
     },
+    // 代理配置：将 API 请求转发到后端
+    proxy: {
+      '/api': {
+        target: 'http://localhost:1111',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/v1': {
+        target: 'http://localhost:1111',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/dist': {
+        target: 'http://localhost:1111',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
   optimizeDeps: {
-    // 强制重新优化依赖以修复 504 错误
-    force: true,
-    include: ['react', 'react-dom', 'react-router-dom'],
-    exclude: ['tauri-plugin-Lumina-api']
+    // 移除 force: true 以避免每次启动都重新编译
+    // force: true,
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      'mobx',
+      'mobx-react-lite',
+      '@heroui/react',
+      'lucide-react',
+      'date-fns',
+    ],
+    exclude: [
+      'tauri-plugin-Lumina-api',
+      // 排除 BlockSuite 相关包，避免编译问题
+      '@blocksuite/presets',
+      '@blocksuite/blocks',
+      '@blocksuite/store',
+      '@blocksuite/global',
+    ]
   },
   css: {
     devSourcemap: false
