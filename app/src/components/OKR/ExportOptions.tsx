@@ -183,7 +183,7 @@ const ExportOptions = observer(({
       if (loadingMsg) {
         document.body.removeChild(loadingMsg);
       }
-      alert('PDF导出失败，请重试');
+      alert(t('okr.validation.pdf-export-failed'));
     }
   };
 

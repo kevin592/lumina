@@ -36,7 +36,7 @@ export const PerferSetting = observer(() => {
     <div className="space-y-8">
       {/* Appearance 区块 */}
       <section>
-        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Appearance</h3>
+        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">{t('settings.appearance')}</h3>
         {/* 主题选择 - 3卡片并排 */}
         <div className="grid grid-cols-3 gap-4 mb-6">
           <ThemeCardSelector onChange={async value => {
@@ -91,7 +91,7 @@ export const PerferSetting = observer(() => {
 
       {/* Layout Density 区块 - 滑块控件 */}
       <section>
-        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Layout Density</h3>
+        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">{t('settings.layout-density')}</h3>
         <div className="glass-card p-6">
           <div className="space-y-6">
           {/* Home Max Width 滑块 */}
@@ -144,7 +144,7 @@ export const PerferSetting = observer(() => {
 
       {/* Device Card Columns */}
       <section>
-        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Layout</h3>
+        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">{t('settings.layout')}</h3>
         <Item
           leftContent={<ItemWithTooltip content={t('device-card-columns')} toolTipContent={<div className="w-[300px] flex flex-col gap-2"><div>{t('columns-for-different-devices')}</div></div>} />}
           rightContent={
@@ -165,7 +165,7 @@ export const PerferSetting = observer(() => {
 
       {/* Display 区块 */}
       <section>
-        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Display</h3>
+        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">{t('settings.display')}</h3>
         <Item leftContent={<>{t('hide-notification')}</>} rightContent={<Switch name="isHiddenNotification" isSelected={Lumina.config.value?.isHiddenNotification} onChange={e => { PromiseCall(api.config.update.mutate({ key: 'isHiddenNotification', value: e.target.checked })) }} classNames={{ wrapper: "group-data-[selected=true]:bg-violet-600", thumb: "group-data-[selected=true]:bg-white" }} />} />
         <Item leftContent={<>{t('show-navigation-bar-on-mobile')}</>} rightContent={<Switch name="isHiddenMobileBar" isSelected={Lumina.config.value?.isHiddenMobileBar} onChange={e => { PromiseCall(api.config.update.mutate({ key: 'isHiddenMobileBar', value: e.target.checked })) }} classNames={{ wrapper: "group-data-[selected=true]:bg-violet-600", thumb: "group-data-[selected=true]:bg-white" }} />} />
         <Item leftContent={<>{t('hide-comments-in-card')}</>} rightContent={<Switch name="isHideCommentInCard" isSelected={Lumina.config.value?.isHideCommentInCard} onChange={e => { PromiseCall(api.config.update.mutate({ key: 'isHideCommentInCard', value: e.target.checked })) }} classNames={{ wrapper: "group-data-[selected=true]:bg-violet-600", thumb: "group-data-[selected=true]:bg-white" }} />} />
@@ -175,8 +175,8 @@ export const PerferSetting = observer(() => {
 
       {/* Advanced 区块 */}
       <section>
-        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Advanced</h3>
-        <Item leftContent={<>{t('time-format')}</>} rightContent={<SelectDropdown value={Lumina.config.value?.timeFormat} placeholder={t('select-a-time-format')} icon="ri-time-line" options={[{ key: "relative", label: "1 seconds ago" }, { key: "YYYY-MM-DD", label: "2024-01-01" }, { key: "YYYY-MM-DD HH:mm", label: "2024-01-01 15:30" }, { key: "HH:mm", label: "15:30" }, { key: "YYYY-MM-DD HH:mm:ss", label: "2024-01-01 15:30:45" }, { key: "MM-DD HH:mm", label: "03-20 15:30" }, { key: "MMM DD, YYYY", label: "Mar 20, 2024" }, { key: "MMM DD, YYYY HH:mm", label: "Mar 20, 2024 15:30" }, { key: "YYYY-MM-DD, dddd", label: "2024-01-01, Monday" }, { key: "dddd, MMM DD, YYYY", label: "Monday, Mar 20, 2024" }]} onChange={async (value) => { await PromiseCall(api.config.update.mutate({ key: 'timeFormat', value: value })) }} />} />
+        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">{t('settings.advanced')}</h3>
+        <Item leftContent={<>{t('time-format')}</>} rightContent={<SelectDropdown value={Lumina.config.value?.timeFormat} placeholder={t('select-a-time-format')} icon="ri-time-line" options={[{ key: "relative", label: t('time-formats.relative-1s') || "1 seconds ago" }, { key: "YYYY-MM-DD", label: t('time-formats.full-date') || "2024-01-01" }, { key: "YYYY-MM-DD HH:mm", label: t('time-formats.full-datetime') || "2024-01-01 15:30" }, { key: "HH:mm", label: "15:30" }, { key: "YYYY-MM-DD HH:mm:ss", label: "2024-01-01 15:30:45" }, { key: "MM-DD HH:mm", label: "03-20 15:30" }, { key: "MMM DD, YYYY", label: "Mar 20, 2024" }, { key: "MMM DD, YYYY HH:mm", label: "Mar 20, 2024 15:30" }, { key: "YYYY-MM-DD, dddd", label: "2024-01-01, Monday" }, { key: "dddd, MMM DD, YYYY", label: "Monday, Mar 20, 2024" }]} onChange={async (value) => { await PromiseCall(api.config.update.mutate({ key: 'timeFormat', value: value })) }} />} />
         <Item leftContent={<>{t('page-size')}</>} rightContent={<Input type="number" min="10" max="100" classNames={glassInputStyles} value={PageSize.value} onChange={e => { PageSize.save(Number(e.target.value)) }} />} />
         <Item leftContent={<>{t('toolbar-visibility')}</>} rightContent={<SelectDropdown value={Lumina.config.value?.toolbarVisibility} placeholder={t('select-toolbar-visibility')} icon="ri-tools-line" options={[{ key: "always-show-toolbar", label: t('always-show-toolbar') }, { key: "hide-toolbar-on-mobile", label: t('hide-toolbar-on-mobile') }, { key: "always-hide-toolbar", label: t('always-hide-toolbar') }]} onChange={async (value) => { await PromiseCall(api.config.update.mutate({ key: 'toolbarVisibility', value: value })) }} />} />
         <Item leftContent={<>{t('use-Lumina-hub')}</>} rightContent={<Switch name="isUseLuminaHub" isSelected={Lumina.config.value?.isUseLuminaHub} onChange={async e => { await PromiseCall(api.config.update.mutate({ key: 'isUseLuminaHub', value: e.target.checked })); window.location.reload() }} classNames={{ wrapper: "group-data-[selected=true]:bg-violet-600", thumb: "group-data-[selected=true]:bg-white" }} />} />
@@ -194,7 +194,7 @@ export const PerferSetting = observer(() => {
               <Input
                 className="w-full md:w-[400px]"
                 classNames={glassInputStyles}
-                placeholder="https://www.shadergradient.co/customize?"
+                placeholder={t('settings.custom-bg-url-placeholder')}
                 type="text"
                 value={customBackgroundUrl}
                 onChange={e => { setCustomBackgroundUrl(e.target.value) }}

@@ -20,7 +20,7 @@ const TipsDialog = observer(({ content, onConfirm, onCancel, buttonSlot }: any) 
             }}>{t('cancel')}</Button>
           <Button color='danger' onPress={async e => {
             onConfirm?.()
-          }}>{t('confrim')}</Button>
+          }}>{t('confirm')}</Button>
         </>
       }
     </div>

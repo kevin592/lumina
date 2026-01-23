@@ -41,7 +41,7 @@ export const ImportSetting = observer(() => {
         <p className="text-sm text-gray-500 max-w-sm mx-auto mb-4">{t('when-exporting-memos_prod-db-please-close-the-memos-container-to-avoid-partial-loss-of-data')}</p>
         <UploadFileWrapper onUpload={async ({ filePath, fileName }) => {
           if (!fileName.endsWith('.db')) {
-            return RootStore.Get(ToastPlugin).error('Not a Memos database file')
+            return RootStore.Get(ToastPlugin).error(t('not-a-memos-database-file'))
           }
           ShowMemosProgressDialog(filePath)
         }}>

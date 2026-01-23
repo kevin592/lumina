@@ -919,5 +919,46 @@
   "go-to-analytics": "Go to analytics",
   "toggle-theme": "Toggle theme",
   "navigation": "Navigation",
-  "general": "General"
+  "general": "General",
+  "focus": "Focus",
+  "library": "Library",
+  "start-capture": "Start capture",
+  "for-commands": "for commands",
+  "recent": "Recent",
+  "no-recent-notes": "No recent notes",
+  "untitled": "Untitled",
+  "press": "Press",
+  "settings": {
+    "appearance": "Appearance",
+    "layout-density": "Layout Density",
+    "layout": "Layout",
+    "display": "Display",
+    "advanced": "Advanced",
+    "api-access-description": "For API access",
+    "hide": "Hide",
+    "show": "Show",
+    "reset-token": "Reset Token",
+    "security-tip": "Security tip: Replace YOUR_TOKEN_HERE with your actual access token.",
+    "allow-register-description": "Allow new user registration",
+    "two-factor-auth-description": "Enable two-factor authentication for better security",
+    "hide-pc-editor-description": "Hide editor sidebar on desktop",
+    "webhook": "Webhook",
+    "webhook-placeholder": "https://...",
+    "custom-bg-url-placeholder": "https://www.shadergradient.co/customize?",
+    "ai-providers-models": "AI Providers & Models",
+    "ai-providers-models-desc": "Configure AI service providers and models",
+    "mcp-integration": "MCP Integration",
+    "mcp-integration-desc": "Model Context Protocol integration"
+  },
+  "okr": {
+    "validation": {
+      "title-required": "Title cannot be empty",
+      "target-value-invalid": "Please enter a valid target value",
+      "start-date-required": "Please select a start date",
+      "end-date-invalid": "End date must be later than start date",
+      "pdf-export-failed": "PDF export failed, please try again"
+    }
+  },
+  "oauth": "OAuth",
+  "not-a-memos-database-file": "Not a Memos database file"
 }

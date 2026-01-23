@@ -50,7 +50,7 @@ const CreateTaskDialog = observer(({ onSuccess, defaultObjectiveId, defaultKeyRe
 
   const validateForm = () => {
     if (!title.trim()) {
-      alert('标题不能为空');
+      alert(t('okr.validation.title-required'));
       return false;
     }
     return true;

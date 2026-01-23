@@ -141,7 +141,7 @@ export const UserSetting = observer(() => {
                     <div className="flex items-center gap-1.5 text-gray-500 text-sm">
                       {i.loginType == 'oauth' ? (
                         <>
-                          <i className="ri-github-fill"></i> OAuth
+                          <i className="ri-github-fill"></i> {t('oauth')}
                         </>
                       ) : (
                         <>

@@ -102,13 +102,13 @@ const Home = observer(() => {
                         <button
                             className="px-4 py-1.5 rounded-full text-xs font-bold transition-all bg-white text-gray-900 shadow-sm"
                         >
-                            Focus
+                            {t('focus')}
                         </button>
                         <button
                             onClick={() => setHomeView('library')}
                             className="px-4 py-1.5 rounded-full text-xs font-bold transition-all text-gray-500 hover:text-gray-700"
                         >
-                            Library
+                            {t('library')}
                         </button>
                     </div>
                 </div>
@@ -118,7 +118,7 @@ const Home = observer(() => {
 
                     {/* Greeting (P1-5) */}
                     <h2 className="text-center font-display font-bold text-3xl text-gray-800 mb-8 tracking-tight">
-                        {t('start-capture') || 'Start capture'}, <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-600">Kevin</span>.
+                        {t('start-capture')}, <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-600">Kevin</span>.
                     </h2>
 
                     {/* HERO INPUT CONTAINER */}
@@ -135,7 +135,7 @@ const Home = observer(() => {
                             {/* Toolbar Hint */}
                             <div className="px-6 pb-4 flex items-center justify-end">
                                 <span className="text-[10px] font-bold tracking-wider text-gray-300 uppercase">
-                                    {t('press')} / {t('for-commands') || 'for commands'}
+                                    {t('press')} / {t('for-commands')}
                                 </span>
                             </div>
                         </div>
@@ -143,7 +143,7 @@ const Home = observer(() => {
 
                     {/* Recent Tags / Suggestions */}
                     <div className="mt-8 flex justify-center items-center gap-3">
-                        <span className="text-xs font-bold text-gray-300 uppercase tracking-widest">{t('recent') || 'Recent'}</span>
+                        <span className="text-xs font-bold text-gray-300 uppercase tracking-widest">{t('recent')}</span>
                         <div className="flex gap-3">
                             {recentNotes.slice(0, 2).map((note) => (
                                 <Link
@@ -155,7 +155,7 @@ const Home = observer(() => {
                                 </Link>
                             ))}
                             {recentNotes.length === 0 && (
-                                <span className="text-xs text-gray-400">{t('no-recent-notes') || 'No recent notes'}</span>
+                                <span className="text-xs text-gray-400">{t('no-recent-notes')}</span>
                             )}
                         </div>
                     </div>
@@ -213,12 +213,12 @@ const Home = observer(() => {
                                         onClick={() => setHomeView('focus')}
                                         className="px-4 py-1.5 rounded-full text-xs font-bold transition-all text-gray-500 hover:text-gray-700"
                                     >
-                                        Focus
+                                        {t('focus')}
                                     </button>
                                     <button
                                         className="px-4 py-1.5 rounded-full text-xs font-bold transition-all bg-white text-gray-900 shadow-sm"
                                     >
-                                        Library
+                                        {t('library')}
                                     </button>
                                 </div>
                             </div>

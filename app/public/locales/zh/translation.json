@@ -50,7 +50,7 @@
     "your-changes-have-been-saved": "您的更改已保存！",
     "add-tag": "添加标签",
     "cancel": "取消",
-    "confrim": "确认",
+    "confirm": "确认",
     "no-data-here-well-then-time-to-write-a-note": "暂时没有数据哦~",
     "basic-information": "基本信息",
     "language": "语言",
@@ -967,5 +967,46 @@
     "view-switch": "视图切换",
     "task-shortcuts": "任务快捷键",
     "shortcuts-hint": "提示: 在输入框中按 Esc 退出输入模式可使用所有快捷键",
-    "select-file": "选择文件"
+    "select-file": "选择文件",
+    "focus": "专注模式",
+    "library": "知识库",
+    "start-capture": "开始记录",
+    "for-commands": "使用命令",
+    "recent": "最近",
+    "no-recent-notes": "暂无最近笔记",
+    "untitled": "无标题",
+    "press": "按",
+    "settings": {
+        "appearance": "外观",
+        "layout-density": "布局密度",
+        "layout": "布局",
+        "display": "显示",
+        "advanced": "高级",
+        "api-access-description": "用于 API 访问",
+        "hide": "隐藏",
+        "show": "显示",
+        "reset-token": "重置令牌",
+        "security-tip": "安全提示：请将 YOUR_TOKEN_HERE 替换为您的实际访问令牌。",
+        "allow-register-description": "允许新用户注册账号",
+        "two-factor-auth-description": "启用两步验证以提高账户安全性",
+        "hide-pc-editor-description": "在桌面上隐藏编辑器侧边栏",
+        "webhook": "Webhook",
+        "webhook-placeholder": "https://...",
+        "custom-bg-url-placeholder": "https://www.shadergradient.co/customize?",
+        "ai-providers-models": "AI 服务商和模型",
+        "ai-providers-models-desc": "配置 AI 服务提供商和模型",
+        "mcp-integration": "MCP 集成",
+        "mcp-integration-desc": "Model Context Protocol 集成配置"
+    },
+    "okr": {
+        "validation": {
+            "title-required": "标题不能为空",
+            "target-value-invalid": "请输入有效的目标值",
+            "start-date-required": "请选择开始日期",
+            "end-date-invalid": "结束日期必须晚于开始日期",
+            "pdf-export-failed": "PDF导出失败，请重试"
+        }
+    },
+    "oauth": "OAuth",
+    "not-a-memos-database-file": "不是 Memos 数据库文件"
 }

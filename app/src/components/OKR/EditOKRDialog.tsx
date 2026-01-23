@@ -5,6 +5,7 @@ import { OKRStore, OKRPeriod, Objective } from "@/store/module/OKRStore";
 import { DialogStore } from "@/store/module/Dialog";
 import { Button, Input, Textarea, Select, SelectItem } from "@heroui/react";
 import dayjs from 'dayjs';
+import { useTranslation } from "react-i18next";
 
 interface EditOKRDialogProps {
   objective: Objective;
@@ -12,6 +13,7 @@ interface EditOKRDialogProps {
 }
 
 const EditOKRDialog = observer(({ objective, onSuccess }: EditOKRDialogProps) => {
+  const { t } = useTranslation();
   const okrStore = RootStore.Get(OKRStore);
   const [title, setTitle] = useState(objective.title);
   const [description, setDescription] = useState(objective.description || '');
@@ -22,15 +24,15 @@ const EditOKRDialog = observer(({ objective, onSuccess }: EditOKRDialogProps) =>
 
   const validateForm = () => {
     if (!title.trim()) {
-      alert('标题不能为空');
+      alert(t('okr.validation.title-required'));
       return false;
     }
     if (!startDateStr) {
-      alert('请选择开始日期');
+      alert(t('okr.validation.start-date-required'));
       return false;
     }
     if (endDateStr && startDateStr >= endDateStr) {
-      alert('结束日期必须晚于开始日期');
+      alert(t('okr.validation.end-date-invalid'));
       return false;
     }
     return true;

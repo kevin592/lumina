@@ -218,7 +218,7 @@ export const MyAudioRecorder = ({ onComplete }: MyAudioRecorderProps) => {
         // Recording UI - Original design when permission is granted
         <div className="flex flex-col items-center w-full h-full p-4 bg-neutral-900 rounded-lg">
           <div className="w-full h-8 flex items-center">
-            <span className="text-white font-bold">REC</span>
+            <span className="text-white font-bold">{t('recording')}</span>
             <span className="ml-2 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
           </div>
 

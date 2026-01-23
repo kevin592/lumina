@@ -12,6 +12,7 @@ interface EditTaskDialogProps {
 }
 
 const EditTaskDialog = observer(({ task, onSuccess }: EditTaskDialogProps) => {
+  const { t } = useTranslation();
   const okrStore = RootStore.Get(OKRStore);
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description || '');
@@ -38,7 +39,7 @@ const EditTaskDialog = observer(({ task, onSuccess }: EditTaskDialogProps) => {
 
   const validateForm = () => {
     if (!title.trim()) {
-      alert('标题不能为空');
+      alert(t('okr.validation.title-required'));
       return false;
     }
     return true;

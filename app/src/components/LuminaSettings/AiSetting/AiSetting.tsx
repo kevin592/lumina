@@ -42,8 +42,8 @@ export default observer(function AiSetting() {
                         <i className="ri-sparkling-line"></i>
                     </div>
                     <div>
-                        <h2 className="font-display font-bold text-gray-900 text-lg tracking-tight">AI Providers & Models</h2>
-                        <p className="text-sm text-default-500">配置 AI 服务提供商和模型</p>
+                        <h2 className="font-display font-bold text-gray-900 text-lg tracking-tight">{t('settings.ai-providers-models')}</h2>
+                        <p className="text-sm text-default-500">{t('settings.ai-providers-models-desc')}</p>
                     </div>
                 </div>
 
@@ -91,8 +91,8 @@ export default observer(function AiSetting() {
                         <i className="ri-api-line"></i>
                     </div>
                     <div>
-                        <h2 className="font-display font-bold text-gray-900 text-lg tracking-tight">MCP Integration</h2>
-                        <p className="text-sm text-default-500">Model Context Protocol 集成配置</p>
+                        <h2 className="font-display font-bold text-gray-900 text-lg tracking-tight">{t('settings.mcp-integration')}</h2>
+                        <p className="text-sm text-default-500">{t('settings.mcp-integration-desc')}</p>
                     </div>
                 </div>
 

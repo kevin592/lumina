@@ -4,6 +4,7 @@ import { RootStore } from "@/store";
 import { OKRStore } from "@/store/module/OKRStore";
 import { DialogStore } from "@/store/module/Dialog";
 import { Button, Input, Textarea } from "@heroui/react";
+import { useTranslation } from "react-i18next";
 
 interface CreateKRDialogProps {
   objectiveId: number;
@@ -11,6 +12,7 @@ interface CreateKRDialogProps {
 }
 
 const CreateKRDialog = observer(({ objectiveId, onSuccess }: CreateKRDialogProps) => {
+  const { t } = useTranslation();
   const okrStore = RootStore.Get(OKRStore);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -20,12 +22,12 @@ const CreateKRDialog = observer(({ objectiveId, onSuccess }: CreateKRDialogProps
 
   const validateForm = () => {
     if (!title.trim()) {
-      alert('标题不能为空');
+      alert(t('okr.validation.title-required'));
       return false;
     }
     const target = parseFloat(targetValue);
     if (!targetValue || isNaN(target) || target <= 0) {
-      alert('请输入有效的目标值');
+      alert(t('okr.validation.target-value-invalid'));
       return false;
     }
     return true;

@@ -45,7 +45,7 @@ export const LinkAccountModal = observer(() => {
     <div className="flex flex-col gap-4">
       <Select
         label={t('select-account')}
-        placeholder={'username'}
+        placeholder={t('username')}
         value={selectedAccount}
         onChange={(e) => setSelectedAccount(e.target.value)}
       >
@@ -59,7 +59,7 @@ export const LinkAccountModal = observer(() => {
       <Input
         type="password"
         label={t('password')}
-        placeholder={'12345678'}
+        placeholder={t('password')}
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />

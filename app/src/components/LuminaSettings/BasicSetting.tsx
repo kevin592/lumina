@@ -215,7 +215,7 @@ export const BasicSetting = observer(() => {
       {/* Token Card - 横向布局 */}
       <div className="glass-card p-6 mb-8">
         <h3 className="font-bold text-lg text-gray-800 mb-1">{t('access-token')}</h3>
-        <p className="text-sm text-gray-500 mb-4">用于 API 访问</p>
+        <p className="text-sm text-gray-500 mb-4">{t('settings.api-access-description')}</p>
         <div className="flex gap-2">
           <div className="flex-1 h-10 bg-white/60 backdrop-blur-sm rounded-lg border border-gray-200/50 flex items-center px-4 font-mono text-sm text-gray-600 select-all">
             {store.showToken ? user.userInfo.value?.token : '••••••••••••••••••••••'}
@@ -223,7 +223,7 @@ export const BasicSetting = observer(() => {
           <button
             onClick={() => store.setShowToken(!store.showToken)}
             className="w-10 h-10 flex items-center justify-center rounded-lg bg-white/80 backdrop-blur-sm border border-gray-200/80 text-gray-600 hover:text-violet-600 hover:border-violet-200 shadow-sm transition-all"
-            title={store.showToken ? "Hide" : "Show"}
+            title={store.showToken ? t('settings.hide') : t('settings.show')}
           >
             <i className={store.showToken ? "ri-eye-off-line" : "ri-eye-line"}></i>
           </button>
@@ -234,7 +234,7 @@ export const BasicSetting = observer(() => {
           >
             <Copy size={16} content={user.userInfo.value?.token ?? ''} />
           </Button>
-          <Tooltip content="Reset Token">
+          <Tooltip content={t('settings.reset-token')}>
             <Button
               isIconOnly
               className="w-10 h-10 flex items-center justify-center rounded-lg bg-white/80 backdrop-blur-sm border border-gray-200/80 text-gray-600 hover:text-red-500 hover:border-red-200 shadow-sm transition-all"
@@ -302,8 +302,7 @@ export const BasicSetting = observer(() => {
               <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
                 <i className="ri-shield-keyhole-line text-amber-600 mt-0.5 flex-shrink-0"></i>
                 <p className="text-xs text-amber-800">
-                  <strong>安全提示：</strong>请将 <code className="px-1 py-0.5 bg-amber-100 rounded text-amber-900">YOUR_TOKEN_HERE</code> 替换为您的实际访问令牌。
-                  您的令牌可在上方"显示令牌"按钮中查看。
+                  {t('settings.security-tip')}
                 </p>
               </div>
             </div>
@@ -317,7 +316,7 @@ export const BasicSetting = observer(() => {
           <div className="p-5 flex items-center justify-between">
             <div>
               <h4 className="font-bold text-gray-800 text-sm">{t('allow-register')}</h4>
-              <p className="text-xs text-gray-500 mt-0.5">允许新用户注册账号</p>
+              <p className="text-xs text-gray-500 mt-0.5">{t('settings.allow-register-description')}</p>
             </div>
             <Switch
               name="allowRegister"
@@ -339,7 +338,7 @@ export const BasicSetting = observer(() => {
         <div className="p-5 flex items-center justify-between">
           <div>
             <h4 className="font-bold text-gray-800 text-sm">{t('two-factor-authentication')}</h4>
-            <p className="text-xs text-gray-500 mt-0.5">启用两步验证以提高账户安全性</p>
+            <p className="text-xs text-gray-500 mt-0.5">{t('settings.two-factor-auth-description')}</p>
           </div>
           <Switch
             name="twoFactorEnabled"
@@ -374,7 +373,7 @@ export const BasicSetting = observer(() => {
         <div className="p-5 flex items-center justify-between">
           <div>
             <h4 className="font-bold text-gray-800 text-sm">{t('hide-pc-editor')}</h4>
-            <p className="text-xs text-gray-500 mt-0.5">在桌面上隐藏编辑器侧边栏</p>
+            <p className="text-xs text-gray-500 mt-0.5">{t('settings.hide-pc-editor-description')}</p>
           </div>
           <Switch
             name="hidePcEditor"
@@ -398,9 +397,9 @@ export const BasicSetting = observer(() => {
       {/* Webhook - 独立卡片 */}
       {user.role == 'superadmin' && (
         <div className="glass-card p-6 mb-8">
-          <h3 className="font-bold text-lg text-gray-800 mb-4">Webhook</h3>
+          <h3 className="font-bold text-lg text-gray-800 mb-4">{t('settings.webhook')}</h3>
           <Input
-            placeholder="https://..."
+            placeholder={t('settings.webhook-placeholder')}
             classNames={glassInputStyles}
             value={store.webhookEndpoint}
             onChange={(e) => store.webhookEndpoint = e.target.value}
