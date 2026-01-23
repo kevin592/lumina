@@ -21,11 +21,13 @@ import {
   Minus,
   Undo,
   Redo,
+  Image,
+  Palette,
 } from 'lucide-react';
 import { Tooltip } from '@heroui/react';
 import { motion } from 'motion/react';
 
-export type BlockType = 'paragraph' | 'heading1' | 'heading2' | 'heading3' | 'bullet-list' | 'numbered-list' | 'todo' | 'quote' | 'code' | 'divider';
+export type BlockType = 'paragraph' | 'heading1' | 'heading2' | 'heading3' | 'bullet-list' | 'numbered-list' | 'todo' | 'quote' | 'code' | 'image' | 'divider';
 
 export interface ToolbarAction {
   type: 'format' | 'block' | 'history';
@@ -39,6 +41,9 @@ export interface ToolbarAction {
 interface ToolbarProps {
   onFormat?: (command: string, value?: string) => void;
   onInsertBlock?: (type: BlockType) => void;
+  onInsertImage?: () => void;
+  onTextColor?: () => void;
+  onBackgroundColor?: () => void;
   onUndo?: () => void;
   onRedo?: () => void;
   canUndo?: boolean;
@@ -100,6 +105,9 @@ const ToolbarSeparator: React.FC = () => (
 export const Toolbar: React.FC<ToolbarProps> = ({
   onFormat,
   onInsertBlock,
+  onInsertImage,
+  onTextColor,
+  onBackgroundColor,
   onUndo,
   onRedo,
   canUndo = true,
@@ -171,6 +179,36 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       ))}
 
       <ToolbarSeparator />
+
+      {/* 颜色按钮 */}
+      {(onTextColor || onBackgroundColor) && (
+        <>
+          {onTextColor && (
+            <ToolbarButton
+              icon={<span style={{ color: 'rgb(103, 80, 164)' }}>A</span>}
+              label="文字颜色"
+              onClick={() => onTextColor()}
+            />
+          )}
+          {onBackgroundColor && (
+            <ToolbarButton
+              icon={<Palette size={16} />}
+              label="背景颜色"
+              onClick={() => onBackgroundColor()}
+            />
+          )}
+          <ToolbarSeparator />
+        </>
+      )}
+
+      {/* 图片按钮 */}
+      {onInsertImage && (
+        <ToolbarButton
+          icon={<Image size={16} />}
+          label="插入图片"
+          onClick={() => onInsertImage()}
+        />
+      )}
 
       {/* 块类型 */}
       {BLOCK_ACTIONS.map((action) => (

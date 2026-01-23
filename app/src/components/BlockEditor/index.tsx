@@ -37,10 +37,13 @@ import './styles.css';
 import { Toolbar, BlockType } from './Toolbar';
 import { BlockActions } from './BlockActions';
 import { BlockAddButton } from './BlockAddButton';
+import { MentionMenu, type MentionItem } from './MentionMenu';
+import { ImageUploader } from './ImageUploader';
+import { ColorPicker, type ColorType } from './ColorPicker';
 
 /**
  * Markdown 解析为 HTML
- * 支持常见 Markdown 语法
+ * 支持常见 Markdown 语法和 @提及
  */
 const parseMarkdown = (text: string): string => {
   if (!text) return '';
@@ -52,6 +55,25 @@ const parseMarkdown = (text: string): string => {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
+
+  // @提及解析 @today, @tomorrow, @用户, @页面
+  // 日期提及
+  const dateMentions: Record<string, { label: string; icon: string }> = {
+    'today': { label: '今天', icon: '📅' },
+    'tomorrow': { label: '明天', icon: '📅' },
+    'yesterday': { label: '昨天', icon: '📅' },
+    'week': { label: '本周', icon: '📅' },
+    'month': { label: '本月', icon: '📅' },
+    'nextweek': { label: '下周', icon: '📅' },
+    'nextmonth': { label: '下月', icon: '📅' },
+  };
+  html = html.replace(/@(\w+)/g, (match, key) => {
+    if (dateMentions[key]) {
+      return `<span class="mention mention--date" data-mention-type="date" data-mention-value="${key}">${dateMentions[key].icon} ${dateMentions[key].label}</span>`;
+    }
+    // 其他提及（页面、用户）使用通用样式
+    return `<span class="mention" data-mention-type="other" data-mention-value="${key}">@${key}</span>`;
+  });
 
   // 代码块 ```code``` (先处理，避免被其他规则影响)
   html = html.replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>');
@@ -92,6 +114,11 @@ export interface Block {
   checked?: boolean; // 用于待办事项块
   parentId?: string | null; // 父块ID，用于缩进层级
   level?: number; // 缩进级别，0-6
+  // 图片块专用字段
+  imageUrl?: string; // 图片 URL
+  imageSize?: 'small' | 'medium' | 'large' | 'original'; // 图片尺寸
+  imageAlign?: 'left' | 'center' | 'right'; // 图片对齐
+  caption?: string; // 图片说明
 }
 
 interface BlockEditorProps {
@@ -160,6 +187,7 @@ const BLOCK_TYPES = [
   { type: 'todo' as BlockType, label: '待办事项', icon: '☐', shortcut: 'todo' },
   { type: 'quote' as BlockType, label: '引用', icon: '"', shortcut: 'q' },
   { type: 'code' as BlockType, label: '代码块', icon: '</>', shortcut: 'code' },
+  { type: 'image' as BlockType, label: '图片', icon: '🖼️', shortcut: 'image' },
   { type: 'divider' as BlockType, label: '分割线', icon: '—', shortcut: 'hr' },
 ];
 
@@ -272,10 +300,33 @@ const SortableBlockItem: React.FC<{
     }
   }, [block.type, block.content]);
 
+  // 图片块特殊处理
+  if (block.type === 'image') {
+    return (
+      <div ref={sortableRef} style={style} {...attributes} className={`${getBlockClassName} block-item--image-${block.imageSize || 'medium'} block-item--image-${block.imageAlign || 'center'}`} tabIndex={0} onFocus={onFocus}>
+        {block.imageUrl && <img src={block.imageUrl} alt={block.caption || ''} />}
+        {block.caption && <div className="block-item--image-caption">{block.caption}</div>}
+        {!readonly && (
+          <BlockActions
+            block={block}
+            index={index}
+            totalBlocks={0}
+            onCopy={onCopy}
+            onDelete={onDelete}
+            onMoveUp={onMoveUp}
+            onMoveDown={onMoveDown}
+            onDuplicate={onDuplicate}
+            onChangeType={onChangeType}
+          />
+        )}
+      </div>
+    );
+  }
+
   // 分割线特殊处理
   if (block.type === 'divider') {
     return (
-      <div ref={sortableRef} style={style} {...attributes} className={getBlockClassName()} tabIndex={0} onFocus={onFocus}>
+      <div ref={sortableRef} style={style} {...attributes} className={getBlockClassName} tabIndex={0} onFocus={onFocus}>
         <hr className="block-divider" />
         {!readonly && (
           <BlockActions
@@ -299,7 +350,7 @@ const SortableBlockItem: React.FC<{
       ref={sortableRef}
       style={style}
       {...attributes}
-      className={getBlockClassName()}
+      className={getBlockClassName}
     >
       {/* 块操作按钮（悬停时显示） */}
       {!readonly && (
@@ -463,6 +514,22 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const [showSelector, setShowSelector] = useState(false);
   const [selectorPosition, setSelectorPosition] = useState({ top: 0, left: 0 });
+
+  // @提及菜单状态
+  const [showMentionMenu, setShowMentionMenu] = useState(false);
+  const [mentionPosition, setMentionPosition] = useState({ top: 0, left: 0 });
+  const [mentionFilter, setMentionFilter] = useState('');
+  const mentionBlockIndexRef = useRef<number | null>(null);
+
+  // 图片上传状态
+  const [showImageUploader, setShowImageUploader] = useState(false);
+  const imageUploadIndexRef = useRef<number | null>(null);
+
+  // 颜色选择器状态
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [colorPickerType, setColorPickerType] = useState<ColorType>('text');
+  const [colorPickerPosition, setColorPickerPosition] = useState({ top: 0, left: 0 });
+
   const containerRef = useRef<HTMLDivElement>(null);
 
   // 历史记录
@@ -679,6 +746,17 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
       return;
     }
 
+    // "@" 触发提及菜单
+    if (e.key === '@') {
+      e.preventDefault();
+      const rect = (e.target as HTMLElement).getBoundingClientRect();
+      setMentionPosition({ top: rect.bottom + 8, left: rect.left });
+      setMentionFilter('');
+      mentionBlockIndexRef.current = index;
+      setShowMentionMenu(true);
+      return;
+    }
+
     // "[]" 触发待办事项
     if (e.key === ']' && block.content === '[') {
       e.preventDefault();
@@ -805,6 +883,29 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
     }
     setShowSelector(false);
   }, [focusedIndex, blocks, notifyChange]);
+
+  // 选择提及项
+  const handleSelectMention = useCallback((item: MentionItem) => {
+    const index = mentionBlockIndexRef.current;
+    if (index !== null) {
+      const newBlocks = [...blocks];
+      const currentContent = newBlocks[index].content;
+      // 移除 @ 符号并添加提及标记
+      const mentionText = `@${item.value}`;
+      newBlocks[index] = {
+        ...newBlocks[index],
+        content: currentContent + mentionText,
+        metadata: {
+          ...newBlocks[index].metadata,
+          rendered: parseMarkdown(currentContent + mentionText),
+        },
+      };
+      setBlocks(newBlocks);
+      notifyChange(newBlocks);
+    }
+    setShowMentionMenu(false);
+    mentionBlockIndexRef.current = null;
+  }, [blocks, notifyChange]);
 
   // 块操作处理函数
   const handleCopyBlock = useCallback((block: Block) => {
@@ -933,6 +1034,79 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
     }, 0);
   }, [blocks, notifyChange]);
 
+  // 处理图片上传对话框显示
+  const handleShowImageUploader = useCallback(() => {
+    setShowImageUploader(true);
+    imageUploadIndexRef.current = blocks.length;
+  }, [blocks.length]);
+
+  // 处理图片上传
+  const handleImageUpload = useCallback(async (file: File): Promise<string> => {
+    // 模拟上传，实际项目中应该调用上传 API
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.readAsDataURL(file);
+    });
+  }, []);
+
+  // 处理插入图片
+  const handleInsertImage = useCallback((url: string, size: 'small' | 'medium' | 'large' | 'original', align: 'left' | 'center' | 'right', caption: string) => {
+    const newBlock: Block = {
+      id: generateId(),
+      type: 'image',
+      content: caption || '',
+      imageUrl: url,
+      imageSize: size,
+      imageAlign: align,
+      caption,
+      level: 0,
+      parentId: null,
+    };
+    const newBlocks = [...blocks, newBlock];
+    setBlocks(newBlocks);
+    notifyChange(newBlocks);
+    setShowImageUploader(false);
+    imageUploadIndexRef.current = null;
+  }, [blocks, notifyChange]);
+
+  // 显示文字颜色选择器
+  const handleShowTextColorPicker = useCallback(() => {
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      setColorPickerPosition({ top: rect.bottom + 8, left: rect.left });
+      setColorPickerType('text');
+      setShowColorPicker(true);
+    }
+  }, []);
+
+  // 显示背景颜色选择器
+  const handleShowBgColorPicker = useCallback(() => {
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      setColorPickerPosition({ top: rect.bottom + 8, left: rect.left });
+      setColorPickerType('background');
+      setShowColorPicker(true);
+    }
+  }, []);
+
+  // 应用颜色
+  const handleApplyColor = useCallback((color: string) => {
+    if (colorPickerType === 'text') {
+      // 应用文字颜色
+      document.execCommand('styleWithCSS', false, 'true');
+      document.execCommand('foreColor', false, color);
+    } else {
+      // 应用背景颜色
+      document.execCommand('styleWithCSS', false, 'true');
+      document.execCommand('hiliteColor', false, color);
+    }
+  }, [colorPickerType]);
+
   return (
     <div
       ref={containerRef}
@@ -944,6 +1118,9 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
         <Toolbar
           onFormat={handleFormat}
           onInsertBlock={handleInsertBlockFromToolbar}
+          onInsertImage={handleShowImageUploader}
+          onTextColor={handleShowTextColorPicker}
+          onBackgroundColor={handleShowBgColorPicker}
           onUndo={handleUndo}
           onRedo={handleRedo}
           canUndo={historyIndex > 0}
@@ -993,6 +1170,51 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
           position={selectorPosition}
           onSelect={handleSelectType}
           onClose={() => setShowSelector(false)}
+        />
+      )}
+
+      {/* @提及菜单 */}
+      {showMentionMenu && (
+        <MentionMenu
+          position={mentionPosition}
+          filter={mentionFilter}
+          onSelect={handleSelectMention}
+          onClose={() => {
+            setShowMentionMenu(false);
+            mentionBlockIndexRef.current = null;
+          }}
+          availablePages={[]} // 可以从 props 传入
+          availableUsers={[]} // 可以从 props 传入
+        />
+      )}
+
+      {/* 图片上传对话框 */}
+      {showImageUploader && (
+        <div className="image-uploader-overlay" onClick={() => setShowImageUploader(false)}>
+          <div className="image-uploader-dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="image-uploader-header">
+              <h3>插入图片</h3>
+              <button
+                className="image-uploader-close"
+                onClick={() => setShowImageUploader(false)}
+              >
+              </button>
+            </div>
+            <ImageUploader
+              onUpload={handleImageUpload}
+              onInsert={handleInsertImage}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* 颜色选择器 */}
+      {showColorPicker && (
+        <ColorPicker
+          type={colorPickerType}
+          position={colorPickerPosition}
+          onSelect={handleApplyColor}
+          onClose={() => setShowColorPicker(false)}
         />
       )}
     </div>
