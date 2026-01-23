@@ -286,6 +286,41 @@
   color: var(--heroui-foreground);
 }
 
+/* 标题块（文档标题）特殊样式 */
+.block-item--heading1.block-item--title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  padding: 12px 0;
+  margin-top: 0;
+}
+
+/* 标题块占位符 */
+.block-item--heading1.block-item--title .block-item-content:empty::before {
+  content: '无标题';
+  color: var(--heroui-default-300);
+  opacity: 0.7;
+}
+
+/* 标题块移除左侧操作按钮 */
+.block-item--heading1.block-item--title .block-drag-handle,
+.block-item--heading1.block-item--title .block-add-button,
+.block-item--heading1.block-item--title .block-add-button-container,
+.block-item--heading1.block-item--title .block-actions-wrapper {
+  display: none !important;
+}
+
+/* 标题块移除悬停效果 */
+.block-item--heading1.block-item--title:hover {
+  background: transparent;
+}
+
+/* 标题块聚焦效果保持 */
+.block-item--heading1.block-item--title.block-item--focused {
+  background: rgba(103, 80, 164, 0.05);
+  box-shadow: none;
+}
+
 .block-item--heading2 {
   font-size: 1.5rem;
   font-weight: 600;

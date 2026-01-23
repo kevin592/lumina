@@ -9,12 +9,12 @@
 
 import { useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { PanelLeft, PanelRight, Plus, Save, MoreVertical, Check, AlertCircle, Clock } from 'lucide-react';
-import { Button, Input, Tooltip } from '@heroui/react';
+import { PanelLeft, PanelRight, Plus, Check, AlertCircle, Clock } from 'lucide-react';
+import { Button, Tooltip } from '@heroui/react';
 import { RootStore } from '@/store/root';
 import { LuminaStore } from '@/store/luminaStore';
 import { DocsTree } from '@/components/DocsTree';
-import { BlockEditor } from '@/components/BlockEditor';
+import { BlockEditor, getDocumentTitle } from '@/components/BlockEditor';
 import { DocHistoryPanel } from '@/components/DocHistoryPanel';
 import { useAutoSave, type SaveStatus } from '@/components/BlockEditor/useAutoSave';
 import './notes.css';
@@ -83,13 +83,41 @@ const NotesPage = observer(() => {
     enabled: !!docs.curSelectedDoc && !isNewDoc,
     onSave: async (content) => {
       if (!docs.curSelectedDoc) return;
-      await docs.upsertDoc.call({
-        id: docs.curSelectedDoc.id,
-        title: docs.curSelectedDoc.title || '未命名',
-        content,
-      });
+      // 从块数组中提取标题
+      try {
+        const blocks = JSON.parse(content);
+        const title = getDocumentTitle(blocks);
+        await docs.upsertDoc.call({
+          id: docs.curSelectedDoc.id,
+          title,
+          content,
+        });
+        // 保存成功后重新加载文档树，更新列表显示
+        await docs.loadDocTree();
+      } catch {
+        // 如果解析失败，使用原有标题
+        await docs.upsertDoc.call({
+          id: docs.curSelectedDoc.id,
+          title: docs.curSelectedDoc.title || '未命名',
+          content,
+        });
+        // 保存成功后重新加载文档树，更新列表显示
+        await docs.loadDocTree();
+      }
     },
   });
+
+  // Ctrl+S 快捷键保存
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        manualSave();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [manualSave]);
 
   // 初始化
   useEffect(() => {
@@ -113,11 +141,23 @@ const NotesPage = observer(() => {
     try {
       const newDoc = await docs.upsertDoc.call({
         title: '未命名文档',
-        content: JSON.stringify([{
-          id: Math.random().toString(36).substring(2, 11),
-          type: 'paragraph',
-          content: '',
-        }]),
+        content: JSON.stringify([
+          {
+            id: Math.random().toString(36).substring(2, 11),
+            type: 'heading1',
+            content: '',
+            isTitle: true,
+            level: 0,
+            parentId: null,
+          },
+          {
+            id: Math.random().toString(36).substring(2, 11),
+            type: 'paragraph',
+            content: '',
+            level: 0,
+            parentId: null,
+          },
+        ]),
       });
       await docs.loadDocTree();
       // 自动选中新创建的文档，但不禁用自动保存
@@ -132,20 +172,10 @@ const NotesPage = observer(() => {
     }
   };
 
-  // 保存当前文档
+  // 保存当前文档（移除不再需要的函数）
   const handleSaveDoc = async () => {
-    if (!docs.curSelectedDoc) return;
-
-    try {
-      await docs.upsertDoc.call({
-        id: docs.curSelectedDoc.id,
-        title: docs.curSelectedDoc.title || '未命名',
-        content: editorContent,
-      });
-      await docs.loadDocTree();
-    } catch (error) {
-      console.error('Failed to save doc:', error);
-    }
+    // 现在由自动保存和 Ctrl+S 快捷键处理
+    manualSave();
   };
 
   // 内容变化
@@ -221,33 +251,9 @@ const NotesPage = observer(() => {
         {docs.curSelectedDoc ? (
           <>
             <div className="notes-page-editor-header">
-              <Input
-                value={docs.curSelectedDoc.title || ''}
-                onValueChange={(value) => {
-                  if (docs.curSelectedDoc) {
-                    docs.curSelectedDoc.title = value;
-                  }
-                }}
-                placeholder="文档标题"
-                variant="bordered"
-                classNames={{
-                  input: 'text-lg font-semibold',
-                }}
-              />
               <div className="flex gap-2 items-center">
                 {/* 保存状态指示器 */}
                 <SaveStatusIndicator status={saveStatus} />
-
-                <Button
-                  size="sm"
-                  color="primary"
-                  onPress={manualSave}
-                  isLoading={saveStatus === 'saving'}
-                  isDisabled={saveStatus === 'saved' && !hasUnsavedChanges}
-                >
-                  <Save className="w-4 h-4" />
-                  保存
-                </Button>
                 <Button
                   isIconOnly
                   size="sm"

@@ -114,6 +114,7 @@ export interface Block {
   checked?: boolean; // 用于待办事项块
   parentId?: string | null; // 父块ID，用于缩进层级
   level?: number; // 缩进级别，0-6
+  isTitle?: boolean; // 标记是否为标题块
   // 图片块专用字段
   imageUrl?: string; // 图片 URL
   imageSize?: 'small' | 'medium' | 'large' | 'original'; // 图片尺寸
@@ -152,28 +153,94 @@ const createEmptyBlock = (type: BlockType = 'paragraph', level: number = 0): Blo
 
 // 解析内容为块数组
 const parseContent = (content: string): Block[] => {
-  if (!content) return [createEmptyBlock()];
+  if (!content) {
+    // 创建默认文档：标题块 + 空段落
+    return [
+      {
+        id: generateId(),
+        type: 'heading1',
+        content: '',
+        isTitle: true,
+        level: 0,
+        parentId: null,
+        metadata: undefined,
+        checked: undefined,
+      },
+      createEmptyBlock('paragraph', 0),
+    ];
+  }
   try {
     const parsed = JSON.parse(content);
     if (Array.isArray(parsed) && parsed.length > 0) {
       // 确保所有块都有 level 和 parentId 字段
-      return parsed.map((block: Block) => ({
+      const blocks: Block[] = parsed.map((block: Block) => ({
         ...block,
         level: block.level ?? 0,
         parentId: block.parentId ?? null,
+        checked: block.checked ?? undefined,
+        isTitle: block.isTitle ?? undefined,
       }));
+
+      // 确保第一个块是标题块
+      if (blocks[0].type !== 'heading1' || !blocks[0].isTitle) {
+        // 如果第一个块不是标题，在开头插入标题块
+        const titleBlock: Block = {
+          id: generateId(),
+          type: 'heading1',
+          content: '无标题',
+          isTitle: true,
+          level: 0,
+          parentId: null,
+          metadata: undefined,
+          checked: undefined,
+        };
+        blocks.unshift(titleBlock);
+      } else {
+        // 确保第一个块标记为标题
+        blocks[0].isTitle = true;
+      }
+
+      return blocks;
     }
-    return [createEmptyBlock()];
+    // 默认结构：标题 + 空段落
+    return [
+      {
+        id: generateId(),
+        type: 'heading1',
+        content: '',
+        isTitle: true,
+        level: 0,
+        parentId: null,
+        metadata: undefined,
+        checked: undefined,
+      },
+      createEmptyBlock('paragraph', 0),
+    ];
   } catch {
-    // 如果不是 JSON，当作纯文本处理
-    return content.split('\n').filter(Boolean).map(text => ({
-      id: generateId(),
-      type: 'paragraph' as BlockType,
-      content: text,
-      level: 0,
-      parentId: null,
-    }));
+    // 如果不是 JSON，当作纯文本处理，创建默认结构
+    return [
+      {
+        id: generateId(),
+        type: 'heading1',
+        content: '无标题',
+        isTitle: true,
+        level: 0,
+        parentId: null,
+        metadata: undefined,
+        checked: undefined,
+      },
+      createEmptyBlock('paragraph', 0),
+    ];
   }
+};
+
+// 从块数组中提取标题
+export const getDocumentTitle = (blocks: Block[]): string => {
+  if (blocks.length > 0 && blocks[0].isTitle) {
+    const title = blocks[0].content.trim();
+    return title || '未命名文档';
+  }
+  return '未命名文档';
 };
 
 // 块类型分类
@@ -258,7 +325,7 @@ const SortableBlockItem: React.FC<{
   onBlur: () => void;
   onContentChange: (content: string) => void;
   onKeyDown: (e: KeyboardEvent<HTMLDivElement>) => void;
-  onPaste?: (e: ClipboardEvent<HTMLDivElement>) => void;
+  onPaste?: (e: React.ClipboardEvent<HTMLDivElement>) => void;
   readonly?: boolean;
   onCopy: (block: Block) => void;
   onDelete: (index: number) => void;
@@ -305,6 +372,9 @@ const SortableBlockItem: React.FC<{
 
   const sortableRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // 处理中文输入法状态
+  const [isComposing, setIsComposing] = useState(false);
 
   // 合并 dnd-kit 的 ref
   useEffect(() => {
@@ -364,6 +434,54 @@ const SortableBlockItem: React.FC<{
             onChangeType={onChangeType}
           />
         )}
+      </div>
+    );
+  }
+
+  // 标题块特殊处理（第一个 heading1 块作为文档标题）
+  if (block.isTitle && block.type === 'heading1') {
+    return (
+      <div
+        ref={sortableRef}
+        style={style}
+        {...attributes}
+        className={`${getBlockClassName} block-item--title`}
+        tabIndex={0}
+        onFocus={onFocus}
+      >
+        <div
+          ref={contentRef}
+          contentEditable={!readonly}
+          suppressContentEditableWarning
+          data-placeholder="无标题"
+          onFocus={onFocus}
+          onCompositionStart={() => setIsComposing(true)}
+          onCompositionEnd={(e) => {
+            setIsComposing(false);
+            const content = (e.target as HTMLDivElement).textContent || '';
+            onContentChange(content);
+          }}
+          onBlur={(e) => {
+            const content = (e.target as HTMLDivElement).textContent || '';
+            onContentChange(content);
+            (e.target as HTMLDivElement).dataset.rendered = parseMarkdown(content);
+            onBlur();
+          }}
+          onInput={(e) => {
+            const content = (e.target as HTMLDivElement).textContent || '';
+            onContentChange(content);
+          }}
+          onKeyDown={onKeyDown}
+          onPaste={onPaste}
+          dangerouslySetInnerHTML={
+            // 只在非聚焦时使用 dangerouslySetInnerHTML 同步外部变化
+            // 聚焦时完全由浏览器管理 DOM，避免光标跳转
+            !isFocused ? {
+              __html: (block.metadata?.rendered as string) || parseMarkdown(block.content) || block.content || ''
+            } : undefined
+          }
+          className="block-item-content"
+        />
       </div>
     );
   }
@@ -447,6 +565,12 @@ const SortableBlockItem: React.FC<{
         suppressContentEditableWarning
         data-placeholder={getPlaceholder}
         onFocus={onFocus}
+        onCompositionStart={() => setIsComposing(true)}
+        onCompositionEnd={(e) => {
+          setIsComposing(false);
+          const content = (e.target as HTMLDivElement).textContent || '';
+          onContentChange(content);
+        }}
         onBlur={(e) => {
           // 失焦时应用 Markdown 转换
           const content = (e.target as HTMLDivElement).textContent || '';
@@ -456,15 +580,17 @@ const SortableBlockItem: React.FC<{
           onBlur();
         }}
         onInput={(e) => {
-          onContentChange((e.target as HTMLDivElement).textContent || '');
+          const content = (e.target as HTMLDivElement).textContent || '';
+          onContentChange(content);
         }}
         onKeyDown={onKeyDown}
         onPaste={onPaste}
-        dangerouslySetInnerHTML={{
-          __html: isFocused
-            ? block.content || ''
-            : (block.metadata?.rendered as string) || parseMarkdown(block.content) || block.content || ''
-        }}
+        dangerouslySetInnerHTML={
+          // 只在非聚焦时使用 dangerouslySetInnerHTML 同步外部变化
+          !isFocused ? {
+            __html: (block.metadata?.rendered as string) || parseMarkdown(block.content) || block.content || ''
+          } : undefined
+        }
         className="block-item-content"
       />
 
@@ -1162,7 +1288,7 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
   }, [blocks, notifyChange]);
 
   // 智能粘贴处理
-  const handlePaste = useCallback((e: ClipboardEvent<HTMLDivElement>) => {
+  const handlePaste = useCallback((e: React.ClipboardEvent<HTMLDivElement>) => {
     e.preventDefault();
     const pastedText = e.clipboardData.getData('text');
     const pastedHtml = e.clipboardData.getData('text/html');

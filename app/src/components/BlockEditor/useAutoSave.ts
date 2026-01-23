@@ -132,20 +132,17 @@ export const useAutoSave = ({
   }, [content, delay, enabled, performSave]);
 
   // 组件卸载时保存未保存的内容
+  // 注意：这个 effect 不应该有依赖项，只在组件真正挂载/卸载时执行
   useEffect(() => {
     return () => {
       isMountedRef.current = false;
 
-      // 如果有未保存的更改，立即保存
-      if (hasUnsavedChanges) {
-        if (saveTimeoutRef.current) {
-          clearTimeout(saveTimeoutRef.current);
-        }
-        // 使用保存时的内容快照，避免闭包问题
-        performSave(content);
+      // 清除定时器
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [hasUnsavedChanges, performSave]);
+  }, []);  // 空依赖数组，只在挂载/卸载时执行
 
   // 手动保存
   const manualSave = useCallback(async () => {
