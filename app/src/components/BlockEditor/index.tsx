@@ -217,6 +217,8 @@ const SortableBlockItem: React.FC<{
   block: Block;
   index: number;
   isFocused: boolean;
+  isSelected?: boolean;
+  isMultiSelectMode?: boolean;
   onFocus: () => void;
   onBlur: () => void;
   onContentChange: (content: string) => void;
@@ -230,10 +232,13 @@ const SortableBlockItem: React.FC<{
   onChangeType: (index: number, newType: BlockType) => void;
   onInsertBlock: (index: number, type: BlockType, position: 'above' | 'below') => void;
   onToggleChecked?: (index: number) => void;
+  onBlockClick?: (index: number, isShiftKey: boolean) => void;
 }> = memo(({
   block,
   index,
   isFocused,
+  isSelected = false,
+  isMultiSelectMode = false,
   onFocus,
   onBlur,
   onContentChange,
@@ -247,6 +252,7 @@ const SortableBlockItem: React.FC<{
   onChangeType,
   onInsertBlock,
   onToggleChecked,
+  onBlockClick,
 }) => {
   const {
     attributes,
@@ -283,8 +289,10 @@ const SortableBlockItem: React.FC<{
     const typeClass = `block-item--${block.type}`;
     const focusClass = isFocused ? 'block-item--focused' : '';
     const draggingClass = isDragging ? 'block-item--dragging' : '';
-    return `${base} ${typeClass} ${focusClass} ${draggingClass}`.trim();
-  }, [block.type, isFocused, isDragging]);
+    const selectedClass = isSelected ? 'block-item--selected' : '';
+    const multiSelectClass = isMultiSelectMode ? 'block-item--multiselect' : '';
+    return `${base} ${typeClass} ${focusClass} ${draggingClass} ${selectedClass} ${multiSelectClass}`.trim();
+  }, [block.type, isFocused, isDragging, isSelected, isMultiSelectMode]);
 
   // 获取占位符
   const getPlaceholder = useMemo(() => {
@@ -351,7 +359,24 @@ const SortableBlockItem: React.FC<{
       style={style}
       {...attributes}
       className={getBlockClassName}
+      onClick={(e) => {
+        if (isMultiSelectMode) {
+          onBlockClick?.(index, e.shiftKey);
+          e.stopPropagation();
+        }
+      }}
     >
+      {/* 多选模式复选框 */}
+      {isMultiSelectMode && (
+        <input
+          type="checkbox"
+          className="block-multiselect-checkbox"
+          checked={isSelected}
+          onChange={() => onBlockClick?.(index, false)}
+          onClick={(e) => e.stopPropagation()}
+        />
+      )}
+
       {/* 块操作按钮（悬停时显示） */}
       {!readonly && (
         <>
@@ -529,6 +554,11 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [colorPickerType, setColorPickerType] = useState<ColorType>('text');
   const [colorPickerPosition, setColorPickerPosition] = useState({ top: 0, left: 0 });
+
+  // 多选块操作状态
+  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
+  const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
+  const lastSelectedIndexRef = useRef<number | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -734,6 +764,10 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
             document.execCommand('createLink', false, url);
           }
           return;
+        case 'm':
+          e.preventDefault();
+          handleToggleMultiSelectMode();
+          return;
       }
     }
 
@@ -770,6 +804,32 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
       setBlocks(newBlocks);
       notifyChange(newBlocks);
       return;
+    }
+
+    // Escape 退出多选模式或关闭菜单
+    if (e.key === 'Escape') {
+      if (isMultiSelectMode) {
+        setIsMultiSelectMode(false);
+        setSelectedIndices(new Set());
+        lastSelectedIndexRef.current = null;
+        e.preventDefault();
+        return;
+      }
+      if (showSelector) {
+        setShowSelector(false);
+        e.preventDefault();
+        return;
+      }
+      if (showMentionMenu) {
+        setShowMentionMenu(false);
+        e.preventDefault();
+        return;
+      }
+      if (showColorPicker) {
+        setShowColorPicker(false);
+        e.preventDefault();
+        return;
+      }
     }
 
     // Enter 创建新块
@@ -1107,6 +1167,106 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
     }
   }, [colorPickerType]);
 
+  // 处理块点击（支持多选）
+  const handleBlockClick = useCallback((index: number, isShiftKey: boolean) => {
+    if (isShiftKey && lastSelectedIndexRef.current !== null) {
+      // Shift+点击：范围选择
+      const start = Math.min(lastSelectedIndexRef.current, index);
+      const end = Math.max(lastSelectedIndexRef.current, index);
+      const range = Array.from({ length: end - start + 1 }, (_, i) => start + i);
+      setSelectedIndices(new Set(range));
+    } else if (isMultiSelectMode) {
+      // 多选模式：切换选中状态
+      setSelectedIndices((prev) => {
+        const newSet = new Set(prev);
+        if (newSet.has(index)) {
+          newSet.delete(index);
+        } else {
+          newSet.add(index);
+        }
+        return newSet;
+      });
+      lastSelectedIndexRef.current = index;
+    } else {
+      // 普通模式：清除多选
+      setSelectedIndices(new Set());
+      lastSelectedIndexRef.current = index;
+    }
+  }, [isMultiSelectMode]);
+
+  // 批量删除
+  const handleBatchDelete = useCallback(() => {
+    if (selectedIndices.size === 0) return;
+
+    const newBlocks = blocks.filter((_, i) => !selectedIndices.has(i));
+    if (newBlocks.length === 0) {
+      // 至少保留一个空块
+      newBlocks.push(createEmptyBlock());
+    }
+    setBlocks(newBlocks);
+    setSelectedIndices(new Set());
+    lastSelectedIndexRef.current = null;
+    setIsMultiSelectMode(false);
+    notifyChange(newBlocks);
+  }, [blocks, selectedIndices, notifyChange]);
+
+  // 批量转换类型
+  const handleBatchChangeType = useCallback((newType: BlockType) => {
+    if (selectedIndices.size === 0) return;
+
+    const newBlocks = [...blocks];
+    selectedIndices.forEach((index) => {
+      newBlocks[index] = { ...newBlocks[index], type: newType };
+    });
+    setBlocks(newBlocks);
+    setSelectedIndices(new Set());
+    lastSelectedIndexRef.current = null;
+    setIsMultiSelectMode(false);
+    notifyChange(newBlocks);
+  }, [blocks, selectedIndices, notifyChange]);
+
+  // 批量复制
+  const handleBatchCopy = useCallback(() => {
+    if (selectedIndices.size === 0) return;
+
+    const selectedBlocks = blocks.filter((_, i) => selectedIndices.has(i));
+    const textContent = selectedBlocks.map(b => b.content).join('\n');
+    navigator.clipboard.writeText(textContent);
+  }, [blocks, selectedIndices]);
+
+  // 批量剪切
+  const handleBatchCut = useCallback(() => {
+    if (selectedIndices.size === 0) return;
+
+    const selectedBlocks = blocks.filter((_, i) => selectedIndices.has(i));
+    const textContent = selectedBlocks.map(b => b.content).join('\n');
+    navigator.clipboard.writeText(textContent);
+
+    // 删除选中的块
+    const newBlocks = blocks.filter((_, i) => !selectedIndices.has(i));
+    if (newBlocks.length === 0) {
+      newBlocks.push(createEmptyBlock());
+    }
+    setBlocks(newBlocks);
+    setSelectedIndices(new Set());
+    lastSelectedIndexRef.current = null;
+    setIsMultiSelectMode(false);
+    notifyChange(newBlocks);
+  }, [blocks, selectedIndices, notifyChange]);
+
+  // 切换多选模式
+  const handleToggleMultiSelectMode = useCallback(() => {
+    setIsMultiSelectMode((prev) => {
+      const newMode = !prev;
+      if (!newMode) {
+        // 退出多选模式时清除选择
+        setSelectedIndices(new Set());
+        lastSelectedIndexRef.current = null;
+      }
+      return newMode;
+    });
+  }, []);
+
   return (
     <div
       ref={containerRef}
@@ -1128,6 +1288,45 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
         />
       )}
 
+      {/* 多选工具栏 */}
+      {selectedIndices.size > 0 && (
+        <div className="block-multiselect-toolbar">
+          <span className="block-multiselect-count">
+            已选中 {selectedIndices.size} 个块
+          </span>
+          <div className="block-multiselect-actions">
+            <button
+              className="block-multiselect-btn"
+              onClick={handleBatchCopy}
+              title="复制"
+            >
+              复制
+            </button>
+            <button
+              className="block-multiselect-btn"
+              onClick={handleBatchCut}
+              title="剪切"
+            >
+              剪切
+            </button>
+            <button
+              className="block-multiselect-btn block-multiselect-btn--danger"
+              onClick={handleBatchDelete}
+              title="删除"
+            >
+              删除
+            </button>
+            <button
+              className="block-multiselect-btn"
+              onClick={() => setIsMultiSelectMode(false)}
+              title="取消"
+            >
+              取消
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 编辑区 */}
       <div className="block-editor-content">
         <DndContext
@@ -1145,6 +1344,8 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
                 block={block}
                 index={index}
                 isFocused={focusedIndex === index}
+                isSelected={selectedIndices.has(index)}
+                isMultiSelectMode={isMultiSelectMode}
                 onFocus={() => setFocusedIndex(index)}
                 onBlur={() => {}}
                 onContentChange={(content) => handleContentChange(index, content)}
@@ -1158,6 +1359,7 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
                 onChangeType={handleChangeType}
                 onInsertBlock={handleInsertBlockAtPosition}
                 onToggleChecked={handleToggleChecked}
+                onBlockClick={handleBlockClick}
               />
             ))}
           </SortableContext>
