@@ -1318,7 +1318,10 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
             </button>
             <button
               className="block-multiselect-btn"
-              onClick={() => setIsMultiSelectMode(false)}
+              onClick={() => {
+                setSelectedIndices(new Set());
+                setIsMultiSelectMode(false);
+              }}
               title="取消"
             >
               取消
