@@ -547,6 +547,62 @@
   margin-left: auto;
 }
 
+/* 增强版块类型选择器样式 */
+.block-type-selector-categories {
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(103, 80, 164, 0.1);
+  overflow-x: auto;
+}
+
+.block-type-selector-category {
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  border: none;
+  background: transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  color: var(--heroui-default-500);
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.block-type-selector-category:hover {
+  background: rgba(103, 80, 164, 0.08);
+}
+
+.block-type-selector-category--active {
+  background: rgba(103, 80, 164, 0.15);
+  color: rgb(103, 80, 164);
+  font-weight: 500;
+}
+
+.block-type-selector-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.block-type-selector-description {
+  font-size: 0.75rem;
+  color: var(--heroui-default-400);
+}
+
+.block-type-selector-highlight {
+  background: rgba(255, 230, 0, 0.3);
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+.block-type-selector-empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--heroui-default-400);
+  font-size: 0.9rem;
+}
+
 /* ============================================
    块操作组件样式
    ============================================ */

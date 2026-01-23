@@ -176,20 +176,55 @@ const parseContent = (content: string): Block[] => {
   }
 };
 
-// 块类型选项
-const BLOCK_TYPES = [
-  { type: 'paragraph' as BlockType, label: '段落', icon: 'T', shortcut: 'p' },
-  { type: 'heading1' as BlockType, label: '标题 1', icon: 'H1', shortcut: 'h1' },
-  { type: 'heading2' as BlockType, label: '标题 2', icon: 'H2', shortcut: 'h2' },
-  { type: 'heading3' as BlockType, label: '标题 3', icon: 'H3', shortcut: 'h3' },
-  { type: 'bullet-list' as BlockType, label: '无序列表', icon: '•', shortcut: 'ul' },
-  { type: 'numbered-list' as BlockType, label: '有序列表', icon: '1.', shortcut: 'ol' },
-  { type: 'todo' as BlockType, label: '待办事项', icon: '☐', shortcut: 'todo' },
-  { type: 'quote' as BlockType, label: '引用', icon: '"', shortcut: 'q' },
-  { type: 'code' as BlockType, label: '代码块', icon: '</>', shortcut: 'code' },
-  { type: 'image' as BlockType, label: '图片', icon: '🖼️', shortcut: 'image' },
-  { type: 'divider' as BlockType, label: '分割线', icon: '—', shortcut: 'hr' },
+// 块类型分类
+type BlockCategory = 'basic' | 'media' | 'advanced' | 'all';
+
+// 块类型选项（增强版，带分类）
+const BLOCK_TYPES: Array<{
+  type: BlockType;
+  label: string;
+  icon: string;
+  shortcut: string;
+  category: BlockCategory;
+  description?: string;
+}> = [
+  // 基础块
+  { type: 'paragraph', label: '段落', icon: 'T', shortcut: 'p', category: 'basic', description: '普通文本段落' },
+  { type: 'heading1', label: '标题 1', icon: 'H1', shortcut: 'h1', category: 'basic', description: '大标题' },
+  { type: 'heading2', label: '标题 2', icon: 'H2', shortcut: 'h2', category: 'basic', description: '中标题' },
+  { type: 'heading3', label: '标题 3', icon: 'H3', shortcut: 'h3', category: 'basic', description: '小标题' },
+  { type: 'bullet-list', label: '无序列表', icon: '•', shortcut: 'ul', category: 'basic', description: '项目符号列表' },
+  { type: 'numbered-list', label: '有序列表', icon: '1.', shortcut: 'ol', category: 'basic', description: '数字列表' },
+  { type: 'todo', label: '待办事项', icon: '☐', shortcut: 'todo', category: 'basic', description: '可勾选的待办事项' },
+  // 媒体
+  { type: 'image', label: '图片', icon: '🖼', shortcut: 'image', category: 'media', description: '插入图片' },
+  // 高级
+  { type: 'quote', label: '引用', icon: '"', shortcut: 'q', category: 'advanced', description: '引用块' },
+  { type: 'code', label: '代码块', icon: '</>', shortcut: 'code', category: 'advanced', description: '代码片段' },
+  { type: 'divider', label: '分割线', icon: '—', shortcut: 'hr', category: 'advanced', description: '水平分割线' },
 ];
+
+// 分类名称映射
+const CATEGORY_NAMES: Record<BlockCategory, string> = {
+  basic: '基础块',
+  media: '媒体',
+  advanced: '高级',
+  all: '全部',
+};
+
+// 高亮搜索文字
+const highlightMatch = (text: string, query: string): React.ReactNode => {
+  if (!query) return text;
+  const regex = new RegExp(`(${query})`, 'gi');
+  const parts = text.split(regex);
+  return parts.map((part, i) =>
+    regex.test(part) ? (
+      <mark key={i} className="block-type-selector-highlight">{part}</mark>
+    ) : (
+      part
+    )
+  );
+};
 
 // 历史记录项
 interface HistoryItem {
@@ -223,6 +258,7 @@ const SortableBlockItem: React.FC<{
   onBlur: () => void;
   onContentChange: (content: string) => void;
   onKeyDown: (e: KeyboardEvent<HTMLDivElement>) => void;
+  onPaste?: (e: ClipboardEvent<HTMLDivElement>) => void;
   readonly?: boolean;
   onCopy: (block: Block) => void;
   onDelete: (index: number) => void;
@@ -243,6 +279,7 @@ const SortableBlockItem: React.FC<{
   onBlur,
   onContentChange,
   onKeyDown,
+  onPaste,
   readonly,
   onCopy,
   onDelete,
@@ -422,6 +459,7 @@ const SortableBlockItem: React.FC<{
           onContentChange((e.target as HTMLDivElement).textContent || '');
         }}
         onKeyDown={onKeyDown}
+        onPaste={onPaste}
         dangerouslySetInnerHTML={{
           __html: isFocused
             ? block.content || ''
@@ -449,20 +487,53 @@ const SortableBlockItem: React.FC<{
 
 SortableBlockItem.displayName = 'SortableBlockItem';
 
-// 块类型选择器
+// 块类型选择器（增强版，支持分类和搜索高亮）
 const BlockTypeSelector: React.FC<{
   position: { top: number; left: number };
   onSelect: (type: BlockType) => void;
   onClose: () => void;
 }> = memo(({ position, onSelect, onClose }) => {
   const [filter, setFilter] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<BlockCategory>('all');
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const filteredTypes = useMemo(() =>
-    BLOCK_TYPES.filter(t =>
-      t.label.includes(filter) || t.shortcut.includes(filter.toLowerCase())
-    ),
-    [filter]
-  );
+
+  // 按分类过滤块类型
+  const filteredTypes = useMemo(() => {
+    let types = BLOCK_TYPES;
+
+    // 按分类过滤
+    if (selectedCategory !== 'all') {
+      types = types.filter(t => t.category === selectedCategory);
+    }
+
+    // 按搜索关键词过滤
+    if (filter) {
+      const query = filter.toLowerCase();
+      types = types.filter(t =>
+        t.label.toLowerCase().includes(query) ||
+        t.shortcut.includes(query) ||
+        t.description?.toLowerCase().includes(query)
+      );
+    }
+
+    return types;
+  }, [filter, selectedCategory]);
+
+  // 获取所有可用的分类（基于当前搜索结果）
+  const availableCategories = useMemo(() => {
+    if (!filter) {
+      return ['all', 'basic', 'media', 'advanced'] as BlockCategory[];
+    }
+    const categories = new Set<BlockCategory>(['all']);
+    BLOCK_TYPES.forEach(t => {
+      if (t.label.toLowerCase().includes(filter.toLowerCase()) ||
+          t.shortcut.includes(filter.toLowerCase()) ||
+          t.description?.toLowerCase().includes(filter.toLowerCase())) {
+        categories.add(t.category);
+      }
+    });
+    return Array.from(categories);
+  }, [filter]);
 
   useEffect(() => {
     const handleClickOutside = () => onClose();
@@ -473,7 +544,7 @@ const BlockTypeSelector: React.FC<{
   // 键盘导航
   useEffect(() => {
     setSelectedIndex(0);
-  }, [filter]);
+  }, [filter, selectedCategory]);
 
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'ArrowDown') {
@@ -505,19 +576,50 @@ const BlockTypeSelector: React.FC<{
         onChange={(e) => setFilter(e.target.value)}
         autoFocus
       />
+
+      {/* 分类标签 */}
+      {availableCategories.length > 1 && (
+        <div className="block-type-selector-categories">
+          {availableCategories.map(cat => (
+            <button
+              key={cat}
+              className={`block-type-selector-category ${selectedCategory === cat ? 'block-type-selector-category--active' : ''}`}
+              onClick={() => setSelectedCategory(cat)}
+            >
+              {CATEGORY_NAMES[cat]}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="block-type-selector-list">
-        {filteredTypes.map(({ type, label, icon }, index) => (
-          <button
-            key={type}
-            className={`block-type-selector-item ${index === selectedIndex ? 'block-type-selector-item--selected' : ''}`}
-            onClick={() => onSelect(type as BlockType)}
-            onMouseEnter={() => setSelectedIndex(index)}
-          >
-            <span className="block-type-selector-icon">{icon}</span>
-            <span className="block-type-selector-label">{label}</span>
-            <span className="block-type-selector-shortcut">{BLOCK_TYPES.find(t => t.type === type)?.shortcut}</span>
-          </button>
-        ))}
+        {filteredTypes.length === 0 ? (
+          <div className="block-type-selector-empty">没有找到匹配的块类型</div>
+        ) : (
+          filteredTypes.map(({ type, label, icon, description }, index) => (
+            <button
+              key={type}
+              className={`block-type-selector-item ${index === selectedIndex ? 'block-type-selector-item--selected' : ''}`}
+              onClick={() => onSelect(type as BlockType)}
+              onMouseEnter={() => setSelectedIndex(index)}
+            >
+              <span className="block-type-selector-icon">{icon}</span>
+              <div className="block-type-selector-info">
+                <span className="block-type-selector-label">
+                  {highlightMatch(label, filter)}
+                </span>
+                {description && (
+                  <span className="block-type-selector-description">
+                    {highlightMatch(description, filter)}
+                  </span>
+                )}
+              </div>
+              <span className="block-type-selector-shortcut">
+                {BLOCK_TYPES.find(t => t.type === type)?.shortcut}
+              </span>
+            </button>
+          ))
+        )}
       </div>
     </div>
   );
@@ -767,6 +869,19 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
         case 'm':
           e.preventDefault();
           handleToggleMultiSelectMode();
+          return;
+        case 'd':
+          e.preventDefault();
+          // Cmd+D 快速重复当前块
+          handleDuplicate(blocks[index]);
+          // 聚焦到新创建的块
+          setTimeout(() => {
+            setFocusedIndex(index + 1);
+            const offset = showToolbar ? 2 : 0;
+            const newBlockElement = containerRef.current?.children[index + 1 + offset] as HTMLElement;
+            const contentElement = newBlockElement?.querySelector('.block-item-content') as HTMLElement;
+            contentElement?.focus();
+          }, 0);
           return;
       }
     }
@@ -1044,6 +1159,88 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
     };
     setBlocks(newBlocks);
     notifyChange(newBlocks);
+  }, [blocks, notifyChange]);
+
+  // 智能粘贴处理
+  const handlePaste = useCallback((e: ClipboardEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const pastedText = e.clipboardData.getData('text');
+    const pastedHtml = e.clipboardData.getData('text/html');
+
+    // 检测是否是 URL
+    const urlRegex = /^(https?:\/\/[^\s]+)$/;
+    if (urlRegex.test(pastedText.trim())) {
+      // 粘贴 URL，创建链接
+      document.execCommand('createLink', false, pastedText.trim());
+      return;
+    }
+
+    // 检测是否是代码（多行代码或包含代码特征）
+    const isCode = pastedText.includes('\n') &&
+                   (pastedText.includes('function') ||
+                    pastedText.includes('const') ||
+                    pastedText.includes('let') ||
+                    pastedText.includes('var') ||
+                    pastedText.includes('import') ||
+                    pastedText.includes('export') ||
+                    pastedText.includes('=>') ||
+                    pastedText.includes('{') && pastedText.includes('}'));
+
+    if (isCode) {
+      // 粘贴代码，提示用户创建代码块
+      const shouldCreateCodeBlock = confirm('检测到代码内容，是否创建代码块？');
+      if (shouldCreateCodeBlock) {
+        // 获取当前块的 index
+        const target = e.target as HTMLElement;
+        const blockItem = target.closest('.block-item') as HTMLElement;
+        if (blockItem) {
+          const blockElements = Array.from(containerRef.current?.children || []);
+          const index = blockElements.indexOf(blockItem);
+          if (index !== -1) {
+            const newBlocks = [...blocks];
+            newBlocks[index] = {
+              ...newBlocks[index],
+              type: 'code',
+              content: pastedText.trim(),
+            };
+            setBlocks(newBlocks);
+            notifyChange(newBlocks);
+            return;
+          }
+        }
+      }
+    }
+
+    // 检测是否是多行文本（拆分为多个块）
+    const lines = pastedText.split('\n').filter(line => line.trim());
+    if (lines.length > 1) {
+      const target = e.target as HTMLElement;
+      const blockItem = target.closest('.block-item') as HTMLElement;
+      if (blockItem) {
+        const blockElements = Array.from(containerRef.current?.children || []);
+        const index = blockElements.indexOf(blockItem);
+        if (index !== -1) {
+          const newBlocks = [...blocks];
+          // 更新当前块为第一行
+          newBlocks[index] = {
+            ...newBlocks[index],
+            content: lines[0],
+          };
+          // 插入剩余行作为新块
+          lines.slice(1).forEach((line, i) => {
+            const newBlock = createEmptyBlock('paragraph');
+            newBlock.content = line;
+            newBlocks.splice(index + 1 + i, 0, newBlock);
+          });
+          setBlocks(newBlocks);
+          notifyChange(newBlocks);
+          return;
+        }
+      }
+    }
+
+    // 普通文本粘贴
+    document.execCommand('insertText', false, pastedText);
   }, [blocks, notifyChange]);
 
   // 处理工具栏格式化操作
@@ -1353,6 +1550,7 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
                 onBlur={() => {}}
                 onContentChange={(content) => handleContentChange(index, content)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
+                onPaste={handlePaste}
                 readonly={readonly}
                 onCopy={handleCopyBlock}
                 onDelete={handleDeleteBlock}
