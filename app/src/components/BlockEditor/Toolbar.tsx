@@ -25,7 +25,7 @@ import {
 import { Tooltip } from '@heroui/react';
 import { motion } from 'motion/react';
 
-export type BlockType = 'paragraph' | 'heading1' | 'heading2' | 'heading3' | 'bullet-list' | 'numbered-list' | 'quote' | 'code' | 'divider';
+export type BlockType = 'paragraph' | 'heading1' | 'heading2' | 'heading3' | 'bullet-list' | 'numbered-list' | 'todo' | 'quote' | 'code' | 'divider';
 
 export interface ToolbarAction {
   type: 'format' | 'block' | 'history';

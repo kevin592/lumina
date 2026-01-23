@@ -62,7 +62,8 @@
   border-radius: 8px;
   outline: none;
   transition: background-color 0.15s ease,
-              box-shadow 0.15s ease;
+              box-shadow 0.15s ease,
+              padding-left 0.15s ease;
   cursor: text;
 }
 
@@ -96,6 +97,128 @@
 
 .block-drag-handle:active {
   cursor: grabbing;
+}
+
+/* ============================================
+   块左侧加号按钮
+   ============================================ */
+.block-add-button-container {
+  position: absolute;
+  left: -28px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+}
+
+.block-add-button {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+  color: rgb(103, 80, 164);
+}
+
+.block-item:hover .block-add-button {
+  opacity: 0.5;
+}
+
+.block-add-button:hover {
+  opacity: 1 !important;
+  background: rgba(103, 80, 164, 0.1) !important;
+}
+
+/* 快速插入菜单 */
+.block-add-menu {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(103, 80, 164, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  min-width: 240px;
+  max-width: 320px;
+  overflow: hidden;
+}
+
+@media (prefers-color-scheme: dark) {
+  .block-add-menu {
+    background: rgba(17, 17, 17, 0.95);
+    border-color: rgba(103, 80, 164, 0.3);
+  }
+}
+
+.block-add-menu-header {
+  padding: 12px 16px 8px;
+  border-bottom: 1px solid rgba(103, 80, 164, 0.1);
+}
+
+.block-add-menu-title {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--heroui-default-500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.block-add-menu-list {
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 6px;
+}
+
+.block-add-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.block-add-menu-item:hover {
+  background: rgba(103, 80, 164, 0.1);
+}
+
+.block-add-menu-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(103, 80, 164, 0.08);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgb(103, 80, 164);
+  flex-shrink: 0;
+}
+
+.block-add-menu-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.block-add-menu-label {
+  font-size: 0.9rem;
+  color: var(--heroui-foreground);
+}
+
+.block-add-menu-description {
+  font-size: 0.75rem;
+  color: var(--heroui-default-400);
 }
 
 /* 块内容区域 */
@@ -205,6 +328,50 @@
   left: 8px;
   color: rgb(103, 80, 164);
   font-weight: 500;
+}
+
+/* 待办事项块 */
+.block-item--todo {
+  padding-left: 28px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.block-todo-checkbox {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgb(103, 80, 164);
+  border-radius: 4px;
+  cursor: pointer;
+  appearance: none;
+  background: transparent;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.block-todo-checkbox:hover {
+  background: rgba(103, 80, 164, 0.1);
+}
+
+.block-todo-checkbox:checked {
+  background: rgb(103, 80, 164);
+  border-color: rgb(103, 80, 164);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z'/%3E%3C/svg%3E");
+  background-size: 14px;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* 待办事项完成状态 */
+.block-item--todo .block-item-content:has(+ .block-todo-checkbox:checked),
+.block-item--todo .block-item-content[data-checked="true"] {
+  text-decoration: line-through;
+  color: var(--heroui-default-400);
 }
 
 /* 引用块 */

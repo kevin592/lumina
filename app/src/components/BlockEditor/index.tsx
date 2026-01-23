@@ -15,7 +15,7 @@
  * - 块操作菜单
  */
 
-import { useState, useRef, useEffect, useCallback, KeyboardEvent, MouseEvent } from 'react';
+import { useState, useRef, useEffect, useCallback, KeyboardEvent, memo, useMemo } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -36,6 +36,7 @@ import { CSS } from '@dnd-kit/utilities';
 import './styles.css';
 import { Toolbar, BlockType } from './Toolbar';
 import { BlockActions } from './BlockActions';
+import { BlockAddButton } from './BlockAddButton';
 
 /**
  * Markdown 解析为 HTML
@@ -83,11 +84,14 @@ const parseMarkdown = (text: string): string => {
 };
 
 // 块定义
-interface Block {
+export interface Block {
   id: string;
   type: BlockType;
   content: string;
   metadata?: Record<string, unknown>;
+  checked?: boolean; // 用于待办事项块
+  parentId?: string | null; // 父块ID，用于缩进层级
+  level?: number; // 缩进级别，0-6
 }
 
 interface BlockEditorProps {
@@ -111,10 +115,12 @@ interface BlockEditorProps {
 const generateId = () => Math.random().toString(36).substring(2, 11);
 
 // 默认空块
-const createEmptyBlock = (type: BlockType = 'paragraph'): Block => ({
+const createEmptyBlock = (type: BlockType = 'paragraph', level: number = 0): Block => ({
   id: generateId(),
   type,
   content: '',
+  level,
+  parentId: null,
 });
 
 // 解析内容为块数组
@@ -123,7 +129,12 @@ const parseContent = (content: string): Block[] => {
   try {
     const parsed = JSON.parse(content);
     if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed;
+      // 确保所有块都有 level 和 parentId 字段
+      return parsed.map((block: Block) => ({
+        ...block,
+        level: block.level ?? 0,
+        parentId: block.parentId ?? null,
+      }));
     }
     return [createEmptyBlock()];
   } catch {
@@ -132,6 +143,8 @@ const parseContent = (content: string): Block[] => {
       id: generateId(),
       type: 'paragraph' as BlockType,
       content: text,
+      level: 0,
+      parentId: null,
     }));
   }
 };
@@ -144,12 +157,34 @@ const BLOCK_TYPES = [
   { type: 'heading3' as BlockType, label: '标题 3', icon: 'H3', shortcut: 'h3' },
   { type: 'bullet-list' as BlockType, label: '无序列表', icon: '•', shortcut: 'ul' },
   { type: 'numbered-list' as BlockType, label: '有序列表', icon: '1.', shortcut: 'ol' },
+  { type: 'todo' as BlockType, label: '待办事项', icon: '☐', shortcut: 'todo' },
   { type: 'quote' as BlockType, label: '引用', icon: '"', shortcut: 'q' },
   { type: 'code' as BlockType, label: '代码块', icon: '</>', shortcut: 'code' },
   { type: 'divider' as BlockType, label: '分割线', icon: '—', shortcut: 'hr' },
 ];
 
-// 可排序块组件
+// 历史记录项
+interface HistoryItem {
+  blocks: Block[];
+  timestamp: number;
+}
+
+// 使用深度比较检查内容是否真的改变
+const blocksEqual = (a: Block[], b: Block[]): boolean => {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i].id !== b[i].id ||
+        a[i].type !== b[i].type ||
+        a[i].content !== b[i].content ||
+        (a[i].level ?? 0) !== (b[i].level ?? 0) ||
+        a[i].checked !== b[i].checked) {
+      return false;
+    }
+  }
+  return true;
+};
+
+// 可排序块组件（使用 memo 优化性能）
 const SortableBlockItem: React.FC<{
   block: Block;
   index: number;
@@ -165,7 +200,9 @@ const SortableBlockItem: React.FC<{
   onMoveDown: (index: number) => void;
   onDuplicate: (block: Block) => void;
   onChangeType: (index: number, newType: BlockType) => void;
-}> = ({
+  onInsertBlock: (index: number, type: BlockType, position: 'above' | 'below') => void;
+  onToggleChecked?: (index: number) => void;
+}> = memo(({
   block,
   index,
   isFocused,
@@ -180,6 +217,8 @@ const SortableBlockItem: React.FC<{
   onMoveDown,
   onDuplicate,
   onChangeType,
+  onInsertBlock,
+  onToggleChecked,
 }) => {
   const {
     attributes,
@@ -193,32 +232,34 @@ const SortableBlockItem: React.FC<{
     disabled: readonly,
   });
 
-  const ref = useRef<HTMLDivElement>(null);
+  const sortableRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
-  // 合并 refs
+  // 合并 dnd-kit 的 ref
   useEffect(() => {
-    if (setNodeRef && ref.current) {
-      setNodeRef(ref.current);
+    if (setNodeRef && sortableRef.current) {
+      setNodeRef(sortableRef.current);
     }
   }, [setNodeRef]);
 
-  const style = {
+  const style = useMemo(() => ({
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-  };
+    paddingLeft: `${(block.level ?? 0) * 24}px`,
+  }), [transform, transition, isDragging, block.level]);
 
   // 获取块的样式类名
-  const getBlockClassName = () => {
+  const getBlockClassName = useMemo(() => {
     const base = 'block-item';
     const typeClass = `block-item--${block.type}`;
     const focusClass = isFocused ? 'block-item--focused' : '';
     const draggingClass = isDragging ? 'block-item--dragging' : '';
     return `${base} ${typeClass} ${focusClass} ${draggingClass}`.trim();
-  };
+  }, [block.type, isFocused, isDragging]);
 
   // 获取占位符
-  const getPlaceholder = () => {
+  const getPlaceholder = useMemo(() => {
     if (block.content) return '';
     switch (block.type) {
       case 'heading1': return '标题 1';
@@ -226,14 +267,15 @@ const SortableBlockItem: React.FC<{
       case 'heading3': return '标题 3';
       case 'quote': return '输入引用...';
       case 'code': return '输入代码...';
+      case 'todo': return '待办事项...';
       default: return '输入文字，或按 "/" 选择块类型';
     }
-  };
+  }, [block.type, block.content]);
 
   // 分割线特殊处理
   if (block.type === 'divider') {
     return (
-      <div ref={ref} style={style} {...attributes} className={getBlockClassName()} tabIndex={0} onFocus={onFocus}>
+      <div ref={sortableRef} style={style} {...attributes} className={getBlockClassName()} tabIndex={0} onFocus={onFocus}>
         <hr className="block-divider" />
         {!readonly && (
           <BlockActions
@@ -254,33 +296,50 @@ const SortableBlockItem: React.FC<{
 
   return (
     <div
-      ref={ref}
+      ref={sortableRef}
       style={style}
       {...attributes}
       className={getBlockClassName()}
     >
-      {/* 拖拽手柄区域 */}
+      {/* 块操作按钮（悬停时显示） */}
       {!readonly && (
-        <div
-          className="block-drag-handle"
-          {...listeners}
-          style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+        <>
+          {/* 左侧加号按钮 */}
+          <BlockAddButton
+            onInsertBlock={(type, position) => onInsertBlock(index, type, position)}
+          />
+          {/* 拖拽手柄区域 */}
+          <div
+            className="block-drag-handle"
+            {...listeners}
+            style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+          />
+        </>
+      )}
+
+      {/* 待办事项的 checkbox */}
+      {block.type === 'todo' && (
+        <input
+          type="checkbox"
+          className="block-todo-checkbox"
+          checked={block.checked || false}
+          onChange={() => onToggleChecked?.(index)}
+          onClick={(e) => e.stopPropagation()}
         />
       )}
 
       <div
-        ref={ref}
+        ref={contentRef}
         contentEditable={!readonly}
         suppressContentEditableWarning
-        data-placeholder={getPlaceholder()}
+        data-placeholder={getPlaceholder}
         onFocus={onFocus}
         onBlur={(e) => {
           // 失焦时应用 Markdown 转换
           const content = (e.target as HTMLDivElement).textContent || '';
-          const markdownHtml = parseMarkdown(content);
           onContentChange(content);
           // 存储渲染后的 HTML
-          (e.target as HTMLDivElement).dataset.rendered = markdownHtml;
+          (e.target as HTMLDivElement).dataset.rendered = parseMarkdown(content);
           onBlur();
         }}
         onInput={(e) => {
@@ -310,18 +369,23 @@ const SortableBlockItem: React.FC<{
       )}
     </div>
   );
-};
+});
+
+SortableBlockItem.displayName = 'SortableBlockItem';
 
 // 块类型选择器
 const BlockTypeSelector: React.FC<{
   position: { top: number; left: number };
   onSelect: (type: BlockType) => void;
   onClose: () => void;
-}> = ({ position, onSelect, onClose }) => {
+}> = memo(({ position, onSelect, onClose }) => {
   const [filter, setFilter] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const filteredTypes = BLOCK_TYPES.filter(t =>
-    t.label.includes(filter) || t.shortcut.includes(filter.toLowerCase())
+  const filteredTypes = useMemo(() =>
+    BLOCK_TYPES.filter(t =>
+      t.label.includes(filter) || t.shortcut.includes(filter.toLowerCase())
+    ),
+    [filter]
   );
 
   useEffect(() => {
@@ -381,13 +445,9 @@ const BlockTypeSelector: React.FC<{
       </div>
     </div>
   );
-};
+});
 
-// 历史记录项
-interface HistoryItem {
-  blocks: Block[];
-  timestamp: number;
-}
+BlockTypeSelector.displayName = 'BlockTypeSelector';
 
 // 主编辑器组件
 export const BlockEditor: React.FC<BlockEditorProps> = ({
@@ -408,6 +468,11 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
   // 历史记录
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
+  const isUndoingRef = useRef(false); // 防止撤销操作被添加到历史
+
+  // 用于避免循环的 ref
+  const lastNotifiedContentRef = useRef('');
+  const externalContentRef = useRef(content);
 
   // 拖拽传感器配置
   const sensors = useSensors(
@@ -421,19 +486,23 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
     })
   );
 
-  // 同步外部内容变化
+  // 同步外部内容变化（修复无限循环问题）
   useEffect(() => {
-    if (content) {
+    // 只有当外部内容真正改变时才更新
+    if (content !== externalContentRef.current) {
+      externalContentRef.current = content;
       const newBlocks = parseContent(content);
-      // 只在内容真正改变时更新
-      if (JSON.stringify(newBlocks) !== JSON.stringify(blocks)) {
+      // 使用深度比较而非 JSON.stringify
+      if (!blocksEqual(newBlocks, blocks)) {
         setBlocks(newBlocks);
       }
     }
-  }, [content]);
+  }, [content]); // 不依赖 blocks，避免循环
 
-  // 添加历史记录
+  // 添加历史记录（避免撤销操作被记录）
   const addHistory = useCallback((newBlocks: Block[]) => {
+    if (isUndoingRef.current) return; // 撤销操作不添加历史
+
     const newItem: HistoryItem = {
       blocks: JSON.parse(JSON.stringify(newBlocks)),
       timestamp: Date.now(),
@@ -454,36 +523,54 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
     }
   }, []);
 
-  // 通知内容变化
+  // 通知内容变化（避免重复通知）
   const notifyChange = useCallback((newBlocks: Block[]) => {
-    if (onChange) {
-      onChange(JSON.stringify(newBlocks));
+    const jsonContent = JSON.stringify(newBlocks);
+    if (onChange && jsonContent !== lastNotifiedContentRef.current) {
+      lastNotifiedContentRef.current = jsonContent;
+      onChange(jsonContent);
+      addHistory(newBlocks);
     }
-    addHistory(newBlocks);
   }, [onChange, addHistory]);
 
   // 撤销
   const handleUndo = useCallback(() => {
     if (historyIndex > 0) {
+      isUndoingRef.current = true;
       const newIndex = historyIndex - 1;
       setHistoryIndex(newIndex);
       setBlocks(history[newIndex].blocks);
-      notifyChange(history[newIndex].blocks);
+      lastNotifiedContentRef.current = JSON.stringify(history[newIndex].blocks);
+      if (onChange) {
+        onChange(JSON.stringify(history[newIndex].blocks));
+      }
+      // 重置标志
+      setTimeout(() => {
+        isUndoingRef.current = false;
+      }, 0);
     }
-  }, [history, historyIndex, notifyChange]);
+  }, [history, historyIndex, onChange]);
 
   // 重做
   const handleRedo = useCallback(() => {
     if (historyIndex < history.length - 1) {
+      isUndoingRef.current = true;
       const newIndex = historyIndex + 1;
       setHistoryIndex(newIndex);
       setBlocks(history[newIndex].blocks);
-      notifyChange(history[newIndex].blocks);
+      lastNotifiedContentRef.current = JSON.stringify(history[newIndex].blocks);
+      if (onChange) {
+        onChange(JSON.stringify(history[newIndex].blocks));
+      }
+      // 重置标志
+      setTimeout(() => {
+        isUndoingRef.current = false;
+      }, 0);
     }
-  }, [history, historyIndex, notifyChange]);
+  }, [history, historyIndex, onChange]);
 
   // 更新块内容
-  const handleContentChange = (index: number, newContent: string) => {
+  const handleContentChange = useCallback((index: number, newContent: string) => {
     const newBlocks = [...blocks];
     newBlocks[index] = {
       ...newBlocks[index],
@@ -495,11 +582,68 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
     };
     setBlocks(newBlocks);
     notifyChange(newBlocks);
-  };
+  }, [blocks, notifyChange]);
 
   // 处理键盘事件
-  const handleKeyDown = (index: number, e: KeyboardEvent<HTMLDivElement>) => {
+  const handleKeyDown = useCallback((index: number, e: KeyboardEvent<HTMLDivElement>) => {
     const block = blocks[index];
+    const currentLevel = block.level ?? 0;
+
+    // Tab 增加缩进（修复父级关系计算）
+    if (e.key === 'Tab' && !e.shiftKey) {
+      e.preventDefault();
+      if (currentLevel < 6) {
+        const newBlocks = [...blocks];
+        const newLevel = currentLevel + 1;
+
+        // 找到正确的父块
+        let parentId: string | null = null;
+        for (let i = index - 1; i >= 0; i--) {
+          if ((newBlocks[i].level ?? 0) === newLevel - 1) {
+            parentId = newBlocks[i].id;
+            break;
+          }
+        }
+
+        newBlocks[index] = {
+          ...newBlocks[index],
+          level: newLevel,
+          parentId,
+        };
+        setBlocks(newBlocks);
+        notifyChange(newBlocks);
+      }
+      return;
+    }
+
+    // Shift+Tab 减少缩进
+    if (e.key === 'Tab' && e.shiftKey) {
+      e.preventDefault();
+      if (currentLevel > 0) {
+        const newBlocks = [...blocks];
+        const newLevel = currentLevel - 1;
+
+        // 找到正确的父块
+        let parentId: string | null = null;
+        if (newLevel > 0) {
+          for (let i = index - 1; i >= 0; i--) {
+            if ((newBlocks[i].level ?? 0) === newLevel - 1) {
+              parentId = newBlocks[i].id;
+              break;
+            }
+          }
+        }
+
+        newBlocks[index] = {
+          ...newBlocks[index],
+          level: newLevel,
+          parentId,
+        };
+        setBlocks(newBlocks);
+        notifyChange(newBlocks);
+      }
+      return;
+    }
 
     // 格式化快捷键
     if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
@@ -535,24 +679,45 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
       return;
     }
 
+    // "[]" 触发待办事项
+    if (e.key === ']' && block.content === '[') {
+      e.preventDefault();
+      const newBlocks = [...blocks];
+      newBlocks[index] = {
+        ...newBlocks[index],
+        type: 'todo',
+        content: '',
+        checked: false,
+      };
+      setBlocks(newBlocks);
+      notifyChange(newBlocks);
+      return;
+    }
+
     // Enter 创建新块
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      const newBlock = createEmptyBlock();
+      // 新块继承当前块的缩进级别
+      const newBlock = createEmptyBlock('paragraph', currentLevel);
+      // 如果当前块有父级，新块也设置为相同父级
+      newBlock.parentId = block.parentId;
+
       const newBlocks = [...blocks];
       newBlocks.splice(index + 1, 0, newBlock);
       setBlocks(newBlocks);
       setFocusedIndex(index + 1);
       notifyChange(newBlocks);
-      // 聚焦新块
+      // 聚焦新块（修复光标定位）
       setTimeout(() => {
-        const newBlockElement = containerRef.current?.children[index + 2] as HTMLElement; // +2 因为有工具栏
-        newBlockElement?.focus();
+        const offset = showToolbar ? 2 : 0;
+        const newBlockElement = containerRef.current?.children[index + offset] as HTMLElement;
+        const contentElement = newBlockElement?.querySelector('.block-item-content') as HTMLElement;
+        contentElement?.focus();
       }, 0);
       return;
     }
 
-    // Backspace 在空块时删除
+    // Backspace 在空块时删除（修复光标定位）
     if (e.key === 'Backspace' && block.content === '' && blocks.length > 1) {
       e.preventDefault();
       const newBlocks = blocks.filter((_, i) => i !== index);
@@ -560,10 +725,12 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
       const prevIndex = Math.max(0, index - 1);
       setFocusedIndex(prevIndex);
       notifyChange(newBlocks);
-      // 聚焦前一个块
+      // 聚焦前一个块的内容区域
       setTimeout(() => {
-        const prevBlockElement = containerRef.current?.children[prevIndex + 1] as HTMLElement;
-        prevBlockElement?.focus();
+        const offset = showToolbar ? 2 : 0;
+        const prevBlockElement = containerRef.current?.children[prevIndex + offset - 1] as HTMLElement;
+        const contentElement = prevBlockElement?.querySelector('.block-item-content') as HTMLElement;
+        contentElement?.focus();
       }, 0);
       return;
     }
@@ -575,7 +742,8 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
         e.preventDefault();
         setFocusedIndex(index - 1);
         setTimeout(() => {
-          const prevBlockElement = containerRef.current?.children[index] as HTMLElement;
+          const offset = showToolbar ? 2 : 0;
+          const prevBlockElement = containerRef.current?.children[index - 1 + offset] as HTMLElement;
           const contentElement = prevBlockElement?.querySelector('.block-item-content') as HTMLElement;
           contentElement?.focus();
         }, 0);
@@ -589,16 +757,17 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
         e.preventDefault();
         setFocusedIndex(index + 1);
         setTimeout(() => {
-          const nextBlockElement = containerRef.current?.children[index + 2] as HTMLElement;
+          const offset = showToolbar ? 2 : 0;
+          const nextBlockElement = containerRef.current?.children[index + 1 + offset] as HTMLElement;
           const contentElement = nextBlockElement?.querySelector('.block-item-content') as HTMLElement;
           contentElement?.focus();
         }, 0);
       }
     }
-  };
+  }, [blocks, showToolbar, notifyChange]);
 
   // 处理拖拽结束
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
@@ -606,13 +775,28 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
       const newIndex = blocks.findIndex((b) => b.id === over.id);
 
       const newBlocks = arrayMove(blocks, oldIndex, newIndex);
+
+      // 更新被拖拽块的父级关系
+      const movedBlock = newBlocks[newIndex];
+      const targetBlock = newBlocks[newIndex - 1];
+
+      if (targetBlock && (targetBlock.level ?? 0) > 0) {
+        // 设置为前一个块的子块，级别为前一个块级别 + 1
+        movedBlock.parentId = targetBlock.id;
+        movedBlock.level = Math.min((targetBlock.level ?? 0) + 1, 6);
+      } else {
+        // 重置为顶级
+        movedBlock.parentId = null;
+        movedBlock.level = 0;
+      }
+
       setBlocks(newBlocks);
       notifyChange(newBlocks);
     }
-  };
+  }, [blocks, notifyChange]);
 
   // 选择块类型
-  const handleSelectType = (type: BlockType) => {
+  const handleSelectType = useCallback((type: BlockType) => {
     if (focusedIndex !== null) {
       const newBlocks = [...blocks];
       newBlocks[focusedIndex] = { ...newBlocks[focusedIndex], type };
@@ -620,7 +804,7 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
       notifyChange(newBlocks);
     }
     setShowSelector(false);
-  };
+  }, [focusedIndex, blocks, notifyChange]);
 
   // 块操作处理函数
   const handleCopyBlock = useCallback((block: Block) => {
@@ -669,6 +853,38 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
     notifyChange(newBlocks);
   }, [blocks, notifyChange]);
 
+  // 在指定位置插入块（重命名以避免冲突）
+  const handleInsertBlockAtPosition = useCallback((index: number, type: BlockType, position: 'above' | 'below') => {
+    const currentBlock = blocks[index];
+    const newBlock = createEmptyBlock(type, currentBlock.level ?? 0);
+    newBlock.parentId = currentBlock.parentId;
+
+    const newBlocks = [...blocks];
+    const insertIndex = position === 'above' ? index : index + 1;
+    newBlocks.splice(insertIndex, 0, newBlock);
+    setBlocks(newBlocks);
+    setFocusedIndex(insertIndex);
+    notifyChange(newBlocks);
+    // 聚焦新块
+    setTimeout(() => {
+      const offset = showToolbar ? 2 : 0;
+      const newBlockElement = containerRef.current?.children[insertIndex + offset] as HTMLElement;
+      const contentElement = newBlockElement?.querySelector('.block-item-content') as HTMLElement;
+      contentElement?.focus();
+    }, 0);
+  }, [blocks, notifyChange, showToolbar]);
+
+  // 切换待办事项状态
+  const handleToggleChecked = useCallback((index: number) => {
+    const newBlocks = [...blocks];
+    newBlocks[index] = {
+      ...newBlocks[index],
+      checked: !newBlocks[index].checked,
+    };
+    setBlocks(newBlocks);
+    notifyChange(newBlocks);
+  }, [blocks, notifyChange]);
+
   // 处理工具栏格式化操作
   const handleFormat = useCallback((command: string, value?: string) => {
     switch (command) {
@@ -703,8 +919,8 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
     }
   }, []);
 
-  // 处理工具栏插入块
-  const handleInsertBlock = useCallback((type: BlockType) => {
+  // 处理工具栏插入块（重命名以避免冲突）
+  const handleInsertBlockFromToolbar = useCallback((type: BlockType) => {
     const newBlock = createEmptyBlock(type);
     const newBlocks = [...blocks, newBlock];
     setBlocks(newBlocks);
@@ -712,7 +928,8 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
     // 聚焦新块
     setTimeout(() => {
       const lastElement = containerRef.current?.lastElementChild as HTMLElement;
-      lastElement?.focus();
+      const contentElement = lastElement?.querySelector('.block-item-content') as HTMLElement;
+      contentElement?.focus();
     }, 0);
   }, [blocks, notifyChange]);
 
@@ -726,7 +943,7 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
       {showToolbar && !readonly && (
         <Toolbar
           onFormat={handleFormat}
-          onInsertBlock={handleInsertBlock}
+          onInsertBlock={handleInsertBlockFromToolbar}
           onUndo={handleUndo}
           onRedo={handleRedo}
           canUndo={historyIndex > 0}
@@ -762,6 +979,8 @@ export const BlockEditor: React.FC<BlockEditorProps> = ({
                 onMoveDown={handleMoveDown}
                 onDuplicate={handleDuplicate}
                 onChangeType={handleChangeType}
+                onInsertBlock={handleInsertBlockAtPosition}
+                onToggleChecked={handleToggleChecked}
               />
             ))}
           </SortableContext>

@@ -4,18 +4,63 @@
  * 长笔记/文档主页面
  * 三栏布局：文档树 | 编辑器 | 历史记录
  * 支持左右面板折叠
+ * 无缝新建文档：点击新建直接创建空白文档并进入编辑
  */
 
 import { useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { PanelLeft, PanelRight, Plus, Save, MoreVertical } from 'lucide-react';
-import { Button, Input, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Textarea } from '@heroui/react';
+import { PanelLeft, PanelRight, Plus, Save, MoreVertical, Check, AlertCircle, Clock } from 'lucide-react';
+import { Button, Input, Tooltip } from '@heroui/react';
 import { RootStore } from '@/store/root';
 import { LuminaStore } from '@/store/luminaStore';
 import { DocsTree } from '@/components/DocsTree';
 import { BlockEditor } from '@/components/BlockEditor';
 import { DocHistoryPanel } from '@/components/DocHistoryPanel';
+import { useAutoSave, type SaveStatus } from '@/components/BlockEditor/useAutoSave';
 import './notes.css';
+
+// 保存状态指示器组件
+const SaveStatusIndicator: React.FC<{ status: SaveStatus }> = ({ status }) => {
+  const getStatusConfig = () => {
+    switch (status) {
+      case 'saved':
+        return {
+          icon: <Check size={14} />,
+          text: '已保存',
+          color: 'text-success',
+        };
+      case 'saving':
+        return {
+          icon: <Clock size={14} className="animate-spin" />,
+          text: '保存中...',
+          color: 'text-warning',
+        };
+      case 'unsaved':
+        return {
+          icon: <Clock size={14} />,
+          text: '未保存',
+          color: 'text-default-400',
+        };
+      case 'error':
+        return {
+          icon: <AlertCircle size={14} />,
+          text: '保存失败',
+          color: 'text-danger',
+        };
+    }
+  };
+
+  const config = getStatusConfig();
+
+  return (
+    <Tooltip content={config.text}>
+      <div className={`flex items-center gap-1 text-xs ${config.color}`}>
+        {config.icon}
+        <span>{config.text}</span>
+      </div>
+    </Tooltip>
+  );
+};
 
 const NotesPage = observer(() => {
   const luminaStore = RootStore.Get(LuminaStore);
@@ -25,13 +70,26 @@ const NotesPage = observer(() => {
   const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
   const [rightPanelCollapsed, setRightPanelCollapsed] = useState(true);
 
-  // 新建文档弹窗
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [newDocTitle, setNewDocTitle] = useState('');
-  const [newDocContent, setNewDocContent] = useState('');
-
   // 编辑器状态
   const [editorContent, setEditorContent] = useState('');
+  const [isNewDoc, setIsNewDoc] = useState(false);
+  const [currentDocId, setCurrentDocId] = useState<number | null>(null);
+
+  // 自动保存
+  const { saveStatus, manualSave, hasUnsavedChanges } = useAutoSave({
+    content: editorContent,
+    docId: currentDocId,
+    delay: 1000,
+    enabled: !!docs.curSelectedDoc && !isNewDoc,
+    onSave: async (content) => {
+      if (!docs.curSelectedDoc) return;
+      await docs.upsertDoc.call({
+        id: docs.curSelectedDoc.id,
+        title: docs.curSelectedDoc.title || '未命名',
+        content,
+      });
+    },
+  });
 
   // 初始化
   useEffect(() => {
@@ -41,6 +99,8 @@ const NotesPage = observer(() => {
   // 选择文档
   const handleSelectDoc = async (doc: any) => {
     docs.selectDoc(doc);
+    setIsNewDoc(false);
+    setCurrentDocId(doc.id);
     if (doc.content) {
       setEditorContent(doc.content);
     } else {
@@ -48,17 +108,25 @@ const NotesPage = observer(() => {
     }
   };
 
-  // 创建新文档
+  // 无缝创建新文档
   const handleCreateDoc = async () => {
     try {
-      await docs.upsertDoc.call({
-        title: newDocTitle || '新文档',
-        content: newDocContent,
+      const newDoc = await docs.upsertDoc.call({
+        title: '未命名文档',
+        content: JSON.stringify([{
+          id: Math.random().toString(36).substring(2, 11),
+          type: 'paragraph',
+          content: '',
+        }]),
       });
-      setIsCreateModalOpen(false);
-      setNewDocTitle('');
-      setNewDocContent('');
       await docs.loadDocTree();
+      // 自动选中新创建的文档，但不禁用自动保存
+      if (newDoc) {
+        docs.selectDoc(newDoc);
+        setEditorContent(newDoc.content || '');
+        setIsNewDoc(false); // 新文档也应该启用自动保存
+        setCurrentDocId(newDoc.id);
+      }
     } catch (error) {
       console.error('Failed to create doc:', error);
     }
@@ -110,7 +178,7 @@ const NotesPage = observer(() => {
               <Button
                 isIconOnly
                 size="sm"
-                onPress={() => setIsCreateModalOpen(true)}
+                onPress={handleCreateDoc}
               >
                 <Plus className="w-4 h-4" />
               </Button>
@@ -166,12 +234,16 @@ const NotesPage = observer(() => {
                   input: 'text-lg font-semibold',
                 }}
               />
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
+                {/* 保存状态指示器 */}
+                <SaveStatusIndicator status={saveStatus} />
+
                 <Button
                   size="sm"
                   color="primary"
-                  onPress={handleSaveDoc}
-                  isLoading={docs.upsertDoc.loading.value}
+                  onPress={manualSave}
+                  isLoading={saveStatus === 'saving'}
+                  isDisabled={saveStatus === 'saved' && !hasUnsavedChanges}
                 >
                   <Save className="w-4 h-4" />
                   保存
@@ -203,7 +275,7 @@ const NotesPage = observer(() => {
             <p>从左侧选择一个文档，或创建新文档开始编辑</p>
             <Button
               color="primary"
-              onPress={() => setIsCreateModalOpen(true)}
+              onPress={handleCreateDoc}
             >
               <Plus className="w-4 h-4" />
               新建文档
@@ -247,45 +319,6 @@ const NotesPage = observer(() => {
           <PanelRight className="w-4 h-4" />
         </Button>
       )}
-
-      {/* 新建文档弹窗 */}
-      <Modal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)}>
-        <ModalContent>
-          <ModalHeader>创建新文档</ModalHeader>
-          <ModalBody>
-            <Input
-              label="标题"
-              placeholder="输入文档标题"
-              value={newDocTitle}
-              onValueChange={setNewDocTitle}
-              variant="bordered"
-            />
-            <Textarea
-              label="内容"
-              placeholder="输入文档内容（可选）"
-              value={newDocContent}
-              onValueChange={setNewDocContent}
-              variant="bordered"
-              minRows={3}
-            />
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              variant="light"
-              onPress={() => setIsCreateModalOpen(false)}
-            >
-              取消
-            </Button>
-            <Button
-              color="primary"
-              onPress={handleCreateDoc}
-              isLoading={docs.upsertDoc.loading.value}
-            >
-              创建
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
     </div>
   );
 });

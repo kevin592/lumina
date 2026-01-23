@@ -53,6 +53,7 @@ const BLOCK_TYPE_OPTIONS: Array<{ type: BlockType; label: string; icon: string }
   { type: 'heading3', label: '标题 3', icon: 'H3' },
   { type: 'bullet-list', label: '无序列表', icon: '•' },
   { type: 'numbered-list', label: '有序列表', icon: '1.' },
+  { type: 'todo', label: '待办事项', icon: '☐' },
   { type: 'quote', label: '引用', icon: '"' },
   { type: 'code', label: '代码块', icon: '</>' },
   { type: 'divider', label: '分割线', icon: '—' },
